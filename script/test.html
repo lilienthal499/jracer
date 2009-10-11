@@ -1,0 +1,26 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>Untitled Document</title>
+    </head>
+    <body>
+        <script src="jracer.js">
+        </script>
+        <script src="collection.js">
+        </script>
+        <script>
+            var myList = new JRacer.Collection.List();
+            
+            myList.add("Hello");
+            myList.add("Hi");
+            myList.add("Hiho");
+            console.log(myList.getAll());
+            myList.remove("Hi");
+            myList.remove("Hiho");
+            myList.add("G'day");
+            console.log(myList.getAll());
+            console.log(myList.remove("Hi"));
+        </script>
+    </body>
+</html>
