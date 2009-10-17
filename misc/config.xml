@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<Config>
+    <View type="standard" playerid="1" rotate="false">
+        <Resolution height="480" width="640"/>
+    </View>
+    <View type="hud" playerid="1">
+    </View>
+    <View type="overview">
+        <Resolution height="100" width="100"/>
+    </View>
+    <Game fps="60"/>
+    <Physics>
+    </Physics>
+    <Player id="1" name="Jan">
+        <Keys acc="38" dec="40" left="37" right="39"/>
+    </Player>
+    <Car playerid="1">
+        <Image src="img/car_rot.png"/>
+    </Car>
+    <Player id="2" name="Player 2">
+        <Actions>
+            <Action frameid="53" keys="63"/>
+            <Action frameid="93" keys="43"/>
+        </Actions>
+    </Player>
+    <Car playerid="2">
+        <Image src="img/car_gelb.png"/>
+    </Car>
+    <Player id="3" name="Barbara">
+        <Keys acc="87" dec="83" left="65" right="68"/>
+    </Player>
+    <Car playerid="3">
+        <Image src="img/car_blau.png"/>
+    </Car>
+    <Map edgelength="200">
+        <Image src="img/grass2.jpg"/>
+        <Track widht="40">
+            <Image src="img/asphalt.jpg"/>
+            <Section type="start"/>
+            <Section type="turn" direction="left" size="1"/>
+            <Section type="turn" direction="right" size="2"/>
+            <Section type="finish"/>
+        </Track>
+    </Map>
+    <Image src="img/track.png"/>
+</Config>

@@ -1,0 +1,47 @@
+img {
+	border-width: 0px;
+}
+
+body {
+	background-color: white;
+	overflow: hidden;
+	font-family: Calibri, sans-serif;
+	font-size: 11pt;
+}
+
+h1 {
+	font-family: Cambria;
+	font-size: 14pt;
+	font-style: bold;
+	color: rgb(54, 95, 145);
+}
+
+.standardView {
+	overflow: hidden;
+	position: absolute;
+	border: 1px solid black;
+}
+
+.map {
+	background-image: url("../img/grass2.jpg");
+	position: absolute;
+}
+
+.standardView .car {
+	position: absolute;
+}
+
+div#fpsmeter {
+	border: 1px solid black;
+	width: 100px;
+	height: 20px;
+	background-color: white;
+}
+
+div#fpsmeter div#fpsmeterdiplay {
+	right: 0px;
+	height: 20px;
+	background-color: black;
+	color: white;
+	padding-left: 3px;
+}
