@@ -8,20 +8,14 @@ jracer.FrameManager = function (model) {
   const frameListeners = [];
   const subFrameListeners = [];
 
-  function cancelNextupdate() {
+  function cancelNextUpdate() {
     if (animationFrameId !== undefined) {
       window.cancelAnimationFrame(animationFrameId);
       animationFrameId = undefined;
     }
   }
 
-  function sheduleNextUpdate() {
-    animationFrameId = window.requestAnimationFrame(requestAnimationFrameCallback);
-  }
-
-  // defined via var to allow usage in "sheduleNextUpdate" AND use "sheduleNextUpdate"
-  const requestAnimationFrameCallback = function (now) {
-
+  function requestAnimationFrameCallback(now) {
     // setup
     if (lastFrameUpdate === undefined) {
       lastFrameUpdate = now;
@@ -50,23 +44,26 @@ jracer.FrameManager = function (model) {
 
     notifyAboutFrames();
     notifyAboutSubFrame();
-    sheduleNextUpdate();
+    scheduleNextUpdate();
+  }
 
-  };
+  function scheduleNextUpdate() {
+    animationFrameId = window.requestAnimationFrame(requestAnimationFrameCallback);
+  }
 
   return {
     start: function () {
       if (running === false) {
         running = true;
-        sheduleNextUpdate();
-        console.log('Frame Manager startet.');
+        scheduleNextUpdate();
+        console.log('Frame Manager started.');
       }
     },
 
     stop: function () {
       if (running === true) {
         running = false;
-        cancelNextupdate();
+        cancelNextUpdate();
         console.log('Frame Manager stopped.');
       }
     },

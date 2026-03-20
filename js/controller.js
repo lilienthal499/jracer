@@ -1,10 +1,10 @@
 jracer.controller = {};
-jracer.controller.Keys = {
-  UP: 1,
-  DOWN: 2,
-  LEFT: 3,
-  RIGHT: 4
-};
+jracer.controller.Keys = Object.freeze({
+  UP: 'UP',
+  DOWN: 'DOWN',
+  LEFT: 'LEFT',
+  RIGHT: 'RIGHT'
+});
 
 jracer.controller.DelayedController = function (delay, callback) {
   'use strict';

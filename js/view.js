@@ -45,6 +45,25 @@ jracer.view.Screen = function (viewConfig, trackView, carView, carModel, tachome
   'use strict';
   let rotateAndZoom;
 
+  function createDOMElement() {
+    const newDOMElement = window.document.createElement('div');
+    newDOMElement.className = 'screen';
+    // newDOMElement.style.width = viewConfig.width + 'px';
+    // newDOMElement.style.height = viewConfig.height + 'px';
+    // newDOMElement.style.marginLeft = '-' + (viewConfig.width / 2) + 'px';
+    // newDOMElement.style.marginTop = '-' + (viewConfig.height / 2) + 'px';
+    return newDOMElement;
+  }
+
+  function createCentralPixelDOMElement() {
+    const newDOMElement = window.document.createElement('div');
+    newDOMElement.className = 'centralPixel';
+    return newDOMElement;
+  }
+
+  const DOMElement = createDOMElement();
+  const centralPixelDOMElement = createCentralPixelDOMElement();
+
   function createRotateAndZoom() {
     let averageScaleCalculator;
     let averageRotateCalculator;
@@ -114,25 +133,6 @@ jracer.view.Screen = function (viewConfig, trackView, carView, carModel, tachome
     };
   }
 
-  function createDOMElement() {
-    const newDOMElement = window.document.createElement('div');
-    newDOMElement.className = 'screen';
-    // newDOMElement.style.width = viewConfig.width + 'px';
-    // newDOMElement.style.height = viewConfig.height + 'px';
-    // newDOMElement.style.marginLeft = '-' + (viewConfig.width / 2) + 'px';
-    // newDOMElement.style.marginTop = '-' + (viewConfig.height / 2) + 'px';
-    return newDOMElement;
-  }
-
-  function createCentralPixelDOMElement() {
-    const newDOMElement = window.document.createElement('div');
-    newDOMElement.className = 'centralPixel';
-    return newDOMElement;
-  }
-
-  const DOMElement = createDOMElement();
-  const centralPixelDOMElement = createCentralPixelDOMElement();
-
   this.update = function (frameProgress) {
     if (rotateAndZoom) {
       rotateAndZoom();
@@ -169,7 +169,7 @@ jracer.view.Screen = function (viewConfig, trackView, carView, carModel, tachome
 jracer.view.Car = function (viewConfig, carModel) {
   'use strict';
 
-  function calculateTransfrom(direction) {
+  function calculateTransform(direction) {
     direction = direction % (2 * Math.PI);
     direction = Math.round(direction * 1000) / 1000;
     return `rotate(${direction}rad)`;
@@ -191,7 +191,7 @@ jracer.view.Car = function (viewConfig, carModel) {
   const transform = new jracer.view.DOMProxy(DOMElement.style, 'transform');
 
   this.update = function (frameProgress) {
-    transform.set(calculateTransfrom(carModel.direction));
+    transform.set(calculateTransform(carModel.direction));
   };
 
   this.getDOMElement = function () {
@@ -277,8 +277,8 @@ jracer.view.StaticTrack = function (viewConfig, carViews) {
   jracer.view.Track.call(this, viewConfig, carViews);
   this.addCarViews();
 
-  this.getDOMElement().style.left = -Math.round(jracer.config.track.startposition.x) + 'px';
-  this.getDOMElement().style.bottom = -Math.round(jracer.config.track.startposition.y) + 'px';
+  this.getDOMElement().style.left = `${-Math.round(jracer.config.track.startposition.x)}px`;
+  this.getDOMElement().style.bottom = `${-Math.round(jracer.config.track.startposition.y)}px`;
 
 };
 jracer.view.StaticTrack.prototype = Object.create(jracer.view.Track.prototype);
@@ -417,7 +417,7 @@ jracer.view.TireTracks = function (viewConfig, carModels) {
   }
 
 
-  function createDOMElement(viewConfig) {
+  function createDOMElement() {
     const newDOMElement = window.document.createElement('canvas');
     newDOMElement.className = 'tireTracks';
     newDOMElement.width = jracer.model.track.dimensions.width;
@@ -425,14 +425,15 @@ jracer.view.TireTracks = function (viewConfig, carModels) {
     return newDOMElement;
   }
 
+  const DOMElement = createDOMElement();
+  const canvasContext = DOMElement.getContext('2d');
+
   function createCarTireTracks() {
     carModels.forEach((carModel) => {
       carTireTracks.push(new CarTireTracks(carModel, canvasContext));
     });
   }
 
-  const DOMElement = createDOMElement(viewConfig);
-  const canvasContext = DOMElement.getContext('2d');
   createCarTireTracks();
 
   this.getDOMElement = function () {
@@ -508,7 +509,7 @@ jracer.view.HeadUpDisplay = function (viewConfig, carModel) {
 jracer.view.MiniMap = function (viewConfig) {
   'use strict';
 
-  function createDOMElement(viewConfig) {
+  function createDOMElement() {
     const newDOMElement = window.document.createElement('div');
     newDOMElement.className = 'miniMap';
     return newDOMElement;

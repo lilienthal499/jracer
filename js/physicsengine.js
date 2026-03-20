@@ -1,6 +1,6 @@
 jracer.PhysicsEngine = function (model) {
   'use strict';
-  const carPhyicsControllers = [];
+  const carPhysicsControllers = [];
 
   const dt = model.frameDurationInSeconds;
 
@@ -26,7 +26,7 @@ jracer.PhysicsEngine = function (model) {
     return result;
   }
 
-  function CarPhyicsController(carModel) {
+  function CarPhysicsController(carModel) {
 
     const undirectedVelocity = new jracer.Vector(0, 0);
     const directedVelocity = new jracer.Vector(0, 0);
@@ -52,25 +52,25 @@ jracer.PhysicsEngine = function (model) {
 
     function calculateDirection() {
 
-      function calculateTragetAngularVelocity() {
+      function calculateTargetAngularVelocity() {
 
-        let tragetAngularVelocity = 0;
+        let targetAngularVelocity = 0;
         const currentSteeringAngle = carModel.controls.maxSteeringAngle * carModel.controls.steeringWheel;
 
         // wheelbase * sinus(steering angle) = turn radius
         const turnRadius = carModel.dimensions.wheelbase / Math.sin(currentSteeringAngle);
 
-        tragetAngularVelocity = next.velocity.forward / turnRadius;
+        targetAngularVelocity = next.velocity.forward / turnRadius;
 
-        return tragetAngularVelocity;
+        return targetAngularVelocity;
       }
 
-      function calculateAngularAcceleration(tragetAngularVelocity) {
+      function calculateAngularAcceleration(targetAngularVelocity) {
 
         let angularAcceleration;
         const friction = next.velocity.drifting ? TURNING_FRICTION_SLIDE : TURNING_FRICTION;
 
-        angularAcceleration = tragetAngularVelocity - angularVelocity;
+        angularAcceleration = targetAngularVelocity - angularVelocity;
         angularDrifting = Math.abs(angularAcceleration) > friction;
 
         if (angularDrifting) {
@@ -84,8 +84,8 @@ jracer.PhysicsEngine = function (model) {
         return angularAcceleration;
       }
 
-      const tragetAngularVelocity = calculateTragetAngularVelocity();
-      const angularAcceleration = calculateAngularAcceleration(tragetAngularVelocity);
+      const targetAngularVelocity = calculateTargetAngularVelocity();
+      const angularAcceleration = calculateAngularAcceleration(targetAngularVelocity);
       angularVelocity += angularAcceleration;
 
       return next.direction + angularVelocity * dt;
@@ -262,23 +262,23 @@ jracer.PhysicsEngine = function (model) {
   }
 
   function calculateSubFrame(progress) {
-    carPhyicsControllers.forEach((carPhyicsController) => {
-      carPhyicsController.calculateSubFrame(progress);
+    carPhysicsControllers.forEach((carPhysicsController) => {
+      carPhysicsController.calculateSubFrame(progress);
     });
   }
 
   function calculateNewFrame() {
-    carPhyicsControllers.forEach((carPhyicsController) => {
-      carPhyicsController.calculateNewFrame();
+    carPhysicsControllers.forEach((carPhysicsController) => {
+      carPhysicsController.calculateNewFrame();
     });
   }
 
 
   return {
     addCar: function (carModel) {
-      carPhyicsControllers.push(new CarPhyicsController(carModel));
+      carPhysicsControllers.push(new CarPhysicsController(carModel));
     },
-    sheduleUpdates: function (frameManager) {
+    scheduleUpdates: function (frameManager) {
       frameManager.addSubFrameListener(calculateSubFrame);
       frameManager.addFrameListener(calculateNewFrame);
     }

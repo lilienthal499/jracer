@@ -1,4 +1,4 @@
-jracer.Track = function (sequnceOfComponents, gridSize) {
+jracer.Track = function (sequenceOfComponents, gridSize) {
   'use strict';
 
   function Cursor(startingPoint) {
@@ -23,7 +23,7 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
           position.x = position.x - 1;
           break;
         default:
-          throw 'Invalid cardinal direction!';
+          throw new Error('Invalid cardinal direction!');
       }
     };
 
@@ -56,7 +56,7 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
     const minimum = new jracer.Vector();
     let cursor;
 
-    function determineNewExtermes() {
+    function determineNewExtremes() {
       const currentPosition = cursor.getPosition();
 
       if (maximum.x < currentPosition.x) {
@@ -82,21 +82,19 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
     };
 
     this.addFinish = function () {
-      // determineNewExtermes();
+      // determineNewExtremes();
       const currentPosition = cursor.getPosition();
       if (
         currentPosition.x !== 0 ||
         currentPosition.y !== 0 ||
         cursor.getCardinalDirection() !== jracer.Track.NORTH
       ) {
-        throw 'Finish does not match Start!';
+        throw new Error('Finish does not match Start!');
       }
     };
 
-    this.addCurve = function (clockwise, size) {
-      let index;
-
-      switch (size) {
+    this.addCurve = function (clockwise, curveSize) {
+      switch (curveSize) {
         case 1:
           cursor.rotate(clockwise);
           cursor.moveAhead();
@@ -119,9 +117,12 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
           cursor.moveAhead();
           cursor.moveAhead();
           break;
+
+        default:
+          throw new Error(`Invalid curve size: ${curveSize}`);
       }
 
-      determineNewExtermes();
+      determineNewExtremes();
     };
 
     this.addStraight = function () {
@@ -152,14 +153,14 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
         if (grid[position.x][position.y] === undefined) {
           grid[position.x][position.y] = component;
         } else {
-          throw 'Overlapping Track!';
+          throw new Error('Overlapping Track!');
         }
       });
     }
 
     this.addStart = function () {
       if (cursor !== undefined) {
-        throw 'Only one \'Start\' allowed';
+        throw new Error('Only one \'Start\' allowed');
       }
       cursor = new Cursor(startPosition);
       const component = new jracer.Track.HomeStraight(cursor);
@@ -169,7 +170,7 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
     };
 
     this.addFinish = function () {
-      // determineNewExtermes();
+      // determineNewExtremes();
       // var currentPosition = cursor.getPosition();
       // if (currentPosition.x !== 0 || currentPosition.y !== 0) {
       // throw "Finish does not match Start!";
@@ -179,8 +180,8 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
       component.setSequenceNumber(sequence.length);
     };
 
-    this.addCurve = function (clockwise, size) {
-      const component = new jracer.Track.Turn(cursor, clockwise, size);
+    this.addCurve = function (clockwise, curveSize) {
+      const component = new jracer.Track.Turn(cursor, clockwise, curveSize);
       sequence.push(component);
       component.setSequenceNumber(sequence.length);
       setGrid(cursor.getPositions(), component);
@@ -211,8 +212,8 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
     initializeGrid();
   }
 
-  function parseSequnceOfComponents(parser) {
-    sequnceOfComponents.forEach((component) => {
+  function parseSequenceOfComponents(parser) {
+    sequenceOfComponents.forEach((component) => {
       switch (component) {
         case jracer.Track.START:
           parser.addStart();
@@ -244,22 +245,22 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
         // case jracer.Track.Custom:
         // break;
         default:
-          throw `Invalid Track Elememt ${component}`;
+          throw new Error(`Invalid Track Elememt ${component}`);
       }
     });
   }
 
   const sizeMeter = new SizeMeter();
-  parseSequnceOfComponents(sizeMeter);
+  parseSequenceOfComponents(sizeMeter);
   // console.dir(sizeMeter.getSize());
   // console.dir(sizeMeter.getStartingPoint());
   const modelCreator = new ModelCreator(
     sizeMeter.getStartingPoint(),
     sizeMeter.getSize()
   );
-  parseSequnceOfComponents(modelCreator);
+  parseSequenceOfComponents(modelCreator);
   // console.dir(modelCreator.getSequence());
-  // console.log(sequnceOfComponents.length);
+  // console.log(sequenceOfComponents.length);
   // console.log(modelCreator.getSequence().length);
 
   this.getModel = function () {
@@ -292,7 +293,7 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
   };
 };
 
-jracer.Track.Drawer = function (canvas, sequnceOfComponents, gridSize) {
+jracer.Track.Drawer = function (canvas, sequenceOfComponents, gridSize) {
   'use strict';
 
   function drawTurn(turn, innerLoop) {
@@ -331,7 +332,7 @@ jracer.Track.Drawer = function (canvas, sequnceOfComponents, gridSize) {
 
   canvas.beginPath();
 
-  sequnceOfComponents.forEach((component) => {
+  sequenceOfComponents.forEach((component) => {
     if (component instanceof jracer.Track.Turn) {
       drawTurn(component, true);
     }
@@ -383,7 +384,7 @@ jracer.Track.Drawer = function (canvas, sequnceOfComponents, gridSize) {
   // ===== CUT OUT INNER TRACK =====
   canvas.beginPath();
 
-  sequnceOfComponents.forEach((component) => {
+  sequenceOfComponents.forEach((component) => {
     if (component instanceof jracer.Track.Turn) {
       drawTurn(component, false);
     }
@@ -428,8 +429,7 @@ jracer.Track.Component = function () {
 
 jracer.Track.Turn = function (cursor, clockwise, size) {
   'use strict';
-  let startCardinalDirection;
-  let fistOffset;
+  let firstOffset;
   let secondOffset;
 
   jracer.Track.Component.call(this);
@@ -465,12 +465,12 @@ jracer.Track.Turn = function (cursor, clockwise, size) {
 
   switch (size) {
     case 1:
-      fistOffset = directionToOffset(cursor.getCardinalDirection(), false);
+      firstOffset = directionToOffset(cursor.getCardinalDirection(), false);
       cursor.rotate(clockwise);
       secondOffset = directionToOffset(cursor.getCardinalDirection(), true);
 
-      this.centerOfCircle.x += 0.5 + fistOffset.x * 0.5 + secondOffset.x * 0.5;
-      this.centerOfCircle.y += 0.5 + fistOffset.y * 0.5 + secondOffset.y * 0.5;
+      this.centerOfCircle.x += 0.5 + firstOffset.x * 0.5 + secondOffset.x * 0.5;
+      this.centerOfCircle.y += 0.5 + firstOffset.y * 0.5 + secondOffset.y * 0.5;
 
       cursor.moveAhead();
       break;
@@ -478,12 +478,12 @@ jracer.Track.Turn = function (cursor, clockwise, size) {
     case 2:
       cursor.moveAhead();
 
-      fistOffset = directionToOffset(cursor.getCardinalDirection(), false);
+      firstOffset = directionToOffset(cursor.getCardinalDirection(), false);
       cursor.rotate(clockwise);
       secondOffset = directionToOffset(cursor.getCardinalDirection(), true);
 
-      this.centerOfCircle.x += 0.5 + fistOffset.x * 0.5 + secondOffset.x * 1.5;
-      this.centerOfCircle.y += 0.5 + fistOffset.y * 0.5 + secondOffset.y * 1.5;
+      this.centerOfCircle.x += 0.5 + firstOffset.x * 0.5 + secondOffset.x * 1.5;
+      this.centerOfCircle.y += 0.5 + firstOffset.y * 0.5 + secondOffset.y * 1.5;
 
       cursor.moveAhead();
       cursor.moveAhead();
@@ -492,12 +492,12 @@ jracer.Track.Turn = function (cursor, clockwise, size) {
     case 3:
       cursor.moveAhead();
 
-      fistOffset = directionToOffset(cursor.getCardinalDirection(), false);
+      firstOffset = directionToOffset(cursor.getCardinalDirection(), false);
       cursor.rotate(clockwise);
       secondOffset = directionToOffset(cursor.getCardinalDirection(), true);
 
-      this.centerOfCircle.x += 0.5 + fistOffset.x * 0.5 + secondOffset.x * 2.5;
-      this.centerOfCircle.y += 0.5 + fistOffset.y * 0.5 + secondOffset.y * 2.5;
+      this.centerOfCircle.x += 0.5 + firstOffset.x * 0.5 + secondOffset.x * 2.5;
+      this.centerOfCircle.y += 0.5 + firstOffset.y * 0.5 + secondOffset.y * 2.5;
 
       cursor.moveAhead();
       cursor.rotate(!clockwise);
@@ -506,6 +506,9 @@ jracer.Track.Turn = function (cursor, clockwise, size) {
       cursor.moveAhead();
       cursor.moveAhead();
       break;
+
+    default:
+      throw new Error(`Invalid curve size: ${size}`);
   }
 
   this.endCardinalDirection = cursor.getCardinalDirection();
@@ -528,13 +531,13 @@ jracer.Track.EAST = 0.5 * Math.PI;
 jracer.Track.SOUTH = 0;
 jracer.Track.WEST = 1.5 * Math.PI;
 
-jracer.Track.START = 1;
-jracer.Track.FINISH = 2;
-jracer.Track.STRAIGHT = 3;
-jracer.Track.LEFT_TURN = 4;
-jracer.Track.RIGHT_TURN = 5;
-jracer.Track.WIDE_LEFT_TURN = 6;
-jracer.Track.WIDE_RIGHT_TURN = 7;
-jracer.Track.EXTRA_WIDE_LEFT_TURN = 8;
-jracer.Track.EXTRA_WIDE_RIGHT_TURN = 9;
-jracer.Track.CUSTOM = 10; //Future Use
+jracer.Track.START = 'START';
+jracer.Track.FINISH = 'FINISH';
+jracer.Track.STRAIGHT = 'STRAIGHT';
+jracer.Track.LEFT_TURN = 'LEFT_TURN';
+jracer.Track.RIGHT_TURN = 'RIGHT_TURN';
+jracer.Track.WIDE_LEFT_TURN = 'WIDE_LEFT_TURN';
+jracer.Track.WIDE_RIGHT_TURN = 'WIDE_RIGHT_TURN';
+jracer.Track.EXTRA_WIDE_LEFT_TURN = 'EXTRA_WIDE_LEFT_TURN';
+jracer.Track.EXTRA_WIDE_RIGHT_TURN = 'EXTRA_WIDE_RIGHT_TURN';
+jracer.Track.CUSTOM = 'CUSTOM'; //Future Use

@@ -99,7 +99,7 @@ jracer.startup = function (config) {
   }
 
   jracer.physicsEngine = new jracer.PhysicsEngine(jracer.model);
-  jracer.physicsEngine.sheduleUpdates(jracer.frameManager);
+  jracer.physicsEngine.scheduleUpdates(jracer.frameManager);
 
   const track = new jracer.Track(config.track.sections, config.track.gridSize);
 
