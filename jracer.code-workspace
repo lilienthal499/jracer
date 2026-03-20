@@ -65,7 +65,8 @@
     "liveServer.settings.CustomBrowser": "chrome",
     "liveServer.settings.root": "/",
     "debug.console.fontSize": 14,
-    "debug.console.lineHeight": 20
+    "debug.console.lineHeight": 20,
+    "liveServer.settings.multiRootWorkspaceName": "JRacer (Active Development)"
   },
   "extensions": {
     "recommendations": [

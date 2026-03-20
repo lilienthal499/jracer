@@ -6,9 +6,14 @@ yarn-error.log*
 package-lock.json
 yarn.lock
 
-# IDE
-.vscode/settings.json
-.vscode/.ropeproject
+# IDE - Exclude entire .vscode directory
+.vscode/
+
+# Project-specific exclusions
+archive/
+docs/
+
+# IDE settings
 .idea/
 *.swp
 *.swo
