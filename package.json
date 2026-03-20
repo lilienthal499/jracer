@@ -30,9 +30,9 @@
   },
   "devDependencies": {
     "eslint": "^8.57.0",
-    "prettier": "^3.2.5",
     "http-server": "^14.1.1",
-    "live-server": "^1.2.2"
+    "live-server": "^1.2.0",
+    "prettier": "^3.2.5"
   },
   "engines": {
     "node": ">=14.0.0",

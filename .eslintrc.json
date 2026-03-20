@@ -9,14 +9,15 @@
     "sourceType": "script"
   },
   "globals": {
-    "jracer": "writable"
+    "jracer": "writable",
+    "console": "readonly"
   },
   "rules": {
-    "indent": ["error", 2],
+    "indent": ["error", 2, { "SwitchCase": 1 }],
     "linebreak-style": ["error", "unix"],
     "quotes": ["error", "single", { "avoidEscape": true }],
     "semi": ["error", "always"],
-    "no-unused-vars": ["warn"],
+    "no-unused-vars": ["warn", { "vars": "local", "args": "none" }],
     "no-console": "off",
     "no-trailing-spaces": "error",
     "eol-last": ["error", "always"],
@@ -31,6 +32,9 @@
     "brace-style": ["error", "1tbs"],
     "curly": ["error", "all"],
     "no-multi-spaces": "error",
-    "object-curly-spacing": ["error", "always"]
+    "object-curly-spacing": ["error", "always"],
+    "no-redeclare": ["error", { "builtinGlobals": true }],
+    "no-mixed-spaces-and-tabs": "error",
+    "no-prototype-builtins": "off"
   }
 }
