@@ -1,12 +1,10 @@
 jracer.Track = function (sequnceOfComponents, gridSize) {
   'use strict';
 
-  var startingPoint, dimensions, index, sizeMeter, modelCreator;
-
   function Cursor(startingPoint) {
-    var cardinalDirection = jracer.Track.NORTH,
-      position = startingPoint.copy(),
-      positions = [];
+    let cardinalDirection = jracer.Track.NORTH;
+    const position = startingPoint.copy();
+    let positions = [];
 
     this.moveAhead = function () {
       positions.push(position.copy());
@@ -47,19 +45,19 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
     };
 
     this.getPositions = function () {
-      var result = positions;
+      const result = positions;
       positions = [];
       return result;
     };
   }
 
   function SizeMeter() {
-    var maximum = new jracer.Vector(),
-      minimum = new jracer.Vector(),
-      cursor;
+    const maximum = new jracer.Vector();
+    const minimum = new jracer.Vector();
+    let cursor;
 
     function determineNewExtermes() {
-      var currentPosition = cursor.getPosition();
+      const currentPosition = cursor.getPosition();
 
       if (maximum.x < currentPosition.x) {
         maximum.x = currentPosition.x;
@@ -85,7 +83,7 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
 
     this.addFinish = function () {
       // determineNewExtermes();
-      var currentPosition = cursor.getPosition();
+      const currentPosition = cursor.getPosition();
       if (
         currentPosition.x !== 0 ||
         currentPosition.y !== 0 ||
@@ -96,7 +94,7 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
     };
 
     this.addCurve = function (clockwise, size) {
-      var index;
+      let index;
 
       switch (size) {
         case 1:
@@ -143,21 +141,20 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
   }
 
   function ModelCreator(startPosition, size) {
-    var cursor,
-      sequence = [],
-      grid = [];
+    let cursor;
+    const sequence = [];
+    const grid = [];
 
     function setGrid(positions, component) {
       console.dir(positions);
       console.dir(component);
-      var index;
-      for (index = 0; index < positions.length; index = index + 1) {
-        if (grid[positions[index].x][positions[index].y] === undefined) {
-          grid[positions[index].x][positions[index].y] = component;
+      positions.forEach((position) => {
+        if (grid[position.x][position.y] === undefined) {
+          grid[position.x][position.y] = component;
         } else {
           throw 'Overlapping Track!';
         }
-      }
+      });
     }
 
     this.addStart = function () {
@@ -165,7 +162,7 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
         throw "Only one 'Start' allowed";
       }
       cursor = new Cursor(startPosition);
-      var component = new jracer.Track.HomeStraight(cursor);
+      const component = new jracer.Track.HomeStraight(cursor);
       sequence.push(component);
       component.setSequenceNumber(sequence.length);
       setGrid(cursor.getPositions(), component);
@@ -177,20 +174,20 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
       // if (currentPosition.x !== 0 || currentPosition.y !== 0) {
       // throw "Finish does not match Start!";
       // }
-      var component = new jracer.Track.HomeStraight(cursor);
+      const component = new jracer.Track.HomeStraight(cursor);
       sequence.push(component);
       component.setSequenceNumber(sequence.length);
     };
 
     this.addCurve = function (clockwise, size) {
-      var component = new jracer.Track.Turn(cursor, clockwise, size);
+      const component = new jracer.Track.Turn(cursor, clockwise, size);
       sequence.push(component);
       component.setSequenceNumber(sequence.length);
       setGrid(cursor.getPositions(), component);
     };
 
     this.addStraight = function () {
-      var component = new jracer.Track.Straight(cursor);
+      const component = new jracer.Track.Straight(cursor);
       sequence.push(component);
       component.setSequenceNumber(sequence.length);
       setGrid(cursor.getPositions(), component);
@@ -205,8 +202,8 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
     };
 
     function initializeGrid() {
-      var index;
-      for (index = 0; index < size.x; index = index + 1) {
+      // eslint-disable-next-line no-restricted-syntax
+      for (let index = 0; index < size.x; index = index + 1) {
         grid[index] = [];
       }
       // console.dir(grid);
@@ -215,8 +212,8 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
   }
 
   function parseSequnceOfComponents(parser) {
-    for (index = 0; index < sequnceOfComponents.length; index = index + 1) {
-      switch (sequnceOfComponents[index]) {
+    sequnceOfComponents.forEach((component) => {
+      switch (component) {
         case jracer.Track.START:
           parser.addStart();
           break;
@@ -247,16 +244,16 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
         // case jracer.Track.Custom:
         // break;
         default:
-          throw 'Invalid Track Elememt ' + sequnceOfComponents[index];
+          throw 'Invalid Track Elememt ' + component;
       }
-    }
+    });
   }
 
-  sizeMeter = new SizeMeter();
+  const sizeMeter = new SizeMeter();
   parseSequnceOfComponents(sizeMeter);
   // console.dir(sizeMeter.getSize());
   // console.dir(sizeMeter.getStartingPoint());
-  modelCreator = new ModelCreator(
+  const modelCreator = new ModelCreator(
     sizeMeter.getStartingPoint(),
     sizeMeter.getSize()
   );
@@ -275,11 +272,9 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
       ]
     );
     console.dir(
-      modelCreator
-        .getGrid()
-        [
-          sizeMeter.getStartingPoint().x
-        ][sizeMeter.getStartingPoint().y].getSequenceNumber()
+      modelCreator.getGrid()[sizeMeter.getStartingPoint().x][
+        sizeMeter.getStartingPoint().y
+      ].getSequenceNumber()
     );
     return {
       dimensions: {
@@ -301,10 +296,10 @@ jracer.Track.Drawer = function (canvas, sequnceOfComponents, gridSize) {
   'use strict';
 
   function drawTurn(turn, innerLoop) {
-    var turnSize = turn.size,
-      startAngle,
-      endAngle,
-      radius;
+    let turnSize = turn.size;
+    let startAngle;
+    let endAngle;
+    let radius;
     if (turn.size === 2) {
       turnSize = 2;
     }
@@ -334,16 +329,13 @@ jracer.Track.Drawer = function (canvas, sequnceOfComponents, gridSize) {
     );
   }
 
-  var index, turn;
-
   canvas.beginPath();
 
-  for (index = 0; index < sequnceOfComponents.length; index += 1) {
-    turn = sequnceOfComponents[index];
-    if (turn instanceof jracer.Track.Turn) {
-      drawTurn(sequnceOfComponents[index], true);
+  sequnceOfComponents.forEach((component) => {
+    if (component instanceof jracer.Track.Turn) {
+      drawTurn(component, true);
     }
-  }
+  });
 
   canvas.closePath();
 
@@ -351,7 +343,7 @@ jracer.Track.Drawer = function (canvas, sequnceOfComponents, gridSize) {
   canvas.globalCompositeOperation = 'source-over';
 
   // Darker asphalt with subtle gradient
-  var gradient = canvas.createRadialGradient(
+  const gradient = canvas.createRadialGradient(
     jracer.model.track.dimensions.width / 2,
     jracer.model.track.dimensions.height / 2,
     100,
@@ -391,12 +383,11 @@ jracer.Track.Drawer = function (canvas, sequnceOfComponents, gridSize) {
   // ===== CUT OUT INNER TRACK =====
   canvas.beginPath();
 
-  for (index = 0; index < sequnceOfComponents.length; index += 1) {
-    turn = sequnceOfComponents[index];
-    if (turn instanceof jracer.Track.Turn) {
-      drawTurn(sequnceOfComponents[index], false);
+  sequnceOfComponents.forEach((component) => {
+    if (component instanceof jracer.Track.Turn) {
+      drawTurn(component, false);
     }
-  }
+  });
   canvas.closePath();
   canvas.globalCompositeOperation = 'destination-out';
   canvas.fill();
@@ -424,7 +415,7 @@ jracer.Track.Drawer = function (canvas, sequnceOfComponents, gridSize) {
 
 jracer.Track.Component = function () {
   'use strict';
-  var sequenceNumber;
+  let sequenceNumber;
 
   this.setSequenceNumber = function (number) {
     sequenceNumber = number;
@@ -437,12 +428,14 @@ jracer.Track.Component = function () {
 
 jracer.Track.Turn = function (cursor, clockwise, size) {
   'use strict';
-  var startCardinalDirection, fistOffset, secondOffset;
+  let startCardinalDirection;
+  let fistOffset;
+  let secondOffset;
 
   jracer.Track.Component.call(this);
 
   function directionToOffset(direction, afterRotate) {
-    var offset = new jracer.Vector();
+    const offset = new jracer.Vector();
 
     switch (direction) {
       case jracer.Track.NORTH:

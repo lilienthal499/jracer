@@ -8,11 +8,11 @@ jracer.controller.Keys = {
 
 jracer.controller.DelayedController = function (delay, callback) {
   'use strict';
-  var numberOfSteps = Math.ceil(delay / jracer.model.frameDuration),
-    initialFrameNumber = jracer.model.frameNumber;
+  const numberOfSteps = Math.ceil(delay / jracer.model.frameDuration);
+  const initialFrameNumber = jracer.model.frameNumber;
 
   this.update = function () {
-    var currentStep = jracer.model.frameNumber - initialFrameNumber;
+    const currentStep = jracer.model.frameNumber - initialFrameNumber;
     if (currentStep <= numberOfSteps) {
       callback(currentStep / numberOfSteps);
     }
@@ -22,18 +22,18 @@ jracer.controller.DelayedController = function (delay, callback) {
 jracer.controller.CarController = function (car) {
   'use strict';
 
-  var delayedControllers = {
-      gasPedal: undefined,
-      brake: undefined,
-      steeringWheel: undefined
-    },
-    leftIsPressed = false,
-    rightIsPressed = false;
+  const delayedControllers = {
+    gasPedal: undefined,
+    brake: undefined,
+    steeringWheel: undefined
+  };
+  let leftIsPressed = false;
+  let rightIsPressed = false;
 
   function steeringWheelTurnedRight() {
     delayedControllers.steeringWheel = new jracer.controller.DelayedController(
       400,
-      function (progress) {
+      (progress) => {
         // This could be non-linear
         car.controls.steeringWheel = progress;
       }
@@ -43,7 +43,7 @@ jracer.controller.CarController = function (car) {
   function steeringWheelTurnedLeft() {
     delayedControllers.steeringWheel = new jracer.controller.DelayedController(
       400,
-      function (progress) {
+      (progress) => {
         // This could be non-linear
         car.controls.steeringWheel = -progress;
       }
@@ -53,7 +53,7 @@ jracer.controller.CarController = function (car) {
   function steeringWheelNotTurned() {
     delayedControllers.steeringWheel = new jracer.controller.DelayedController(
       600,
-      function (progress) {
+      (progress) => {
         if (car.controls.steeringWheel > 0) {
           car.controls.steeringWheel -= progress;
           car.controls.steeringWheel =
@@ -108,7 +108,7 @@ jracer.controller.CarController = function (car) {
   function onKeyUpPressed() {
     delayedControllers.gasPedal = new jracer.controller.DelayedController(
       400,
-      function (progress) {
+      (progress) => {
         // This could be non-linear
         car.controls.gasPedal = progress;
       }
@@ -123,7 +123,7 @@ jracer.controller.CarController = function (car) {
   function onKeyDownPressed() {
     delayedControllers.brake = new jracer.controller.DelayedController(
       200,
-      function (progress) {
+      (progress) => {
         car.controls.brake = progress;
       }
     );
@@ -169,41 +169,31 @@ jracer.controller.CarController = function (car) {
   };
 
   this.update = function () {
-    var propertyName;
-    for (propertyName in delayedControllers) {
-      if (
-        delayedControllers.hasOwnProperty(propertyName) &&
-        delayedControllers[propertyName] !== undefined
-      ) {
+    Object.keys(delayedControllers).forEach((propertyName) => {
+      if (delayedControllers[propertyName] !== undefined) {
         delayedControllers[propertyName].update();
       }
-    }
+    });
   };
 };
 
 jracer.controller.KeyboardController = function (keyConfig, carController) {
   'use strict';
 
-  var index,
-    keys = [];
+  const keys = [];
 
   function setupKeys() {
-    for (index = keyConfig.length - 1; index >= 0; index = index - 1) {
+    keyConfig.slice().reverse().forEach((config) => {
       keys.push({
-        name: keyConfig[index].key,
-        code: keyConfig[index].code,
+        name: config.key,
+        code: config.code,
         isPressed: false
       });
-    }
+    });
   }
 
   function getKey(code) {
-    var index;
-    for (index in keys) {
-      if (keys.hasOwnProperty(index) && keys[index].code === code) {
-        return keys[index];
-      }
-    }
+    return keys.find((key) => key.code === code);
   }
 
   function onKeyDown(Key) {
@@ -217,7 +207,7 @@ jracer.controller.KeyboardController = function (keyConfig, carController) {
   }
 
   function keyHandler(event) {
-    var Key = getKey(event.keyCode);
+    const Key = getKey(event.keyCode);
     if (Key === undefined) {
       return;
     }

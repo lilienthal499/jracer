@@ -1,13 +1,12 @@
 jracer.FrameManager = function (model) {
   'use strict';
 
-  var running = false,
-    lastFrameUpdate,
-    frameDuration = model.frameDuration,
-    requestAnimationFrameCallback,
-    animationFrameId,
-    frameListeners = [],
-    subFrameListeners = [];
+  let running = false;
+  let lastFrameUpdate;
+  const frameDuration = model.frameDuration;
+  let animationFrameId;
+  const frameListeners = [];
+  const subFrameListeners = [];
 
   function cancelNextupdate() {
     if (animationFrameId !== undefined) {
@@ -21,7 +20,7 @@ jracer.FrameManager = function (model) {
   }
 
   // defined via var to allow usage in "sheduleNextUpdate" AND use "sheduleNextUpdate"
-  requestAnimationFrameCallback = function (now) {
+  const requestAnimationFrameCallback = function (now) {
 
     // setup
     if (lastFrameUpdate === undefined) {
@@ -34,20 +33,19 @@ jracer.FrameManager = function (model) {
 
     function notifyAboutFrames() {
       while ((now - lastFrameUpdate) >= frameDuration) {
-        var index;
-        for (index = frameListeners.length - 1; index >= 0; index = index - 1) {
-          frameListeners[index]();
-        }
+        frameListeners.forEach((listener) => {
+          listener();
+        });
         model.frameNumber += 1;
         lastFrameUpdate += frameDuration;
       }
     }
 
     function notifyAboutSubFrame() {
-      var index, subFrameProgress = getFrameProgress();
-      for (index = subFrameListeners.length - 1; index >= 0; index = index - 1) {
-        subFrameListeners[index](subFrameProgress);
-      }
+      const subFrameProgress = getFrameProgress();
+      subFrameListeners.forEach((listener) => {
+        listener(subFrameProgress);
+      });
     }
 
     notifyAboutFrames();

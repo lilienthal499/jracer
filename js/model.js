@@ -1,7 +1,7 @@
 jracer.model = (function () {
   'use strict';
 
-  var model = {
+  const model = {
     Car: function () {
 
       this.position = new jracer.Vector(0, 0);

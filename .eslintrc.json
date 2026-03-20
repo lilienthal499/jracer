@@ -35,6 +35,20 @@
     "object-curly-spacing": ["error", "always"],
     "no-redeclare": ["error", { "builtinGlobals": true }],
     "no-mixed-spaces-and-tabs": "error",
-    "no-prototype-builtins": "off"
+    "no-prototype-builtins": "off",
+    "no-var": "error",
+    "prefer-const": "error",
+    "prefer-arrow-callback": ["error", { "allowNamedFunctions": true }],
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "ForStatement[init.type='VariableDeclaration'][init.declarations.0.init.value=0]",
+        "message": "Use forEach, map, or for...of instead of index-based for loops"
+      },
+      {
+        "selector": "ForInStatement",
+        "message": "Use Object.keys(), Object.values(), or Object.entries() instead of for...in"
+      }
+    ]
   }
 }

@@ -1,54 +1,51 @@
 /* eslint-disable no-redeclare */
-var jracer = {};
+const jracer = {};
 /* eslint-enable no-redeclare */
 
-jracer.Vector = function (x, y) {
-  'use strict';
-
-  var me = this;
-  this.x = x;
-  this.y = y;
-  if (isNaN(this.x)) {
-    this.x = 0;
+jracer.Vector = class {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    if (isNaN(this.x)) {
+      this.x = 0;
+    }
+    if (isNaN(this.y)) {
+      this.y = 0;
+    }
   }
-  if (isNaN(this.y)) {
-    this.y = 0;
+
+  copy() {
+    return new jracer.Vector(this.x, this.y);
   }
 
-  this.copy = function () {
-    return new jracer.Vector(me.x, me.y);
-  };
+  rotate(rotationAngle) {
+    const tmpX = this.x;
+    const tmpY = this.y;
+    this.x = Math.cos(rotationAngle) * tmpX - Math.sin(rotationAngle) * tmpY;
+    this.y = Math.sin(rotationAngle) * tmpX + Math.cos(rotationAngle) * tmpY;
+  }
 
-  this.rotate = function (rotationAngle) {
-    var tmpX = me.x, tmpY = me.y;
-    me.x = Math.cos(rotationAngle) * tmpX - Math.sin(rotationAngle) * tmpY;
-    me.y = Math.sin(rotationAngle) * tmpX + Math.cos(rotationAngle) * tmpY;
-  };
-
-  this.copyFrom = function (otherVector) {
+  copyFrom(otherVector) {
     this.x = otherVector.x;
     this.y = otherVector.y;
-  };
+  }
 
-  this.equals = function (otherVector) {
+  equals(otherVector) {
     return (this.x === otherVector.x && this.y === otherVector.y);
-  };
+  }
 };
 
 
 jracer.startup = function (config) {
   'use strict';
 
-  var screens = [], splitScreen, track, miniMap;
+  const screens = [];
 
   function setupPlayers(players) {
 
-    var index, car, player, carController, keyboardController;
-    for (index = 0; index < players.length; index += 1) {
+    players.forEach((player) => {
 
-      player = players[index];
-
-      car = new jracer.model.Car();
+      const car = new jracer.model.Car();
       car.controls.maxSteeringAngle = player.maxSteeringAngle;
       //TODO
       car.position.x = jracer.model.track.startingPosition.x;
@@ -56,11 +53,11 @@ jracer.startup = function (config) {
 
       jracer.model.cars.push(car);
 
-      carController = new jracer.controller.CarController(car);
+      const carController = new jracer.controller.CarController(car);
 
       jracer.frameManager.addFrameListener(carController.update);
 
-      keyboardController = new jracer.controller.KeyboardController(player.controls, carController);
+      const keyboardController = new jracer.controller.KeyboardController(player.controls, carController);
 
       document.addEventListener('keydown', keyboardController.getKeyHandler());
       document.addEventListener('keyup', keyboardController.getKeyHandler());
@@ -74,37 +71,37 @@ jracer.startup = function (config) {
       // } else {
       // carViews.push(new jracer.view.MovingCar(player.view, car));
       // }
-    }
+    });
   }
 
   function createScreenView(players, playerIndex) {
 
-    var index, trackView, carViews = [], firstCarView, firstCar, tireTracksView, headUpDisplayView, trackDrawer;
+    const carViews = [];
 
-    for (index = 0; index < jracer.model.cars.length; index += 1) {
+    jracer.model.cars.forEach((car, index) => {
       if (index !== playerIndex) {
-        carViews.push(new jracer.view.MovingCar(players[index].view, jracer.model.cars[index]));
+        carViews.push(new jracer.view.MovingCar(players[index].view, car));
       }
-    }
-    firstCar = jracer.model.cars[playerIndex];
-    firstCarView = new jracer.view.StaticCar(players[playerIndex].view, firstCar);
-    headUpDisplayView = new jracer.view.HeadUpDisplay({}, firstCar);
+    });
+    const firstCar = jracer.model.cars[playerIndex];
+    const firstCarView = new jracer.view.StaticCar(players[playerIndex].view, firstCar);
+    const headUpDisplayView = new jracer.view.HeadUpDisplay({}, firstCar);
 
-    tireTracksView = new jracer.view.TireTracks({}, jracer.model.cars);
+    const tireTracksView = new jracer.view.TireTracks({}, jracer.model.cars);
     jracer.frameManager.addSubFrameListener(tireTracksView.update);
 
 
-    trackDrawer = new jracer.Track.Drawer(tireTracksView.getCanvas(), jracer.model.track.sequenceOfComponents, jracer.model.track.gridSize);
+    const trackDrawer = new jracer.Track.Drawer(tireTracksView.getCanvas(), jracer.model.track.sequenceOfComponents, jracer.model.track.gridSize);
     carViews.push(new jracer.view.MovingCar(players[playerIndex].view, firstCar));
     // trackView = new jracer.view.StaticTrack(jracer.config.track, carViews);
-    trackView = new jracer.view.MovingTrack(jracer.config.track, firstCar, carViews, tireTracksView);
+    const trackView = new jracer.view.MovingTrack(jracer.config.track, firstCar, carViews, tireTracksView);
     return new jracer.view.Screen(players[playerIndex].view, trackView, firstCarView, firstCar, headUpDisplayView);
   }
 
   jracer.physicsEngine = new jracer.PhysicsEngine(jracer.model);
   jracer.physicsEngine.sheduleUpdates(jracer.frameManager);
 
-  track = new jracer.Track(config.track.sections, config.track.gridSize);
+  const track = new jracer.Track(config.track.sections, config.track.gridSize);
 
   jracer.model.track = track.getModel();
 
@@ -114,15 +111,15 @@ jracer.startup = function (config) {
   screens.push(createScreenView(config.players, 0));
   screens.push(createScreenView(config.players, 1));
 
-  miniMap = new jracer.view.MiniMap();
+  const miniMap = new jracer.view.MiniMap();
 
-  splitScreen = new jracer.view.SplitScreen({}, screens, miniMap);
+  const splitScreen = new jracer.view.SplitScreen({}, screens, miniMap);
   window.document.body.appendChild(splitScreen.getDOMElement());
   jracer.frameManager.addSubFrameListener(splitScreen.update);
   // screenView2 = new jracer.view.Screen(jracer.config.screen, trackView, firstCarView, headUpDisplayView);
 
   function createAndFocusDummyInput() {
-    var newDOMElement = window.document.createElement('input');
+    const newDOMElement = window.document.createElement('input');
     newDOMElement.autofocus = true;
     newDOMElement.className = 'dummy';
     window.document.body.appendChild(newDOMElement);
