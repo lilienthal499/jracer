@@ -1,122 +1,100 @@
+(function() {
+'use strict';
+
 jracer.view = {};
 
-jracer.view.DOMProxy = class {
-  constructor(style, property) {
-    this.style = style;
-    this.property = property;
-    this.oldValue = null;
-  }
+function createDOMProxy(style, property) {
+  let oldValue = null;
 
-  set(value) {
-    if (value !== this.oldValue) {
-      this.style[this.property] = value;
-      this.oldValue = value;
+  function set(value) {
+    if (value !== oldValue) {
+      style[property] = value;
+      oldValue = value;
     }
   }
-};
 
-jracer.view.SplitScreen = class {
-  constructor(viewConfig, screenViews, minimapView) {
-    this.screenViews = screenViews;
-    this.DOMElement = this.createDOMElement();
-    this.DOMElement.appendChild(minimapView.getDOMElement());
+  return { set };
+}
+
+jracer.view.DOMProxy = createDOMProxy;
+
+function createSplitScreen(viewConfig, screenViews, minimapView) {
+  const DOMElement = document.createElement('div');
+  DOMElement.className = 'splitScreen';
+
+  DOMElement.appendChild(minimapView.getDOMElement());
+  screenViews.forEach((view) => {
+    DOMElement.appendChild(view.getDOMElement());
+  });
+
+  function update(frameProgress) {
     screenViews.forEach((view) => {
-      this.DOMElement.appendChild(view.getDOMElement());
-    });
-  }
-
-  createDOMElement() {
-    const newDOMElement = window.document.createElement('div');
-    newDOMElement.className = 'splitScreen';
-    return newDOMElement;
-  }
-
-  update(frameProgress) {
-    this.screenViews.forEach((view) => {
       view.update(frameProgress);
     });
   }
 
-  getDOMElement() {
-    return this.DOMElement;
-  }
-};
-
-class AverageCalculator {
-  constructor(initialValue, numberOfValues) {
-    this.values = [];
-    this.sum = 0;
-    this.numberOfValues = numberOfValues;
-
-    // eslint-disable-next-line no-restricted-syntax
-    for (let index = 0; index < numberOfValues; index += 1) {
-      this.values.push(initialValue);
-      this.sum += initialValue;
-    }
+  function getDOMElement() {
+    return DOMElement;
   }
 
-  add(value) {
-    this.values.unshift(value);
-    this.sum += value;
-    this.sum -= this.values.pop();
-  }
-
-  getAverage() {
-    return this.sum / this.numberOfValues;
-  }
+  return { update, getDOMElement };
 }
 
-jracer.view.Screen = class {
-  constructor(viewConfig, trackView, carView, carModel, tachometerView) {
-    this.viewConfig = viewConfig;
-    this.trackView = trackView;
-    this.carView = carView;
-    this.carModel = carModel;
-    this.tachometerView = tachometerView;
+jracer.view.SplitScreen = createSplitScreen;
 
-    this.DOMElement = this.createDOMElement();
-    this.centralPixelDOMElement = this.createCentralPixelDOMElement();
+function createAverageCalculator(initialValue, numberOfValues) {
+  const values = [];
+  let sum = 0;
 
-    this.DOMElement.appendChild(this.centralPixelDOMElement);
-    this.DOMElement.appendChild(tachometerView.getDOMElement());
-
-    this.centralPixelDOMElement.appendChild(trackView.getDOMElement());
-
-    this.rotateAndZoom = viewConfig.rotateAndZoom ? this.createRotateAndZoom() : null;
-
-    this.update();
+  // eslint-disable-next-line no-restricted-syntax
+  for (let index = 0; index < numberOfValues; index += 1) {
+    values.push(initialValue);
+    sum += initialValue;
   }
 
-  createDOMElement() {
-    const newDOMElement = window.document.createElement('div');
-    newDOMElement.className = 'screen';
-    return newDOMElement;
+  function add(value) {
+    values.unshift(value);
+    sum += value;
+    sum -= values.pop();
   }
 
-  createCentralPixelDOMElement() {
-    const newDOMElement = window.document.createElement('div');
-    newDOMElement.className = 'centralPixel';
-    return newDOMElement;
+  function getAverage() {
+    return sum / numberOfValues;
   }
 
-  createRotateAndZoom() {
+  return { add, getAverage };
+}
+
+function createScreen(viewConfig, trackView, carView, carModel, tachometerView) {
+  const DOMElement = document.createElement('div');
+  DOMElement.className = 'screen';
+
+  const centralPixelDOMElement = document.createElement('div');
+  centralPixelDOMElement.className = 'centralPixel';
+
+  DOMElement.appendChild(centralPixelDOMElement);
+  DOMElement.appendChild(tachometerView.getDOMElement());
+  centralPixelDOMElement.appendChild(trackView.getDOMElement());
+
+  const rotateAndZoom = viewConfig.rotateAndZoom ? createRotateAndZoom() : null;
+
+  function createRotateAndZoom() {
     let averageScaleCalculator;
     let averageRotateCalculator;
 
-    const transform = new jracer.view.DOMProxy(this.centralPixelDOMElement.style, 'transform');
-    const carModel = this.carModel;
+    const transform = createDOMProxy(centralPixelDOMElement.style, 'transform');
 
-    const calculateRotate = (carDirection) => {
+    function calculateRotate(carDirection) {
       if (!averageRotateCalculator) {
-        averageRotateCalculator = new AverageCalculator(carDirection, 100);
+        averageRotateCalculator = createAverageCalculator(carDirection, 100);
       }
 
       averageRotateCalculator.add(carDirection);
       carDirection = Math.round(averageRotateCalculator.getAverage() * 1000) / 1000;
       return `rotate(${carDirection}rad)`;
-    };
+    }
 
-    const calculateScale = (velocity) => {
+    function calculateScale(velocity) {
       const MAX_ZOOM_FACTOR = 0.7;
       const MIN_ZOOM_FACTOR = 1;
       let targetZoomFactor;
@@ -132,117 +110,114 @@ jracer.view.Screen = class {
       }
 
       if (!averageScaleCalculator) {
-        averageScaleCalculator = new AverageCalculator(targetZoomFactor, 100);
+        averageScaleCalculator = createAverageCalculator(targetZoomFactor, 100);
       }
 
       averageScaleCalculator.add(targetZoomFactor);
       targetZoomFactor = Math.round(averageScaleCalculator.getAverage() * 1000) / 1000;
       return `scale(${targetZoomFactor})`;
-    };
+    }
 
-    return () => {
+    return function() {
       transform.set(`${calculateRotate(-carModel.direction)} ${calculateScale(carModel.velocity.forward + Math.abs(carModel.velocity.lateral))}`);
     };
   }
 
-  update(frameProgress) {
-    if (this.rotateAndZoom) {
-      this.rotateAndZoom();
+  function update(frameProgress) {
+    if (rotateAndZoom) {
+      rotateAndZoom();
     }
 
-    this.trackView.update();
-    if (this.carView) {
-      this.carView.update();
+    trackView.update();
+    if (carView) {
+      carView.update();
     }
-    this.tachometerView.update();
+    tachometerView.update();
   }
 
-  getDOMElement() {
-    return this.DOMElement;
-  }
-};
-
-jracer.view.Track = class {
-  constructor(viewConfig, carViews) {
-    this.carViews = carViews;
-    this.DOMElement = this.createDOMElement();
+  function getDOMElement() {
+    return DOMElement;
   }
 
-  createDOMElement() {
-    const newDOMElement = window.document.createElement('div');
-    newDOMElement.className = 'track';
-    return newDOMElement;
-  }
+  update();
 
-  addCarViews() {
-    this.carViews.forEach((view) => {
-      this.DOMElement.appendChild(view.getDOMElement());
+  return { update, getDOMElement };
+}
+
+jracer.view.Screen = createScreen;
+
+function createTrack(carViews) {
+  const DOMElement = document.createElement('div');
+  DOMElement.className = 'track';
+
+  function addCarViews() {
+    carViews.forEach((view) => {
+      DOMElement.appendChild(view.getDOMElement());
     });
   }
 
-  update() {
-    this.carViews.forEach((view) => {
+  function update() {
+    carViews.forEach((view) => {
       view.update();
     });
   }
 
-  getDOMElement() {
-    return this.DOMElement;
-  }
-};
-
-jracer.view.StaticTrack = class extends jracer.view.Track {
-  constructor(viewConfig, carViews) {
-    super(viewConfig, carViews);
-    this.addCarViews();
-    this.getDOMElement().style.left = `${-Math.round(jracer.config.track.startposition.x)}px`;
-    this.getDOMElement().style.bottom = `${-Math.round(jracer.config.track.startposition.y)}px`;
-  }
-};
-
-jracer.view.MovingTrack = class extends jracer.view.Track {
-  constructor(viewConfig, carModel, carViews, tireTracksView) {
-    super(viewConfig, carViews);
-
-    this.carModel = carModel;
-    this.originalOffset = new jracer.Vector(0, 0);
-    this.rotatedOffset = new jracer.Vector();
-
-    this.left = new jracer.view.DOMProxy(this.getDOMElement().style, 'left');
-    this.bottom = new jracer.view.DOMProxy(this.getDOMElement().style, 'bottom');
-
-    this.getDOMElement().appendChild(tireTracksView.getDOMElement());
-    this.addCarViews();
-
-    this.update();
+  function getDOMElement() {
+    return DOMElement;
   }
 
-  update() {
-    super.update();
-    this.rotatedOffset.copyFrom(this.originalOffset);
-    this.rotatedOffset.rotate(-this.carModel.direction);
-    this.left.set(`${-Math.round(this.carModel.position.x + this.rotatedOffset.x)}px`);
-    this.bottom.set(`${-Math.round(this.carModel.position.y + this.rotatedOffset.y)}px`);
-  }
-};
+  return { addCarViews, update, getDOMElement };
+}
 
-class CarTireTracks {
-  constructor(carModel, canvas) {
-    this.carModel = carModel;
-    this.canvas = canvas;
-    this.drawers = [];
-    this.setUpCanvasDrawers();
-    canvas.lineCap = 'butt';
+jracer.view.Track = createTrack;
+
+function createStaticTrack(viewConfig, carViews) {
+  const track = createTrack(carViews);
+
+  track.addCarViews();
+  track.getDOMElement().style.left = `${-Math.round(jracer.config.track.startposition.x)}px`;
+  track.getDOMElement().style.bottom = `${-Math.round(jracer.config.track.startposition.y)}px`;
+
+  return track;
+}
+
+jracer.view.StaticTrack = createStaticTrack;
+
+function createMovingTrack(viewConfig, carModel, carViews, tireTracksView) {
+  const track = createTrack(carViews);
+  const originalOffset = new jracer.Vector(0, 0);
+  const rotatedOffset = new jracer.Vector();
+
+  const left = createDOMProxy(track.getDOMElement().style, 'left');
+  const bottom = createDOMProxy(track.getDOMElement().style, 'bottom');
+
+  track.getDOMElement().appendChild(tireTracksView.getDOMElement());
+  track.addCarViews();
+
+  function update() {
+    track.update();
+    rotatedOffset.copyFrom(originalOffset);
+    rotatedOffset.rotate(-carModel.direction);
+    left.set(`${-Math.round(carModel.position.x + rotatedOffset.x)}px`);
+    bottom.set(`${-Math.round(carModel.position.y + rotatedOffset.y)}px`);
   }
 
-  createDrawer(offset, alphaSource1, alphaSource2) {
+  update();
+
+  return { update, getDOMElement: track.getDOMElement };
+}
+
+jracer.view.MovingTrack = createMovingTrack;
+
+function createCarTireTracks(carModel, canvas) {
+  const drawers = [];
+
+  function createDrawer(offset, alphaSource1, alphaSource2) {
     const startPosition = new jracer.Vector();
     const endPosition = new jracer.Vector();
     const rotatedOffset = new jracer.Vector();
-    const carModel = this.carModel;
-    const canvas = this.canvas;
 
-    return () => {
+    return function() {
       const globalAlpha = alphaSource1() + alphaSource2();
 
       startPosition.copyFrom(endPosition);
@@ -273,38 +248,38 @@ class CarTireTracks {
     };
   }
 
-  calculateGlobalAlpha(velocity) {
+  function calculateGlobalAlpha(velocity) {
     let globalAlpha = Math.abs(velocity) / 1000;
     globalAlpha = globalAlpha > 1 ? 1 : globalAlpha;
     return globalAlpha;
   }
 
-  calculateFrontGlobalAlpha() {
+  function calculateFrontGlobalAlpha() {
     return 0;//TODO
   }
 
-  calculateBackGlobalAlpha() {
+  function calculateBackGlobalAlpha() {
     return 0;//TODO
   }
 
-  calculateLeftGlobalAlpha() {
+  function calculateLeftGlobalAlpha() {
     let globalAlpha;
-    globalAlpha = this.calculateGlobalAlpha(this.carModel.velocity.lateral);
-    globalAlpha *= this.carModel.velocity.lateral > 0 ? 2 : 1;
+    globalAlpha = calculateGlobalAlpha(carModel.velocity.lateral);
+    globalAlpha *= carModel.velocity.lateral > 0 ? 2 : 1;
     globalAlpha = globalAlpha > 0.5 ? 0.5 : globalAlpha;
     return globalAlpha;
   }
 
-  calculateRightGlobalAlpha() {
+  function calculateRightGlobalAlpha() {
     let globalAlpha;
-    globalAlpha = this.calculateGlobalAlpha(this.carModel.velocity.lateral);
-    globalAlpha *= this.carModel.velocity.lateral < 0 ? 2 : 1;
+    globalAlpha = calculateGlobalAlpha(carModel.velocity.lateral);
+    globalAlpha *= carModel.velocity.lateral < 0 ? 2 : 1;
     globalAlpha = globalAlpha > 0.5 ? 0.5 : globalAlpha;
     return globalAlpha;
   }
 
-  setUpCanvasDrawers() {
-    const { wheelbase, trackWidth } = this.carModel.dimensions;
+  function setUpCanvasDrawers() {
+    const { wheelbase, trackWidth } = carModel.dimensions;
     const frontRightOffset = new jracer.Vector(trackWidth / 2, wheelbase / 2);
 
     const frontLeftOffset = frontRightOffset.copy();
@@ -316,116 +291,110 @@ class CarTireTracks {
     const backLeftOffset = backRightOffset.copy();
     backLeftOffset.x = -backLeftOffset.x;
 
-    this.drawers.push(this.createDrawer(frontRightOffset, () => this.calculateFrontGlobalAlpha(), () => this.calculateRightGlobalAlpha()));
-    this.drawers.push(this.createDrawer(backRightOffset, () => this.calculateBackGlobalAlpha(), () => this.calculateRightGlobalAlpha()));
-    this.drawers.push(this.createDrawer(backLeftOffset, () => this.calculateBackGlobalAlpha(), () => this.calculateLeftGlobalAlpha()));
-    this.drawers.push(this.createDrawer(frontLeftOffset, () => this.calculateFrontGlobalAlpha(), () => this.calculateLeftGlobalAlpha()));
+    drawers.push(createDrawer(frontRightOffset, calculateFrontGlobalAlpha, calculateRightGlobalAlpha));
+    drawers.push(createDrawer(backRightOffset, calculateBackGlobalAlpha, calculateRightGlobalAlpha));
+    drawers.push(createDrawer(backLeftOffset, calculateBackGlobalAlpha, calculateLeftGlobalAlpha));
+    drawers.push(createDrawer(frontLeftOffset, calculateFrontGlobalAlpha, calculateLeftGlobalAlpha));
   }
 
-  update() {
-    this.drawers[0]();
-    this.drawers[1]();
-    this.drawers[2]();
-    this.drawers[3]();
+  setUpCanvasDrawers();
+  canvas.lineCap = 'butt';
+
+  function update() {
+    drawers[0]();
+    drawers[1]();
+    drawers[2]();
+    drawers[3]();
   }
+
+  return { update };
 }
 
-jracer.view.TireTracks = class {
-  constructor(viewConfig, carModels) {
-    this.carTireTracks = [];
-    this.DOMElement = this.createDOMElement();
-    this.canvasContext = this.DOMElement.getContext('2d');
-    this.createCarTireTracks(carModels);
+function createTireTracks(viewConfig, carModels) {
+  const carTireTracks = [];
+
+  const DOMElement = document.createElement('canvas');
+  DOMElement.className = 'tireTracks';
+  DOMElement.width = jracer.model.track.dimensions.width;
+  DOMElement.height = jracer.model.track.dimensions.height;
+
+  const canvasContext = DOMElement.getContext('2d');
+
+  carModels.forEach((carModel) => {
+    carTireTracks.push(createCarTireTracks(carModel, canvasContext));
+  });
+
+  function getDOMElement() {
+    return DOMElement;
   }
 
-  createDOMElement() {
-    const newDOMElement = window.document.createElement('canvas');
-    newDOMElement.className = 'tireTracks';
-    newDOMElement.width = jracer.model.track.dimensions.width;
-    newDOMElement.height = jracer.model.track.dimensions.height;
-    return newDOMElement;
-  }
-
-  createCarTireTracks(carModels) {
-    carModels.forEach((carModel) => {
-      this.carTireTracks.push(new CarTireTracks(carModel, this.canvasContext));
-    });
-  }
-
-  getDOMElement() {
-    return this.DOMElement;
-  }
-
-  update() {
-    this.carTireTracks.slice().reverse().forEach((track) => {
+  function update() {
+    carTireTracks.slice().reverse().forEach((track) => {
       track.update();
     });
   }
 
-  getCanvas() {
-    return this.canvasContext;
-  }
-};
-
-jracer.view.HeadUpDisplay = class {
-  constructor(viewConfig, carModel) {
-    this.carModel = carModel;
-    this.speed = null;
-    this.round = null;
-    this.lastTime = null;
-    this.DOMElement = this.createDOMElement();
-    this.update();
+  function getCanvas() {
+    return canvasContext;
   }
 
-  createDOMElement() {
-    let label;
-    const newDOMElement = window.document.createElement('div');
-    newDOMElement.className = 'headupdisplay';
+  return { getDOMElement, update, getCanvas };
+}
 
-    label = window.document.createElement('label');
-    label.appendChild(window.document.createTextNode('像素/秒'));
-    newDOMElement.appendChild(label);
-    this.speed = window.document.createElement('span');
-    newDOMElement.appendChild(this.speed);
+jracer.view.TireTracks = createTireTracks;
 
-    label = window.document.createElement('label');
-    label.appendChild(window.document.createTextNode('轮'));
-    newDOMElement.appendChild(label);
-    this.round = window.document.createElement('span');
-    newDOMElement.appendChild(this.round);
+function createHeadUpDisplay(viewConfig, carModel) {
+  const DOMElement = document.createElement('div');
+  DOMElement.className = 'headupdisplay';
 
-    label = window.document.createElement('label');
-    label.appendChild(window.document.createTextNode('Zeit'));
-    newDOMElement.appendChild(label);
-    this.lastTime = window.document.createElement('span');
-    newDOMElement.appendChild(this.lastTime);
+  let label;
 
-    return newDOMElement;
+  label = document.createElement('label');
+  label.appendChild(document.createTextNode('像素/秒'));
+  DOMElement.appendChild(label);
+  const speed = document.createElement('span');
+  DOMElement.appendChild(speed);
+
+  label = document.createElement('label');
+  label.appendChild(document.createTextNode('轮'));
+  DOMElement.appendChild(label);
+  const round = document.createElement('span');
+  DOMElement.appendChild(round);
+
+  label = document.createElement('label');
+  label.appendChild(document.createTextNode('Zeit'));
+  DOMElement.appendChild(label);
+  const lastTime = document.createElement('span');
+  DOMElement.appendChild(lastTime);
+
+  function getDOMElement() {
+    return DOMElement;
   }
 
-  getDOMElement() {
-    return this.DOMElement;
+  function update() {
+    speed.textContent = Math.round(carModel.velocity.forward);
+    round.textContent = carModel.round;
+    lastTime.textContent = carModel.roundTimes[carModel.roundTimes.length - 1];
   }
 
-  update() {
-    this.speed.textContent = Math.round(this.carModel.velocity.forward);
-    this.round.textContent = this.carModel.round;
-    this.lastTime.textContent = this.carModel.roundTimes[this.carModel.roundTimes.length - 1];
-  }
-};
+  update();
 
-jracer.view.MiniMap = class {
-  constructor(viewConfig) {
-    this.DOMElement = this.createDOMElement();
-  }
+  return { getDOMElement, update };
+}
 
-  createDOMElement() {
-    const newDOMElement = window.document.createElement('div');
-    newDOMElement.className = 'miniMap';
-    return newDOMElement;
+jracer.view.HeadUpDisplay = createHeadUpDisplay;
+
+function createMiniMap(viewConfig) {
+  const DOMElement = document.createElement('div');
+  DOMElement.className = 'miniMap';
+
+  function getDOMElement() {
+    return DOMElement;
   }
 
-  getDOMElement() {
-    return this.DOMElement;
-  }
-};
+  return { getDOMElement };
+}
+
+jracer.view.MiniMap = createMiniMap;
+
+})();

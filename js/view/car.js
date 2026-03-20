@@ -1,3 +1,6 @@
+(function() {
+'use strict';
+
 const carDrawers = {
   default(ctx, width, length, color) {
     drawBody(ctx, width, length, color);
@@ -48,7 +51,7 @@ function calculateTransform(direction) {
   return `rotate(${direction}rad)`;
 }
 
-function createDOMElement(carModel, viewConfig) {
+function createCarDOMElement(carModel, viewConfig) {
   const newDOMElement = window.document.createElement('canvas');
   newDOMElement.className = 'car';
   const { width, length } = carModel.dimensions;
@@ -66,38 +69,43 @@ function createDOMElement(carModel, viewConfig) {
   return newDOMElement;
 }
 
-jracer.view.Car = class {
-  constructor(viewConfig, carModel) {
-    this.carModel = carModel;
-    this.DOMElement = createDOMElement(carModel, viewConfig);
-    this.transform = new jracer.view.DOMProxy(this.DOMElement.style, 'transform');
+function createCar(viewConfig, carModel) {
+  const DOMElement = createCarDOMElement(carModel, viewConfig);
+  const transform = jracer.view.DOMProxy(DOMElement.style, 'transform');
+
+  function update() {
+    transform.set(calculateTransform(carModel.direction));
   }
 
-  update() {
-    this.transform.set(calculateTransform(this.carModel.direction));
+  function getDOMElement() {
+    return DOMElement;
   }
 
-  getDOMElement() {
-    return this.DOMElement;
-  }
-};
+  return { update, getDOMElement };
+}
 
-jracer.view.StaticCar = class extends jracer.view.Car {
-  constructor(viewConfig, carModel) {
-    super(viewConfig, carModel);
-  }
-};
+jracer.view.Car = createCar;
 
-jracer.view.MovingCar = class extends jracer.view.Car {
-  constructor(viewConfig, carModel) {
-    super(viewConfig, carModel);
-    this.left = new jracer.view.DOMProxy(this.getDOMElement().style, 'left');
-    this.bottom = new jracer.view.DOMProxy(this.getDOMElement().style, 'bottom');
+function createStaticCar(viewConfig, carModel) {
+  return createCar(viewConfig, carModel);
+}
+
+jracer.view.StaticCar = createStaticCar;
+
+function createMovingCar(viewConfig, carModel) {
+  const car = createCar(viewConfig, carModel);
+  const left = jracer.view.DOMProxy(car.getDOMElement().style, 'left');
+  const bottom = jracer.view.DOMProxy(car.getDOMElement().style, 'bottom');
+
+  function update(frameProgress) {
+    car.update(frameProgress);
+    left.set(`${Math.round(carModel.position.x)}px`);
+    bottom.set(`${Math.round(carModel.position.y)}px`);
   }
 
-  update(frameProgress) {
-    super.update(frameProgress);
-    this.left.set(`${Math.round(this.carModel.position.x)}px`);
-    this.bottom.set(`${Math.round(this.carModel.position.y)}px`);
-  }
-};
+  return { update, getDOMElement: car.getDOMElement };
+}
+
+jracer.view.MovingCar = createMovingCar;
+
+})();
