@@ -41,3 +41,5 @@ logs/
 archive/**/*.zip
 archive/**/*.7z
 archive/**/*.tar.gz
+~$*
+Track.pptx
