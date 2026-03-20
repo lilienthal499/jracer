@@ -5,10 +5,11 @@ jracer.config = {
     split: false
   },
   track: {
-    number: 1, // Which track to load from tracks/ directory
+    number: 2, // Which track to load from tracks/ directory
     gridSize: 400, // Will be overridden by track data
     sections: [], // Will be populated from track JSON
-    grid: []
+    grid: [],
+    showGrid: true
   },
   players: [
     {

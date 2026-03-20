@@ -103,7 +103,9 @@ jracer.startup = function (config) {
       const headUpDisplayView = new jracer.view.HeadUpDisplay({}, firstCar);
 
       const tireTracksView = new jracer.view.TireTracks({}, jracer.model.cars);
-      jracer.frameManager.addSubFrameListener(tireTracksView.update);
+      // TODO: Arrow function wrapper needed because class methods lose 'this' context when passed as callbacks
+      // Alternative: bind in constructor or use arrow functions as class properties
+      jracer.frameManager.addSubFrameListener(() => tireTracksView.update());
 
 
       const trackDrawer = new jracer.Track.Drawer(tireTracksView.getCanvas(), jracer.model.track.sequenceOfComponents, jracer.model.track.gridSize);
@@ -130,7 +132,8 @@ jracer.startup = function (config) {
 
     const splitScreen = new jracer.view.SplitScreen({}, screens, miniMap);
     window.document.body.appendChild(splitScreen.getDOMElement());
-    jracer.frameManager.addSubFrameListener(splitScreen.update);
+    // TODO: Arrow function wrapper needed because class methods lose 'this' context when passed as callbacks
+    jracer.frameManager.addSubFrameListener((frameProgress) => splitScreen.update(frameProgress));
     // screenView2 = new jracer.view.Screen(jracer.config.screen, trackView, firstCarView, headUpDisplayView);
 
     function createAndFocusDummyInput() {
