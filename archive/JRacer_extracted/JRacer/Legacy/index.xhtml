@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+        <meta name="Author" content="Jan Schulte-Rebbelmund" />
+        <meta http-equiv="Content-Language" content="de" />
+        <title>JRacer 3.0 - JavaScript Racing Game</title>
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        <link rel="icon" href="images/flag.gif" type="image/gif" />
+    </head>
+    <body>
+        <table id="config">
+            <tr>
+                <td colspan="2">
+                    <button id="start">
+                        Spiel Starten!
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="fps">
+                        FPs: 
+                    </label>
+                </td>
+                <td>
+                    <input id="fps" size="2" value="25" class="number">
+                    </input>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="screenwidth">
+                        Breite: 
+                    </label>
+                </td>
+                <td>
+                    <input id="screenwidth" size="2" value="800" class="number">
+                    </input>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="screenheight">
+                        Höhe: 
+                    </label>
+                </td>
+                <td>
+                    <input id="screenheight" size="2" value="600" class="number">
+                    </input>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="map">
+                        Karte:
+                    </label>
+                </td>
+                <td>
+                    <select size="1" id="map">
+                    </select>
+                </td>
+            </tr>
+        </table>
+        <input id="focuskiller" size="1" maxlength="1" /><img src="images/asphalt.jpg" class="preload" /><img src="images/grass.jpg" class="preload" /><img src="images/car.png" class="preload" />
+    </body>
+    <script charset="utf-8">
+        var JRacer = {};
+        console.log("JRacer initial load...");
+    </script>
+    <script src="lib/jquery/jquery-1.3.2.js" charset="utf-8" /><script src="script/jracer.js" charset="utf-8" /><script src="script/collection.js" charset="utf-8"/><script src="script/timer.js" charset="utf-8" /><script src="script/controller.js" charset="utf-8" /><script src="script/game.js" charset="utf-8" /><script src="script/track.js" charset="utf-8" /><script src="script/view.js" charset="utf-8" /><script src="script/physics.js" charset="utf-8"/><script src="script/tracks.js" charset="utf-8"/><script src="script/config.js" charset="utf-8"/>
+    <script charset="utf-8">
+        /* <![CDATA[ */
+        
+        function fillMapsDropDown(){
+            var mapsArray = JRacer.Tracks.getAll().keys;
+            
+            for (var i = 0; i < mapsArray.length; i++) {
+                var option = $("<option />")
+                option.attr("value", mapsArray[i]);
+                option.text(mapsArray[i]);
+                $("#map").append(option);
+            }
+        }
+        
+        fillMapsDropDown();
+        
+        
+        function test3(){
+        
+            JRacer.Timer.setFPS(document.getElementById("fps").value);
+            console.log($("#map option:selected").attr("value"));
+            
+            var map = new JRacer.Map(300, JRacer.Tracks.get($("#map option:selected").attr("value")));
+            
+            var keys = {};
+            keys.Accelerate = {
+                Code: 38
+            };
+            keys.Decelerate = {
+                Code: 40
+            };
+            keys.Left = {
+                Code: 37
+            };
+            keys.Right = {
+                Code: 39
+            };
+            
+            var myControls = new JRacer.Controls();
+            var myDimensions = new JRacer.Car.Dimensions(20, 30, 25, 18, 2, 3, 1, 3.6);
+            var myImage = new Image();
+            myImage.src = "images/car.png";
+            var myEngine = new JRacer.Car.Engine();
+            
+            var hcont = new JRacer.HumanController(myControls, keys);
+            
+            var car1 = new JRacer.Car(myControls, myDimensions, myImage, myEngine)
+            var player1 = new JRacer.Player(car1, hcont);
+            JRacer.Game.addPlayer(player1);
+            JRacer.Game.setMap(map);
+            //   JRacer.View.setResulution($("#screenheight").attr("value"), $("#screenwidth").attr("value"));
+            JRacer.View.init();
+            JRacer.init();
+            
+            document.getElementById('focuskiller').focus();
+            JRacer.Timer.start();
+        }
+        
+        $("#start").focus();
+        
+        $("#start").one("click", function(){
+            test3();
+            $("#config").remove();
+        });
+        /* ]]> */
+    </script>
+</html>
