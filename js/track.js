@@ -324,15 +324,45 @@ jracer.Track.Drawer = function (canvas, sequnceOfComponents, gridSize) {
 
   canvas.closePath();
 
+  // ===== ENHANCED TRACK SURFACE =====
   canvas.globalCompositeOperation = 'source-over';
-  canvas.fillStyle = 'rgb(100,100,100)';
+
+  // Darker asphalt with subtle gradient
+  var gradient = canvas.createRadialGradient(
+    jracer.model.track.dimensions.width / 2,
+    jracer.model.track.dimensions.height / 2,
+    100,
+    jracer.model.track.dimensions.width / 2,
+    jracer.model.track.dimensions.height / 2,
+    Math.max(jracer.model.track.dimensions.width, jracer.model.track.dimensions.height)
+  );
+  gradient.addColorStop(0, 'rgb(75,75,75)');
+  gradient.addColorStop(0.5, 'rgb(60,60,60)');
+  gradient.addColorStop(1, 'rgb(50,50,50)');
+  canvas.fillStyle = gradient;
   canvas.fill();
 
+  // ===== OUTER BORDER - Racing Kerbs (Red & White) =====
   canvas.globalCompositeOperation = 'source-atop';
-  canvas.strokeStyle = 'rgb(255,255,255)';
-  canvas.lineWidth = gridSize / 20;
+
+  // Red base for kerbs
+  canvas.strokeStyle = 'rgb(200,30,30)';
+  canvas.lineWidth = gridSize / 10;
   canvas.stroke();
 
+  // White stripes on kerbs (dashed pattern)
+  canvas.setLineDash([gridSize / 8, gridSize / 8]);
+  canvas.strokeStyle = 'rgb(255,255,255)';
+  canvas.lineWidth = gridSize / 10;
+  canvas.stroke();
+  canvas.setLineDash([]); // Reset dash
+
+  // White track edge line
+  canvas.strokeStyle = 'rgb(255,255,255)';
+  canvas.lineWidth = gridSize / 25;
+  canvas.stroke();
+
+  // ===== CUT OUT INNER TRACK =====
   canvas.beginPath();
 
   for (index = 0; index < sequnceOfComponents.length; index += 1) {
@@ -345,9 +375,24 @@ jracer.Track.Drawer = function (canvas, sequnceOfComponents, gridSize) {
   canvas.globalCompositeOperation = 'destination-out';
   canvas.fill();
 
+  // ===== INNER BORDER - Racing Kerbs =====
   canvas.globalCompositeOperation = 'source-atop';
+
+  // Red base for inner kerbs
+  canvas.strokeStyle = 'rgb(200,30,30)';
+  canvas.lineWidth = gridSize / 10;
+  canvas.stroke();
+
+  // White stripes on inner kerbs
+  canvas.setLineDash([gridSize / 8, gridSize / 8]);
   canvas.strokeStyle = 'rgb(255,255,255)';
-  canvas.lineWidth = gridSize / 20;
+  canvas.lineWidth = gridSize / 10;
+  canvas.stroke();
+  canvas.setLineDash([]); // Reset dash
+
+  // White inner edge line
+  canvas.strokeStyle = 'rgb(255,255,255)';
+  canvas.lineWidth = gridSize / 25;
   canvas.stroke();
 
   // canvas.rect();
