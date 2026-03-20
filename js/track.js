@@ -159,7 +159,7 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
 
     this.addStart = function () {
       if (cursor !== undefined) {
-        throw "Only one 'Start' allowed";
+        throw 'Only one \'Start\' allowed';
       }
       cursor = new Cursor(startPosition);
       const component = new jracer.Track.HomeStraight(cursor);
@@ -244,7 +244,7 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
         // case jracer.Track.Custom:
         // break;
         default:
-          throw 'Invalid Track Elememt ' + component;
+          throw `Invalid Track Elememt ${component}`;
       }
     });
   }
@@ -285,7 +285,7 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
         x: sizeMeter.getStartingPoint().x * gridSize + 0.5 * gridSize,
         y: sizeMeter.getStartingPoint().y * gridSize + 0.5 * gridSize
       },
-      gridSize: gridSize,
+      gridSize,
       sequenceOfComponents: modelCreator.getSequence(),
       grid: modelCreator.getGrid()
     };

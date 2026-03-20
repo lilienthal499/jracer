@@ -81,7 +81,7 @@ jracer.view.Screen = function (viewConfig, trackView, carView, carModel, tachome
 
       averageRotateCalculator.add(carDirection);
       carDirection = Math.round(averageRotateCalculator.getAverage() * 1000) / 1000;
-      return 'rotate(' + carDirection + 'rad)';
+      return `rotate(${carDirection}rad)`;
     }
 
 
@@ -107,10 +107,10 @@ jracer.view.Screen = function (viewConfig, trackView, carView, carModel, tachome
 
       averageScaleCalculator.add(targetZoomFactor);
       targetZoomFactor = Math.round(averageScaleCalculator.getAverage() * 1000) / 1000;
-      return 'scale(' + targetZoomFactor + ')';
+      return `scale(${targetZoomFactor})`;
     }
     return function () {
-      transform.set(calculateRotate(-carModel.direction) + ' ' + calculateScale((carModel.velocity.forward + Math.abs(carModel.velocity.lateral))));
+      transform.set(`${calculateRotate(-carModel.direction)} ${calculateScale(carModel.velocity.forward + Math.abs(carModel.velocity.lateral))}`);
     };
   }
 
@@ -172,17 +172,18 @@ jracer.view.Car = function (viewConfig, carModel) {
   function calculateTransfrom(direction) {
     direction = direction % (2 * Math.PI);
     direction = Math.round(direction * 1000) / 1000;
-    return 'rotate(' + direction + 'rad)';
+    return `rotate(${direction}rad)`;
   }
 
   function createDOMElement() {
     const newDOMElement = window.document.createElement('canvas');
     newDOMElement.className = 'car';
     newDOMElement.style.backgroundColor = viewConfig.color;
-    newDOMElement.style.width = carModel.dimensions.width + 'px';
-    newDOMElement.style.height = carModel.dimensions.length + 'px';
-    newDOMElement.style.marginLeft = '-' + (carModel.dimensions.width / 2) + 'px';
-    newDOMElement.style.marginBottom = '-' + (carModel.dimensions.width / 2) + 'px';
+    const { width, length } = carModel.dimensions;
+    newDOMElement.style.width = `${width}px`;
+    newDOMElement.style.height = `${length}px`;
+    newDOMElement.style.marginLeft = `-${width / 2}px`;
+    newDOMElement.style.marginBottom = `-${width / 2}px`;
     return newDOMElement;
   }
 
@@ -227,8 +228,8 @@ jracer.view.MovingCar = function (viewConfig, carModel) {
 
   this.update = function (frameProgress) {
     superUpdate(frameProgress);
-    left.set(Math.round(carModel.position.x) + 'px');
-    bottom.set(Math.round(carModel.position.y) + 'px');
+    left.set(`${Math.round(carModel.position.x)}px`);
+    bottom.set(`${Math.round(carModel.position.y)}px`);
   };
 
 };
@@ -302,8 +303,8 @@ jracer.view.MovingTrack = function (viewConfig, carModel, carViews, tireTracksVi
     superUpdate();
     rotatedOffset.copyFrom(originalOffset);
     rotatedOffset.rotate(-carModel.direction);
-    left.set(-Math.round(carModel.position.x + rotatedOffset.x) + 'px');
-    bottom.set(-Math.round(carModel.position.y + rotatedOffset.y) + 'px');
+    left.set(`${-Math.round(carModel.position.x + rotatedOffset.x)}px`);
+    bottom.set(`${-Math.round(carModel.position.y + rotatedOffset.y)}px`);
   };
 
   this.update();
@@ -394,7 +395,8 @@ jracer.view.TireTracks = function (viewConfig, carModels) {
     };
 
     function setUpCanvasDrawers() {
-      const frontRightOffset = new jracer.Vector(carModel.dimensions.trackWidth / 2, carModel.dimensions.wheelbase / 2);
+      const { wheelbase, trackWidth } = carModel.dimensions;
+      const frontRightOffset = new jracer.Vector(trackWidth / 2, wheelbase / 2);
 
       const frontLeftOffset = frontRightOffset.copy();
       frontRightOffset.x = -frontRightOffset.x;
