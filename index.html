@@ -14,11 +14,38 @@
     <script src="js/controller.js"></script>
     <script src="js/physicsengine.js"></script>
     <script src="js/track.js"></script>
+    <script src="js/trackloader.js"></script>
     <script src="js/config.js"></script>
     <script>
       /*jslint browser: true*/
       /*global jracer*/
-      jracer.startup(jracer.config);
+
+      // Load track before starting game
+      async function loadAndStart() {
+        const trackLoader = new jracer.TrackLoader();
+
+        try {
+          const trackData = await trackLoader.loadTrackSync(jracer.config.track.number);
+
+          // Convert section strings to jracer.Track constants
+          jracer.config.track.sections = trackData.sections.map(function(sectionName) {
+            return jracer.Track[sectionName];
+          });
+
+          // Update grid size from track data
+          jracer.config.track.gridSize = trackData.gridSize;
+
+          console.log(`Loaded track: ${trackData.name} (${trackData.description})`);
+
+          // Start the game
+          jracer.startup(jracer.config);
+        } catch (error) {
+          console.error('Failed to load track:', error);
+          document.body.innerHTML = '<h1>Error loading track</h1><p>' + error.message + '</p>';
+        }
+      }
+
+      loadAndStart();
     </script>
   </body>
 </html>

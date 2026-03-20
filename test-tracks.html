@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Track Loader Test</title>
+  <style>
+    body { font-family: monospace; padding: 20px; }
+    .track { border: 2px solid #333; padding: 10px; margin: 10px 0; }
+    .track h3 { margin: 0 0 5px 0; }
+    pre { background: #f0f0f0; padding: 10px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>Track Loader Test</h1>
+  <div id="tracks"></div>
+
+  <script>
+    // Simple test to verify all track files load correctly
+    async function testTracks() {
+      const container = document.getElementById('tracks');
+
+      for (let i = 1; i <= 4; i++) {
+        try {
+          const response = await fetch(`tracks/${i}.json`);
+          const trackData = await response.json();
+
+          const trackDiv = document.createElement('div');
+          trackDiv.className = 'track';
+          trackDiv.innerHTML = `
+            <h3>Track ${i}: ${trackData.name}</h3>
+            <p><strong>Description:</strong> ${trackData.description}</p>
+            <p><strong>Grid Size:</strong> ${trackData.gridSize}px</p>
+            <p><strong>Sections:</strong> ${trackData.sections.length} components</p>
+            <pre>${JSON.stringify(trackData.sections, null, 2)}</pre>
+          `;
+          container.appendChild(trackDiv);
+        } catch (error) {
+          container.innerHTML += `<div class="track" style="border-color: red;"><h3>Track ${i}: ERROR</h3><p>${error.message}</p></div>`;
+        }
+      }
+    }
+
+    testTracks();
+  </script>
+</body>
+</html>

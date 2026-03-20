@@ -5,38 +5,9 @@ jracer.config = {
     split: false
   },
   track: {
-    /*height: 2000,
-		width: 2000,
-		startposition: {
-			x: 1000,
-			y: 1000
-		},*/
-    gridSize: 400,
-    sections: [
-      // jracer.Track.START,
-      // jracer.Track.RIGHT_TURN,
-      // jracer.Track.STRAIGHT,
-      // jracer.Track.RIGHT_TURN,
-      // jracer.Track.STRAIGHT,
-      // jracer.Track.RIGHT_TURN,
-      // jracer.Track.STRAIGHT,
-      // jracer.Track.RIGHT_TURN,
-      // jracer.Track.FINISH],
-      jracer.Track.START,
-      jracer.Track.LEFT_TURN,
-      jracer.Track.RIGHT_TURN,
-      jracer.Track.RIGHT_TURN,
-      jracer.Track.WIDE_RIGHT_TURN,
-      jracer.Track.LEFT_TURN,
-      jracer.Track.LEFT_TURN,
-      jracer.Track.STRAIGHT,
-      jracer.Track.RIGHT_TURN,
-      jracer.Track.RIGHT_TURN,
-      jracer.Track.LEFT_TURN,
-      jracer.Track.RIGHT_TURN,
-      jracer.Track.EXTRA_WIDE_RIGHT_TURN,
-      jracer.Track.WIDE_RIGHT_TURN,
-      jracer.Track.FINISH],
+    number: 2, // Which track to load from tracks/ directory
+    gridSize: 400, // Will be overridden by track data
+    sections: [], // Will be populated from track JSON
     grid: []
   },
   players : [

@@ -1,0 +1,23 @@
+{
+  "id": 2,
+  "name": "Technical Circuit",
+  "description": "Current track with mixed turns and straights",
+  "gridSize": 400,
+  "sections": [
+    "START",
+    "LEFT_TURN",
+    "RIGHT_TURN",
+    "RIGHT_TURN",
+    "WIDE_RIGHT_TURN",
+    "LEFT_TURN",
+    "LEFT_TURN",
+    "STRAIGHT",
+    "RIGHT_TURN",
+    "RIGHT_TURN",
+    "LEFT_TURN",
+    "RIGHT_TURN",
+    "EXTRA_WIDE_RIGHT_TURN",
+    "WIDE_RIGHT_TURN",
+    "FINISH"
+  ]
+}
