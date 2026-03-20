@@ -1,0 +1,46 @@
+{
+  "name": "jracer",
+  "version": "4.0.0",
+  "description": "JavaScript Racing Game - A browser-based racing game with realistic physics simulation",
+  "main": "js/application.js",
+  "scripts": {
+    "start": "npx http-server -p 5500 -o -c-1",
+    "dev": "npx http-server -p 5500 -c-1",
+    "lint": "eslint js/**/*.js",
+    "lint:fix": "eslint js/**/*.js --fix",
+    "format": "prettier --write \"**/*.{js,html,css,json,md}\"",
+    "format:check": "prettier --check \"**/*.{js,html,css,json,md}\"",
+    "serve": "npx live-server --port=5500 --open=index.html",
+    "validate": "npm run lint && npm run format:check",
+    "test": "echo \"Tests not yet implemented\" && exit 0"
+  },
+  "keywords": [
+    "game",
+    "racing",
+    "javascript",
+    "canvas",
+    "physics",
+    "browser-game"
+  ],
+  "author": "Jan Schulte-Rebbelmund",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/jracer.git"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "http-server": "^14.1.1",
+    "live-server": "^1.2.2"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "browserslist": [
+    "last 2 versions",
+    "> 1%",
+    "not dead"
+  ]
+}

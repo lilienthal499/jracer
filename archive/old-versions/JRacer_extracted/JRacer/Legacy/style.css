@@ -1,0 +1,20 @@
+body {
+    overflow: hidden;
+    background-color: #c0c0c0;
+    font-family: "Calibri", "Sans-serif";
+} #focuskiller {
+    position: absolute;
+    top: -50px;
+    left: -50px;
+}
+
+table div {
+    width: 60px;
+    overflow: hidden;
+} .number {
+    text-align: right;
+}
+
+img.preload {
+    display: none;
+}

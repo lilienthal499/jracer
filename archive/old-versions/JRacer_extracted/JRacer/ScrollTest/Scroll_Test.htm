@@ -1,0 +1,54 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Scrolltest for Performance Issues</title>
+</head>
+<body style="background-color:black">
+
+<button onclick="pageScroll()">Go!</Button>
+<p>Möglichkeiten für View:
+
+<ul>
+<li>Karte zentriert, Auto bewegt sich</li>
+<li>Auto zentriert, Karte bewegt sich</li>
+<ul>
+<li>Browser-Scroll-Funktion</li>
+<ul><li>Im Div</li>
+<li>Im Window</li></ul>
+<li>Scroll-Funktion über CSS Position</li>
+<ul><li>Im Div</li>
+<li>Im Window</li></ul>
+</ul></ul>
+</p>
+<div style="width:300px; height:300px; overflow:scroll; background-color:white" id="bar">
+<div style="width:500px; height:500px;">
+
+<img src="nin.jpg">
+</div></div>
+
+
+<script>
+
+
+function pageScroll() {
+pageScrollLeft();
+pageScrollTop();
+}
+
+var foo = document.getElementById("bar");
+
+function pageScrollLeft() {
+foo.scrollLeft +=1 ;
+window.setTimeout(pageScrollLeft,20); 
+}
+
+function pageScrollTop() {
+foo.scrollTop +=1 ;
+window.setTimeout(pageScrollTop,40); 
+}
+
+</script>
+
+</body>
+</html>

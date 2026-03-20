@@ -1,0 +1,146 @@
+{
+  "folders": [
+    {
+      "path": ".",
+      "name": "JRacer (Active Development)"
+    },
+    {
+      "path": "archive",
+      "name": "Archive (Old Versions)"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/.git": false,
+      "**/archive/old-versions": true,
+      "**/archive/original-archives": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/archive": true
+    },
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": true,
+    "javascript.validate.enable": true,
+    "javascript.format.enable": true,
+    "javascript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": true,
+    "javascript.format.placeOpenBraceOnNewLineForFunctions": false,
+    "javascript.suggest.autoImports": true,
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    "files.associations": {
+      "*.js": "javascript",
+      "*.json": "jsonc"
+    },
+    "files.eol": "\n",
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
+    "emmet.includeLanguages": {
+      "javascript": "javascriptreact"
+    },
+    "git.autofetch": true,
+    "git.confirmSync": false,
+    "git.enableSmartCommit": true,
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+      }
+    },
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[html]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[css]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "liveServer.settings.donotShowInfoMsg": true,
+    "liveServer.settings.port": 5500,
+    "liveServer.settings.CustomBrowser": "chrome",
+    "liveServer.settings.root": "/",
+    "debug.console.fontSize": 14,
+    "debug.console.lineHeight": 20
+  },
+  "extensions": {
+    "recommendations": [
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "ritwickdey.liveserver",
+      "ms-vscode.live-server",
+      "firefox-devtools.vscode-firefox-debug",
+      "msjsdiag.debugger-for-chrome",
+      "wayou.vscode-todo-highlight",
+      "christian-kohler.path-intellisense",
+      "formulahendry.auto-rename-tag",
+      "pranaygp.vscode-css-peek",
+      "zignd.html-css-class-completion",
+      "streetsidesoftware.code-spell-checker",
+      "usernamehw.errorlens",
+      "eamodio.gitlens"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "chrome",
+        "request": "launch",
+        "name": "Launch JRacer in Chrome",
+        "url": "http://localhost:5500/index.html",
+        "webRoot": "${workspaceFolder}",
+        "sourceMaps": true
+      },
+      {
+        "type": "firefox",
+        "request": "launch",
+        "name": "Launch JRacer in Firefox",
+        "url": "http://localhost:5500/index.html",
+        "webRoot": "${workspaceFolder}",
+        "sourceMaps": true
+      },
+      {
+        "type": "chrome",
+        "request": "attach",
+        "name": "Attach to Chrome",
+        "port": 9222,
+        "webRoot": "${workspaceFolder}"
+      }
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Start Development Server",
+        "type": "shell",
+        "command": "npx",
+        "args": ["http-server", "-p", "5500", "-o"],
+        "problemMatcher": [],
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Lint JavaScript",
+        "type": "shell",
+        "command": "npx",
+        "args": ["eslint", "js/**/*.js"],
+        "problemMatcher": ["$eslint-stylish"]
+      },
+      {
+        "label": "Format Code",
+        "type": "shell",
+        "command": "npx",
+        "args": ["prettier", "--write", "**/*.{js,html,css,json}"],
+        "problemMatcher": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+1. Fullscreen, no Move
+2. Fullscreen, Move on Border
+
+3. Screen area, centerd
+4. Screen area, look ahead
+4. Screen area, dynamic look ahead
+    

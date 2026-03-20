@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="xml2json.xsl"?>
+<Config>
+    <View>
+        <Resolution height="600" width="800"/>
+    </View>
+    <Game>
+    </Game>
+    <Physics>
+    </Physics>
+    <Players number="2">
+        <Player name="Jan">
+            <Controls type="human">
+                <Keys acc="34" dec="35" right="85" left="82"/>
+            </Controls>
+        </Player>
+        <Player name="Player 2">
+            <Controls type="computer">
+            </Controls>
+            <Actions>
+                <Action frameid="53" keys="63"/>
+                <Action frameid="93" keys="43"/>
+            </Actions>
+        </Player>
+    </Players>
+    <Map edgelength="200">
+		<Image src="images/grass.jpg" />
+        <Track widht="40">
+			<Image src="images/asphalt.jpg" />
+            <Section type="start" />
+			<Section type="turn" direction="left" size="1" />
+			<Section type="turn" direction="right" size="2" />
+			<Section type="finish" />
+        </Track>
+    </Map>
+</Config>

@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="xml2json.xsl"?>
+<JRacer>
+	<View>
+		<Resolution height="600" width="800" />		
+	</View>
+	<Game></Game>
+	<Physics></Physics>
+	<Players number="2">
+		<Player name="Jan">
+			<Controls type="human">
+				<Keys acc="34" dec="35" right="85" left="82"/>
+			</Controls>			
+		</Player>
+		<Player name="Player 2">
+			<Controls type="computer"></Controls>
+			<Actions>
+				<Action frameid="53" keys="63" />
+				<Action frameid="93" keys="43" />
+			</Actions>
+		</Player>
+	</Players>
+	<Map edgelength="200">
+		<Track widht="40">
+			<Start />
+			<Turn direction="left" size="1" />
+			<Turn direction="right" size="2" />
+			<Finish />
+		</Track>
+	</Map>
+</JRacer>
