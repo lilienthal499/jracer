@@ -4,8 +4,9 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
   var startingPoint, dimensions, index, sizeMeter, modelCreator;
 
   function Cursor(startingPoint) {
-
-    var cardinalDirection = jracer.Track.NORTH, position = startingPoint.copy(), positions = [];
+    var cardinalDirection = jracer.Track.NORTH,
+      position = startingPoint.copy(),
+      positions = [];
 
     this.moveAhead = function () {
       positions.push(position.copy());
@@ -29,14 +30,12 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
     };
 
     this.rotate = function (clockwise) {
-
       if (clockwise) {
         cardinalDirection = cardinalDirection - 0.5 * Math.PI; // Turn right
       } else {
         cardinalDirection = cardinalDirection + 0.5 * Math.PI; // Turn left
       }
       cardinalDirection = (cardinalDirection + 2 * Math.PI) % (2 * Math.PI);
-
     };
 
     this.getPosition = function () {
@@ -55,11 +54,11 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
   }
 
   function SizeMeter() {
-
-    var maximum = new jracer.Vector(), minimum = new jracer.Vector(), cursor;
+    var maximum = new jracer.Vector(),
+      minimum = new jracer.Vector(),
+      cursor;
 
     function determineNewExtermes() {
-
       var currentPosition = cursor.getPosition();
 
       if (maximum.x < currentPosition.x) {
@@ -77,7 +76,6 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
       if (minimum.y > currentPosition.y) {
         minimum.y = currentPosition.y;
       }
-
     }
 
     this.addStart = function () {
@@ -88,10 +86,13 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
     this.addFinish = function () {
       // determineNewExtermes();
       var currentPosition = cursor.getPosition();
-      if (currentPosition.x !== 0 || currentPosition.y !== 0 || cursor.getCardinalDirection() !== jracer.Track.NORTH) {
+      if (
+        currentPosition.x !== 0 ||
+        currentPosition.y !== 0 ||
+        cursor.getCardinalDirection() !== jracer.Track.NORTH
+      ) {
         throw 'Finish does not match Start!';
       }
-
     };
 
     this.addCurve = function (clockwise, size) {
@@ -123,7 +124,6 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
       }
 
       determineNewExtermes();
-
     };
 
     this.addStraight = function () {
@@ -131,7 +131,10 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
     };
 
     this.getSize = function () {
-      return new jracer.Vector(Math.abs(minimum.x) + maximum.x + 1, Math.abs(minimum.y) + maximum.y + 1);
+      return new jracer.Vector(
+        Math.abs(minimum.x) + maximum.x + 1,
+        Math.abs(minimum.y) + maximum.y + 1
+      );
     };
 
     this.getStartingPoint = function () {
@@ -140,7 +143,9 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
   }
 
   function ModelCreator(startPosition, size) {
-    var cursor, sequence = [], grid = [];
+    var cursor,
+      sequence = [],
+      grid = [];
 
     function setGrid(positions, component) {
       console.dir(positions);
@@ -210,7 +215,6 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
   }
 
   function parseSequnceOfComponents(parser) {
-
     for (index = 0; index < sequnceOfComponents.length; index = index + 1) {
       switch (sequnceOfComponents[index]) {
         case jracer.Track.START:
@@ -252,7 +256,10 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
   parseSequnceOfComponents(sizeMeter);
   // console.dir(sizeMeter.getSize());
   // console.dir(sizeMeter.getStartingPoint());
-  modelCreator = new ModelCreator(sizeMeter.getStartingPoint(),sizeMeter.getSize());
+  modelCreator = new ModelCreator(
+    sizeMeter.getStartingPoint(),
+    sizeMeter.getSize()
+  );
   parseSequnceOfComponents(modelCreator);
   // console.dir(modelCreator.getSequence());
   // console.log(sequnceOfComponents.length);
@@ -262,8 +269,18 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
     console.dir(sizeMeter.getSize());
     console.dir(sizeMeter.getStartingPoint());
     console.dir(modelCreator.getGrid());
-    console.dir(modelCreator.getGrid()[sizeMeter.getStartingPoint().x][sizeMeter.getStartingPoint().y]);
-    console.dir(modelCreator.getGrid()[sizeMeter.getStartingPoint().x][sizeMeter.getStartingPoint().y].getSequenceNumber());
+    console.dir(
+      modelCreator.getGrid()[sizeMeter.getStartingPoint().x][
+        sizeMeter.getStartingPoint().y
+      ]
+    );
+    console.dir(
+      modelCreator
+        .getGrid()
+        [
+          sizeMeter.getStartingPoint().x
+        ][sizeMeter.getStartingPoint().y].getSequenceNumber()
+    );
     return {
       dimensions: {
         width: sizeMeter.getSize().x * gridSize,
@@ -283,9 +300,11 @@ jracer.Track = function (sequnceOfComponents, gridSize) {
 jracer.Track.Drawer = function (canvas, sequnceOfComponents, gridSize) {
   'use strict';
 
-
   function drawTurn(turn, innerLoop) {
-    var turnSize = turn.size, startAngle, endAngle, radius;
+    var turnSize = turn.size,
+      startAngle,
+      endAngle,
+      radius;
     if (turn.size === 2) {
       turnSize = 2;
     }
@@ -299,18 +318,23 @@ jracer.Track.Drawer = function (canvas, sequnceOfComponents, gridSize) {
     //console.log("SA " + turn.startCardinalDirection / Math.PI );
     //console.log("EA " + turn.endCardinalDirection / Math.PI );
 
-    if ((innerLoop !== turn.clockwise)) {
+    if (innerLoop !== turn.clockwise) {
       radius = gridSize * (turnSize - 0.7);
     } else {
       radius = gridSize * (turnSize - 0.3);
     }
 
-    canvas.arc(turn.centerOfCircle.x * gridSize, turn.centerOfCircle.y * gridSize, radius, startAngle, endAngle, turn.clockwise);
-
+    canvas.arc(
+      turn.centerOfCircle.x * gridSize,
+      turn.centerOfCircle.y * gridSize,
+      radius,
+      startAngle,
+      endAngle,
+      turn.clockwise
+    );
   }
 
   var index, turn;
-
 
   canvas.beginPath();
 
@@ -320,7 +344,6 @@ jracer.Track.Drawer = function (canvas, sequnceOfComponents, gridSize) {
       drawTurn(sequnceOfComponents[index], true);
     }
   }
-
 
   canvas.closePath();
 
@@ -334,7 +357,10 @@ jracer.Track.Drawer = function (canvas, sequnceOfComponents, gridSize) {
     100,
     jracer.model.track.dimensions.width / 2,
     jracer.model.track.dimensions.height / 2,
-    Math.max(jracer.model.track.dimensions.width, jracer.model.track.dimensions.height)
+    Math.max(
+      jracer.model.track.dimensions.width,
+      jracer.model.track.dimensions.height
+    )
   );
   gradient.addColorStop(0, 'rgb(75,75,75)');
   gradient.addColorStop(0.5, 'rgb(60,60,60)');
@@ -394,9 +420,6 @@ jracer.Track.Drawer = function (canvas, sequnceOfComponents, gridSize) {
   canvas.strokeStyle = 'rgb(255,255,255)';
   canvas.lineWidth = gridSize / 25;
   canvas.stroke();
-
-  // canvas.rect();
-
 };
 
 jracer.Track.Component = function () {
@@ -449,7 +472,6 @@ jracer.Track.Turn = function (cursor, clockwise, size) {
 
   switch (size) {
     case 1:
-
       fistOffset = directionToOffset(cursor.getCardinalDirection(), false);
       cursor.rotate(clockwise);
       secondOffset = directionToOffset(cursor.getCardinalDirection(), true);
