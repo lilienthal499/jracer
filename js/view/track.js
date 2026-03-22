@@ -72,10 +72,11 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
     const imageData = textureCtx.getImageData(0, 0, textureSize, textureSize);
     const data = imageData.data;
 
+    // ImageData is a flat array: [R,G,B,A, R,G,B,A, ...] so step by 4 to process each pixel
     for (let i = 0; i < data.length; i += 4) {
       // Random brightness variation for each pixel
-      const variation = (Math.random() - 0.5) * 20; // ±15 brightness
-      data[i] += variation;
+      const variation = (Math.random() - 0.5) * 20;
+      data[i] += variation;     // R
       data[i + 1] += variation; // G
       data[i + 2] += variation; // B
       // Alpha stays at 255
