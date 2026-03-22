@@ -24,8 +24,8 @@ export function startup(config) {
 
       console.log(`Loaded track: ${trackData.name} (${trackData.description})`);
 
-      const gameState = initializeGame(config);
-      startGameUI(config, gameState);
+      initializeGame(config);
+      startGameUI(config);
     });
 }
 
@@ -39,9 +39,6 @@ export function initializeGame(config) {
   const track = createTrack(config.track.sections, config.track.gridSize);
   model.track = track.getModel();
 
-  const cars = [];
-  const controllers = [];
-
   config.players.forEach((player) => {
     const car = model.createCar();
     car.controls.maxSteeringAngle = player.maxSteeringAngle;
@@ -49,32 +46,24 @@ export function initializeGame(config) {
     car.position.y = model.track.startingPosition.y;
 
     model.cars.push(car);
-    cars.push(car);
 
     const carController = createCarController(car);
     frameManager.addFrameListener(carController.update);
 
     const keyboardController = createKeyboardController(player.controls, carController);
-    controllers.push(keyboardController);
+
+    document.addEventListener('keydown', keyboardController.getKeyHandler());
+    document.addEventListener('keyup', keyboardController.getKeyHandler());
 
     physicsEngine.addCar(car);
   });
-
-  return { cars, controllers, physicsEngine };
 }
 
 // UI: Creates views and attaches to DOM
-function startGameUI(config, gameState) {
+function startGameUI(config) {
   'use strict';
 
   const screens = [];
-
-  function setupPlayerControls(controllers) {
-    controllers.forEach((keyboardController) => {
-      document.addEventListener('keydown', keyboardController.getKeyHandler());
-      document.addEventListener('keyup', keyboardController.getKeyHandler());
-    });
-  }
 
   function createScreenView(players, playerIndex) {
 
@@ -97,8 +86,6 @@ function startGameUI(config, gameState) {
     const trackView = MovingTrack(config.track, firstCar, carViews, tireTracksView);
     return Screen(players[playerIndex].view, trackView, firstCarView, firstCar, headUpDisplayView);
   }
-
-  setupPlayerControls(gameState.controllers);
 
   screens.push(createScreenView(config.players, 0));
   screens.push(createScreenView(config.players, 1));
