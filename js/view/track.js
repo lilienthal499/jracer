@@ -54,6 +54,13 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
 
   /**
    * Create an asphalt texture pattern using canvas noise.
+   *
+   * Process:
+   * 1. Create temp canvas with solid gray
+   * 2. Extract pixel data as flat RGBA byte array
+   * 3. Add random brightness variation to each pixel's RGB
+   * 4. Return as tileable pattern
+   *
    * @returns {CanvasPattern} Repeatable noise pattern for asphalt texture
    */
   function createAsphaltTexture() {
@@ -68,10 +75,11 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
     textureCtx.fillStyle = 'rgb(65,65,65)';
     textureCtx.fillRect(0, 0, textureSize, textureSize);
 
-    // Add random noise for asphalt texture
+    // Get raw pixel data and add noise to make it look like grainy asphalt
     const imageData = textureCtx.getImageData(0, 0, textureSize, textureSize);
-    const data = imageData.data;
+    const data = imageData.data; // Flat array: [R,G,B,A, R,G,B,A, ...]
 
+    // Step through pixels (4 bytes each) and randomize brightness
     // ImageData is a flat array: [R,G,B,A, R,G,B,A, ...] so step by 4 to process each pixel
     for (let i = 0; i < data.length; i += 4) {
       // Random brightness variation for each pixel
@@ -86,9 +94,10 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
       data[blueIndex] += variation;
     }
 
+    // Write modified pixel data back to canvas
     textureCtx.putImageData(imageData, 0, 0);
 
-    // Return pattern that can be tiled
+    // Create repeating pattern from noisy canvas
     return canvas.createPattern(textureCanvas, 'repeat');
   }
 
