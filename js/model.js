@@ -52,7 +52,11 @@ export const model = {
       x: 1500,
       y: 1500
     },
-    gridSize: 100
+    gridSize: 100,
+    // Track edge offsets from turn center (as fraction of gridSize)
+    // Used for rendering curved sections
+    edgeOffsetInner: 0.7,  // Smaller radius (tighter turn)
+    edgeOffsetOuter: 0.3   // Larger radius (wider turn)
   }
 };
 

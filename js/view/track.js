@@ -1,16 +1,15 @@
-import { model } from '../model.js';
-
 /**
  * Draws the racing track to a canvas element.
  * Renders track curves, road markings, and optional debug grid.
  *
  * @param {CanvasRenderingContext2D} canvas - Canvas 2D context to draw on
- * @param {Array} sequenceOfComponents - Track components from model (turns, straights)
- * @param {number} gridSize - Size of one grid cell in pixels
+ * @param {Object} track - Track model with sequenceOfComponents, gridSize, edge offsets
  * @param {boolean} showGrid - Whether to draw debug grid lines
  */
-export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
+export function Drawer(canvas, track, showGrid) {
   'use strict';
+
+  const { sequenceOfComponents, gridSize, edgeOffsetInner, edgeOffsetOuter, dimensions } = track;
 
   /**
    * Draw a single turn component as a circular arc.
@@ -37,9 +36,9 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
 
     // Calculate radius based on turn size and which edge (inner/outer)
     if (innerLoop !== turn.clockwise) {
-      radius = gridSize * (turnSize - 0.7);
+      radius = gridSize * (turnSize - edgeOffsetInner);
     } else {
-      radius = gridSize * (turnSize - 0.3);
+      radius = gridSize * (turnSize - edgeOffsetOuter);
     }
 
     canvas.arc(
@@ -81,6 +80,7 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
 
     // Step through pixels (4 bytes each) and randomize brightness
     // ImageData is a flat array: [R,G,B,A, R,G,B,A, ...] so step by 4 to process each pixel
+    // eslint-disable-next-line no-restricted-syntax -- ImageData requires index stepping by 4 for RGBA bytes
     for (let i = 0; i < data.length; i += 4) {
       // Random brightness variation for each pixel
       const variation = (Math.random() - 0.5) * 20;
@@ -129,8 +129,8 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
   function drawGridLines() {
     canvas.strokeStyle = 'rgba(0,0,0,0.9)';
     canvas.lineWidth = 3;
-    const width = model.track.dimensions.width;
-    const height = model.track.dimensions.height;
+    const width = dimensions.width;
+    const height = dimensions.height;
 
     // Vertical grid lines
     let x = 0;
@@ -156,6 +156,9 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
   /**
    * Main drawing routine - renders complete track with multiple passes.
    * Uses canvas compositing operations to create track with inner/outer edges.
+   *
+   * TODO: Detect and handle inside-out tracks (e.g., left-only turns where
+   * inner radius > outer radius). Current logic assumes standard orientation.
    */
   function draw() {
     // Draw outer edges of all turns

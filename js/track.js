@@ -267,7 +267,7 @@ function parseSequenceOfComponents(parser, sequenceOfComponents, startPosition) 
   });
 }
 
-export function createTrack(sequenceOfComponents, gridSize) {
+export function createTrack(sequenceOfComponents, gridSize, trackWidth) {
   'use strict';
   const sizeMeter = createSizeMeter();
   parseSequenceOfComponents(sizeMeter, sequenceOfComponents);
@@ -277,6 +277,12 @@ export function createTrack(sequenceOfComponents, gridSize) {
     sizeMeter.getSize()
   );
   parseSequenceOfComponents(modelCreator, sequenceOfComponents, sizeMeter.getStartingPoint());
+
+  // Calculate edge offsets from track width
+  // Track is centered on turn radius, so split width in half
+  const halfTrackWidth = trackWidth / 2;
+  const edgeOffsetInner = 0.5 + halfTrackWidth;  // 0.5 + 0.2 = 0.7
+  const edgeOffsetOuter = 0.5 - halfTrackWidth;  // 0.5 - 0.2 = 0.3
 
   function getModel() {
     console.dir(sizeMeter.getSize());
@@ -302,7 +308,11 @@ export function createTrack(sequenceOfComponents, gridSize) {
       },
       gridSize,
       sequenceOfComponents: modelCreator.getSequence(),
-      grid: modelCreator.getGrid()
+      grid: modelCreator.getGrid(),
+      // Track width and calculated edge offsets (for rendering and collision)
+      trackWidth,
+      edgeOffsetInner,
+      edgeOffsetOuter
     };
   }
 

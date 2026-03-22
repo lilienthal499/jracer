@@ -1,0 +1,16 @@
+{
+  "id": 1,
+  "name": "Beginner Oval",
+  "description": "Left-turn oval track for learning the basics",
+  "sections": [
+    "START",
+    "LEFT_TURN",
+    "STRAIGHT",
+    "LEFT_TURN",
+    "STRAIGHT",
+    "LEFT_TURN",
+    "STRAIGHT",
+    "LEFT_TURN",
+    "FINISH"
+  ]
+}

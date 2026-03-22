@@ -41,7 +41,11 @@ export function initializeGame(config) {
   const physicsEngine = createPhysicsEngine(model);
   physicsEngine.scheduleUpdates(frameManager);
 
-  const track = createTrack(config.track.sections, config.track.gridSize);
+  const track = createTrack(
+    config.track.sections,
+    config.track.gridSize,
+    config.track.trackWidth
+  );
   model.track = track.getModel();
 
   const carControllers = [];
@@ -100,8 +104,7 @@ function startGameUI(config) {
 
     Drawer(
       tireTracksView.getCanvas(),
-      model.track.sequenceOfComponents,
-      model.track.gridSize,
+      model.track,
       config.track.showGrid
     );
     carViews.push(MovingCar(players[playerIndex].view, firstCar));
