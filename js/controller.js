@@ -36,7 +36,7 @@ export function createCarController(car) {
   function steeringWheelTurnedRight() {
     delayedControllers.steeringWheel = createDelayedController(
       400,
-      (progress) => {
+      progress => {
         // This could be non-linear
         car.controls.steeringWheel = progress;
       }
@@ -46,7 +46,7 @@ export function createCarController(car) {
   function steeringWheelTurnedLeft() {
     delayedControllers.steeringWheel = createDelayedController(
       400,
-      (progress) => {
+      progress => {
         // This could be non-linear
         car.controls.steeringWheel = -progress;
       }
@@ -56,7 +56,7 @@ export function createCarController(car) {
   function steeringWheelNotTurned() {
     delayedControllers.steeringWheel = createDelayedController(
       600,
-      (progress) => {
+      progress => {
         if (car.controls.steeringWheel > 0) {
           car.controls.steeringWheel -= progress;
           car.controls.steeringWheel =
@@ -109,13 +109,10 @@ export function createCarController(car) {
   }
 
   function onKeyUpPressed() {
-    delayedControllers.gasPedal = createDelayedController(
-      400,
-      (progress) => {
-        // This could be non-linear
-        car.controls.gasPedal = progress;
-      }
-    );
+    delayedControllers.gasPedal = createDelayedController(400, progress => {
+      // This could be non-linear
+      car.controls.gasPedal = progress;
+    });
   }
 
   function onKeyUpReleased() {
@@ -124,12 +121,9 @@ export function createCarController(car) {
   }
 
   function onKeyDownPressed() {
-    delayedControllers.brake = createDelayedController(
-      200,
-      (progress) => {
-        car.controls.brake = progress;
-      }
-    );
+    delayedControllers.brake = createDelayedController(200, progress => {
+      car.controls.brake = progress;
+    });
   }
 
   function onKeyDownReleased() {
@@ -172,7 +166,7 @@ export function createCarController(car) {
   }
 
   function update() {
-    Object.keys(delayedControllers).forEach((propertyName) => {
+    Object.keys(delayedControllers).forEach(propertyName => {
       if (delayedControllers[propertyName] !== undefined) {
         delayedControllers[propertyName].update();
       }
@@ -188,17 +182,20 @@ export function createKeyboardController(keyConfig, carController) {
   const keys = [];
 
   function setupKeys() {
-    keyConfig.slice().reverse().forEach((config) => {
-      keys.push({
-        name: config.key,
-        code: config.code,
-        isPressed: false
+    keyConfig
+      .slice()
+      .reverse()
+      .forEach(config => {
+        keys.push({
+          name: config.key,
+          code: config.code,
+          isPressed: false
+        });
       });
-    });
   }
 
   function getKey(code) {
-    return keys.find((key) => key.code === code);
+    return keys.find(key => key.code === code);
   }
 
   function onKeyDown(Key) {
