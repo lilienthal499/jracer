@@ -1,49 +1,43 @@
 jracer.model = (function () {
   'use strict';
 
-  const model = {
-    Car: function () {
+  function createCar() {
+    return {
+      position: new jracer.Vector(0, 0),
 
-      this.position = new jracer.Vector(0, 0);
-
-      this.velocity = {
+      velocity: {
         forward: 0,
         lateral: 0
-      };
+      },
 
-      this.direction = 0;
+      direction: 0,
 
-      this.controls = {
+      controls: {
         gasPedal: 0,
         brake: 0,
         steeringWheel: 0,
         maxSteeringAngle: 0.75
-      };
+      },
 
-      const width = 16;
-      const length = 30;
-      const wheelbase = 22; // Radstand
-      const trackWidth = 10; // Spurbreite
-      const frontOverhang = 3;
-      const rearOverhang = 3;
-      const sideOverhang = 3;
+      dimensions: {
+        width: 16,
+        length: 30,
+        wheelbase: 22, // Radstand
+        trackWidth: 10, // Spurbreite
+        frontOverhang: 3,
+        rearOverhang: 3,
+        sideOverhang: 3
+      },
 
-      this.dimensions = {
-        width,
-        length,
-        wheelbase,
-        trackWidth,
-        frontOverhang,
-        rearOverhang,
-        sideOverhang
-      };
+      component: undefined,
+      trackSequence: 0,
+      round: 1,
+      roundTimes: []
+    };
+  }
 
-      this.component = undefined;
-      this.trackSequence = 0;
-      this.round = 1;
-      this.roundTimes = [];
-
-    },
+  const model = {
+    createCar,
     paused: false,
     frameNumber: 0,
     framesPerSecond: 60,

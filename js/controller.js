@@ -6,20 +6,22 @@ jracer.controller.Keys = Object.freeze({
   RIGHT: 'RIGHT'
 });
 
-jracer.controller.DelayedController = function (delay, callback) {
+jracer.controller.createDelayedController = function (delay, callback) {
   'use strict';
   const numberOfSteps = Math.ceil(delay / jracer.model.frameDuration);
   const initialFrameNumber = jracer.model.frameNumber;
 
-  this.update = function () {
+  function update() {
     const currentStep = jracer.model.frameNumber - initialFrameNumber;
     if (currentStep <= numberOfSteps) {
       callback(currentStep / numberOfSteps);
     }
-  };
+  }
+
+  return { update };
 };
 
-jracer.controller.CarController = function (car) {
+jracer.controller.createCarController = function (car) {
   'use strict';
 
   const delayedControllers = {
@@ -31,7 +33,7 @@ jracer.controller.CarController = function (car) {
   let rightIsPressed = false;
 
   function steeringWheelTurnedRight() {
-    delayedControllers.steeringWheel = new jracer.controller.DelayedController(
+    delayedControllers.steeringWheel = jracer.controller.createDelayedController(
       400,
       (progress) => {
         // This could be non-linear
@@ -41,7 +43,7 @@ jracer.controller.CarController = function (car) {
   }
 
   function steeringWheelTurnedLeft() {
-    delayedControllers.steeringWheel = new jracer.controller.DelayedController(
+    delayedControllers.steeringWheel = jracer.controller.createDelayedController(
       400,
       (progress) => {
         // This could be non-linear
@@ -51,7 +53,7 @@ jracer.controller.CarController = function (car) {
   }
 
   function steeringWheelNotTurned() {
-    delayedControllers.steeringWheel = new jracer.controller.DelayedController(
+    delayedControllers.steeringWheel = jracer.controller.createDelayedController(
       600,
       (progress) => {
         if (car.controls.steeringWheel > 0) {
@@ -106,7 +108,7 @@ jracer.controller.CarController = function (car) {
   }
 
   function onKeyUpPressed() {
-    delayedControllers.gasPedal = new jracer.controller.DelayedController(
+    delayedControllers.gasPedal = jracer.controller.createDelayedController(
       400,
       (progress) => {
         // This could be non-linear
@@ -121,7 +123,7 @@ jracer.controller.CarController = function (car) {
   }
 
   function onKeyDownPressed() {
-    delayedControllers.brake = new jracer.controller.DelayedController(
+    delayedControllers.brake = jracer.controller.createDelayedController(
       200,
       (progress) => {
         car.controls.brake = progress;
@@ -134,7 +136,7 @@ jracer.controller.CarController = function (car) {
     car.controls.brake = 0;
   }
 
-  this.release = function (keyName) {
+  function release(keyName) {
     switch (keyName) {
       case jracer.controller.Keys.UP:
         onKeyUpReleased();
@@ -149,9 +151,9 @@ jracer.controller.CarController = function (car) {
         onKeyRightReleased();
         break;
     }
-  };
+  }
 
-  this.pressed = function (keyName) {
+  function pressed(keyName) {
     switch (keyName) {
       case jracer.controller.Keys.UP:
         onKeyUpPressed();
@@ -166,18 +168,20 @@ jracer.controller.CarController = function (car) {
         onKeyRightPressed();
         break;
     }
-  };
+  }
 
-  this.update = function () {
+  function update() {
     Object.keys(delayedControllers).forEach((propertyName) => {
       if (delayedControllers[propertyName] !== undefined) {
         delayedControllers[propertyName].update();
       }
     });
-  };
+  }
+
+  return { release, pressed, update };
 };
 
-jracer.controller.KeyboardController = function (keyConfig, carController) {
+jracer.controller.createKeyboardController = function (keyConfig, carController) {
   'use strict';
 
   const keys = [];
@@ -219,10 +223,13 @@ jracer.controller.KeyboardController = function (keyConfig, carController) {
     }
   }
 
-  this.getKeyHandler = function () {
+  function getKeyHandler() {
     return keyHandler;
-  };
+  }
+
   setupKeys();
+
+  return { getKeyHandler };
 };
 
 // return {

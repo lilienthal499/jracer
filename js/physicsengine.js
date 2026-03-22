@@ -1,4 +1,4 @@
-jracer.PhysicsEngine = function (model) {
+jracer.createPhysicsEngine = function (model) {
   'use strict';
   const carPhysicsControllers = [];
 
@@ -26,7 +26,7 @@ jracer.PhysicsEngine = function (model) {
     return result;
   }
 
-  function CarPhysicsController(carModel) {
+  function createCarPhysicsController(carModel) {
 
     const undirectedVelocity = new jracer.Vector(0, 0);
     const directedVelocity = new jracer.Vector(0, 0);
@@ -222,7 +222,7 @@ jracer.PhysicsEngine = function (model) {
     copyModel(next, carModel);
     copyModel(last, carModel);
 
-    this.calculateNewFrame = function () {
+    function calculateNewFrame() {
 
       const direction = calculateDirection();
 
@@ -242,9 +242,9 @@ jracer.PhysicsEngine = function (model) {
 
       calculateTrackComponent();
 
-    };
+    }
 
-    this.calculateSubFrame = function (progress) {
+    function calculateSubFrame(progress) {
       const current = carModel;
 
       function calculateCurrentValue(lastValue, nextValue) {
@@ -258,16 +258,18 @@ jracer.PhysicsEngine = function (model) {
       current.velocity.forward = calculateCurrentValue(last.velocity.forward, next.velocity.forward);
       current.velocity.lateral = calculateCurrentValue(last.velocity.lateral, next.velocity.lateral);
 
-    };
+    }
+
+    return { calculateNewFrame, calculateSubFrame };
   }
 
-  function calculateSubFrame(progress) {
+  function updateAllCarsSubFrame(progress) {
     carPhysicsControllers.forEach((carPhysicsController) => {
       carPhysicsController.calculateSubFrame(progress);
     });
   }
 
-  function calculateNewFrame() {
+  function updateAllCarsFrame() {
     carPhysicsControllers.forEach((carPhysicsController) => {
       carPhysicsController.calculateNewFrame();
     });
@@ -276,11 +278,11 @@ jracer.PhysicsEngine = function (model) {
 
   return {
     addCar: function (carModel) {
-      carPhysicsControllers.push(new CarPhysicsController(carModel));
+      carPhysicsControllers.push(createCarPhysicsController(carModel));
     },
     scheduleUpdates: function (frameManager) {
-      frameManager.addSubFrameListener(calculateSubFrame);
-      frameManager.addFrameListener(calculateNewFrame);
+      frameManager.addSubFrameListener(updateAllCarsSubFrame);
+      frameManager.addFrameListener(updateAllCarsFrame);
     }
   };
 

@@ -57,7 +57,7 @@ jracer.startup = function (config) {
 
       players.forEach((player) => {
 
-        const car = new jracer.model.Car();
+        const car = jracer.model.createCar();
         car.controls.maxSteeringAngle = player.maxSteeringAngle;
         //TODO
         car.position.x = jracer.model.track.startingPosition.x;
@@ -65,11 +65,11 @@ jracer.startup = function (config) {
 
         jracer.model.cars.push(car);
 
-        const carController = new jracer.controller.CarController(car);
+        const carController = jracer.controller.createCarController(car);
 
         jracer.frameManager.addFrameListener(carController.update);
 
-        const keyboardController = new jracer.controller.KeyboardController(player.controls, carController);
+        const keyboardController = jracer.controller.createKeyboardController(player.controls, carController);
 
         document.addEventListener('keydown', keyboardController.getKeyHandler());
         document.addEventListener('keyup', keyboardController.getKeyHandler());
@@ -92,7 +92,7 @@ jracer.startup = function (config) {
 
       jracer.model.cars.forEach((car, index) => {
         if (index !== playerIndex) {
-          carViews.push(new jracer.view.MovingCar(players[index].view, car));
+          carViews.push(jracer.view.MovingCar(players[index].view, car));
         }
       });
       const firstCar = jracer.model.cars[playerIndex];
@@ -108,10 +108,10 @@ jracer.startup = function (config) {
       return jracer.view.Screen(players[playerIndex].view, trackView, firstCarView, firstCar, headUpDisplayView);
     }
 
-    jracer.physicsEngine = new jracer.PhysicsEngine(jracer.model);
+    jracer.physicsEngine = jracer.createPhysicsEngine(jracer.model);
     jracer.physicsEngine.scheduleUpdates(jracer.frameManager);
 
-    const track = jracer.Track(config.track.sections, config.track.gridSize);
+    const track = jracer.createTrack(config.track.sections, config.track.gridSize);
 
     jracer.model.track = track.getModel();
 

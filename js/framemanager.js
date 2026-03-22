@@ -1,4 +1,4 @@
-jracer.FrameManager = function (model) {
+jracer.frameManager = (function (model) {
   'use strict';
 
   let running = false;
@@ -77,6 +77,4 @@ jracer.FrameManager = function (model) {
     }
   };
 
-};
-
-jracer.frameManager = new jracer.FrameManager(jracer.model);
+})(jracer.model);
