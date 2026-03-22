@@ -34,6 +34,7 @@
     "url": "git+https://github.com/yourusername/jracer.git"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.0",
     "@vitest/ui": "^4.1.0",
     "eslint": "^8.57.0",
     "happy-dom": "^20.8.4",
