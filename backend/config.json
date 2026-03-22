@@ -1,0 +1,49 @@
+{
+  "screen": {
+    "height": 600,
+    "width": 800,
+    "split": false
+  },
+  "track": {
+    "number": 2,
+    "gridSize": 400,
+    "sections": [],
+    "grid": [],
+    "showGrid": true
+  },
+  "players": [
+    {
+      "name": "田阳",
+      "controls": [
+        { "key": "UP", "code": "KeyW" },
+        { "key": "DOWN", "code": "KeyS" },
+        { "key": "LEFT", "code": "KeyA" },
+        { "key": "RIGHT", "code": "KeyD" }
+      ],
+      "view": { "color": "DarkSeaGreen", "rotateAndZoom": false },
+      "maxSteeringAngle": 0.2
+    },
+    {
+      "name": "田南",
+      "controls": [
+        { "key": "UP", "code": "ArrowUp" },
+        { "key": "DOWN", "code": "ArrowDown" },
+        { "key": "LEFT", "code": "ArrowLeft" },
+        { "key": "RIGHT", "code": "ArrowRight" }
+      ],
+      "view": { "color": "Maroon", "rotateAndZoom": true },
+      "maxSteeringAngle": 0.17
+    },
+    {
+      "name": "Dummy",
+      "controls": [
+        { "key": "UP", "code": "KeyI" },
+        { "key": "DOWN", "code": "KeyK" },
+        { "key": "LEFT", "code": "KeyJ" },
+        { "key": "RIGHT", "code": "KeyL" }
+      ],
+      "view": { "color": "Olive" },
+      "maxSteeringAngle": 0.15
+    }
+  ]
+}

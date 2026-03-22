@@ -1,11 +1,7 @@
 import { model } from './model.js';
+import { Keys } from '../shared/keys.js';
 
-export const Keys = Object.freeze({
-  UP: 'UP',
-  DOWN: 'DOWN',
-  LEFT: 'LEFT',
-  RIGHT: 'RIGHT'
-});
+export { Keys };
 
 export function createDelayedController(delay, callback) {
   'use strict';
@@ -209,7 +205,7 @@ export function createKeyboardController(keyConfig, carController) {
   }
 
   function keyHandler(event) {
-    const Key = getKey(event.keyCode);
+    const Key = getKey(event.code);
     if (Key === undefined) {
       return;
     }

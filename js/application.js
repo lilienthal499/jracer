@@ -13,20 +13,23 @@ import {
   MiniMap
 } from './view/view.js';
 
-export function startup(config) {
+export function startup() {
   'use strict';
 
-  fetch(`tracks/${config.track.number}.json`)
+  fetch('backend/config.json')
     .then(response => response.json())
-    .then(trackData => {
-      config.track.sections = trackData.sections;
-      config.track.gridSize = trackData.gridSize;
+    .then(config => {
+      fetch(`backend/tracks/${config.track.number}.json`)
+        .then(response => response.json())
+        .then(trackData => {
+          config.track.sections = trackData.sections;
 
-      console.log(`Loaded track: ${trackData.name} (${trackData.description})`);
+          console.log(`Loaded track: ${trackData.name} (${trackData.description})`);
 
-      const carControllers = initializeGame(config);
-      attachKeyboardControls(carControllers, config);
-      startGameUI(config);
+          const carControllers = initializeGame(config);
+          attachKeyboardControls(carControllers, config);
+          startGameUI(config);
+        });
     });
 }
 

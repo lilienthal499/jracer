@@ -1,14 +1,13 @@
 import { test, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { initializeGame } from '../js/application.js';
-import { config } from '../js/config.js';
 
 test('initializeGame runs without throwing', () => {
-  // Load real track data
-  const trackData = JSON.parse(readFileSync('tracks/2.json', 'utf-8'));
-  config.track.sections = trackData.sections;
-  config.track.gridSize = trackData.gridSize;
+  // Load config and track data
+  const config = JSON.parse(readFileSync('backend/config.json', 'utf-8'));
+  const trackData = JSON.parse(readFileSync('backend/tracks/2.json', 'utf-8'));
 
-  // Just verify it doesn't throw
+  config.track.sections = trackData.sections;
+
   expect(() => initializeGame(config)).not.toThrow();
 });

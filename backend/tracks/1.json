@@ -2,7 +2,6 @@
   "id": 1,
   "name": "Beginner Oval",
   "description": "Simple oval track for learning the basics",
-  "gridSize": 400,
   "sections": [
     "START",
     "RIGHT_TURN",
