@@ -53,6 +53,28 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
   }
 
   /**
+   * Draw road markings: red edge lines, dashed white center, and thin white outline.
+   */
+  function drawRoadMarkings() {
+    // Red edge lines
+    canvas.strokeStyle = 'rgb(200,30,30)';
+    canvas.lineWidth = gridSize / 10;
+    canvas.stroke();
+
+    // Dashed white center line
+    canvas.setLineDash([gridSize / 8, gridSize / 8]);
+    canvas.strokeStyle = 'rgb(255,255,255)';
+    canvas.lineWidth = gridSize / 10;
+    canvas.stroke();
+    canvas.setLineDash([]);
+
+    // Thin white outer line
+    canvas.strokeStyle = 'rgb(255,255,255)';
+    canvas.lineWidth = gridSize / 25;
+    canvas.stroke();
+  }
+
+  /**
    * Draw debug grid lines showing the track grid structure.
    */
   function drawGridLines() {
@@ -120,22 +142,8 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
 
     canvas.globalCompositeOperation = 'source-atop';
 
-    // Draw road markings - red edges
-    canvas.strokeStyle = 'rgb(200,30,30)';
-    canvas.lineWidth = gridSize / 10;
-    canvas.stroke();
-
-    // Dashed white center line
-    canvas.setLineDash([gridSize / 8, gridSize / 8]);
-    canvas.strokeStyle = 'rgb(255,255,255)';
-    canvas.lineWidth = gridSize / 10;
-    canvas.stroke();
-    canvas.setLineDash([]);
-
-    // Thin white outer line
-    canvas.strokeStyle = 'rgb(255,255,255)';
-    canvas.lineWidth = gridSize / 25;
-    canvas.stroke();
+    // Draw road markings on outer edge
+    drawRoadMarkings();
 
     // Draw inner edges of all turns (creates hollow center)
     canvas.beginPath();
@@ -152,20 +160,8 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
 
     canvas.globalCompositeOperation = 'source-atop';
 
-    // Draw inner edge markings (same as outer)
-    canvas.strokeStyle = 'rgb(200,30,30)';
-    canvas.lineWidth = gridSize / 10;
-    canvas.stroke();
-
-    canvas.setLineDash([gridSize / 8, gridSize / 8]);
-    canvas.strokeStyle = 'rgb(255,255,255)';
-    canvas.lineWidth = gridSize / 10;
-    canvas.stroke();
-    canvas.setLineDash([]);
-
-    canvas.strokeStyle = 'rgb(255,255,255)';
-    canvas.lineWidth = gridSize / 25;
-    canvas.stroke();
+    // Draw road markings on inner edge
+    drawRoadMarkings();
 
     // Optionally draw debug grid
     if (showGrid) {
