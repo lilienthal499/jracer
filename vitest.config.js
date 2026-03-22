@@ -2,15 +2,14 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    environment: 'happy-dom', // Simulates browser DOM
-    globals: true, // Use global describe, it, expect without imports
-    setupFiles: ['./tests/vitest/setup.js'], // Load test setup
-    include: ['tests/vitest/**/*.test.js'], // Only run Vitest tests
+    environment: 'happy-dom',
+    globals: true,
+    include: ['tests/**/*.test.js'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
       include: ['js/**/*.js'],
-      exclude: ['js/view/**', 'tests/**']
+      exclude: ['js/config.js']
     }
   }
 });

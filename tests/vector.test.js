@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { Vector } from '../../js/vector.js';
+import { Vector } from '../js/vector.js';
 
 const close = (a, b) => Math.abs(a - b) < 1e-10;
 
