@@ -53,6 +53,41 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
   }
 
   /**
+   * Create an asphalt texture pattern using canvas noise.
+   * @returns {CanvasPattern} Repeatable noise pattern for asphalt texture
+   */
+  function createAsphaltTexture() {
+    // Create small canvas for texture
+    const textureSize = 100;
+    const textureCanvas = document.createElement('canvas');
+    textureCanvas.width = textureSize;
+    textureCanvas.height = textureSize;
+    const textureCtx = textureCanvas.getContext('2d');
+
+    // Base dark gray
+    textureCtx.fillStyle = 'rgb(65,65,65)';
+    textureCtx.fillRect(0, 0, textureSize, textureSize);
+
+    // Add random noise for asphalt texture
+    const imageData = textureCtx.getImageData(0, 0, textureSize, textureSize);
+    const data = imageData.data;
+
+    for (let i = 0; i < data.length; i += 4) {
+      // Random brightness variation for each pixel
+      const variation = (Math.random() - 0.5) * 20; // ±15 brightness
+      data[i] += variation;
+      data[i + 1] += variation; // G
+      data[i + 2] += variation; // B
+      // Alpha stays at 255
+    }
+
+    textureCtx.putImageData(imageData, 0, 0);
+
+    // Return pattern that can be tiled
+    return canvas.createPattern(textureCanvas, 'repeat');
+  }
+
+  /**
    * Draw road markings: red edge lines, dashed white center, and thin white outline.
    */
   function drawRoadMarkings() {
@@ -122,22 +157,9 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
 
     canvas.globalCompositeOperation = 'source-over';
 
-    // Fill track with radial gradient (darker at edges)
-    const gradient = canvas.createRadialGradient(
-      model.track.dimensions.width / 2,
-      model.track.dimensions.height / 2,
-      100,
-      model.track.dimensions.width / 2,
-      model.track.dimensions.height / 2,
-      Math.max(
-        model.track.dimensions.width,
-        model.track.dimensions.height
-      )
-    );
-    gradient.addColorStop(0, 'rgb(75,75,75)');
-    gradient.addColorStop(0.5, 'rgb(60,60,60)');
-    gradient.addColorStop(1, 'rgb(50,50,50)');
-    canvas.fillStyle = gradient;
+    // Fill track with asphalt texture
+    const asphaltTexture = createAsphaltTexture();
+    canvas.fillStyle = asphaltTexture;
     canvas.fill();
 
     canvas.globalCompositeOperation = 'source-atop';
