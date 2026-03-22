@@ -1,8 +1,11 @@
-jracer.createPhysicsEngine = function (model) {
+import { Vector } from './vector.js';
+import { model } from './model.js';
+
+export function createPhysicsEngine(modelInstance) {
   'use strict';
   const carPhysicsControllers = [];
 
-  const dt = model.frameDurationInSeconds;
+  const dt = modelInstance.frameDurationInSeconds;
 
   const ROLLING_RESISTANCE = 50;
   const STATIC_FRICTION = 550;
@@ -28,13 +31,13 @@ jracer.createPhysicsEngine = function (model) {
 
   function createCarPhysicsController(carModel) {
 
-    const undirectedVelocity = new jracer.Vector(0, 0);
-    const directedVelocity = new jracer.Vector(0, 0);
+    const undirectedVelocity = new Vector(0, 0);
+    const directedVelocity = new Vector(0, 0);
     let angularVelocity = 0;
     let angularDrifting = false;
     let notRealizedAcceleration = 0;
     const last = {
-      position: new jracer.Vector(0, 0),
+      position: new Vector(0, 0),
       velocity: {
         forward: 0,
         lateral: 0
@@ -42,7 +45,7 @@ jracer.createPhysicsEngine = function (model) {
       direction: 0
     };
     const next = {
-      position: new jracer.Vector(0, 0),
+      position: new Vector(0, 0),
       velocity: {
         forward: 0,
         lateral: 0
@@ -101,7 +104,7 @@ jracer.createPhysicsEngine = function (model) {
         return next.velocity.drifting ? DRIFTING_FRICTION : STATIC_FRICTION;
       }
 
-      const acceleration = new jracer.Vector(0, 0);
+      const acceleration = new Vector(0, 0);
       const currentFriction = getCurrentFriction();
 
       notRealizedAcceleration = 0;
@@ -155,7 +158,7 @@ jracer.createPhysicsEngine = function (model) {
 
 
     function calculateDisplacement(velocity) {
-      return new jracer.Vector(velocity.x * dt, velocity.y * dt);
+      return new Vector(velocity.x * dt, velocity.y * dt);
     }
 
 
@@ -193,14 +196,14 @@ jracer.createPhysicsEngine = function (model) {
 
     function calculateTrackComponent() {
 
-      const gridX = Math.ceil(next.position.x / jracer.model.track.gridSize) - 1;
-      const gridY = Math.ceil(next.position.y / jracer.model.track.gridSize) - 1;
+      const gridX = Math.ceil(next.position.x / model.track.gridSize) - 1;
+      const gridY = Math.ceil(next.position.y / model.track.gridSize) - 1;
       let component;
 
       try {
-        component = jracer.model.track.grid[gridX][gridY];
+        component = model.track.grid[gridX][gridY];
 
-        if (carModel.trackSequence === jracer.model.track.sequenceOfComponents.length - 1 && component.getSequenceNumber() === 1){
+        if (carModel.trackSequence === model.track.sequenceOfComponents.length - 1 && component.getSequenceNumber() === 1){
           carModel.round += 1;
           carModel.trackSequence = 1;
           //console.log(carModel.trackSequence);
@@ -209,7 +212,7 @@ jracer.createPhysicsEngine = function (model) {
           carModel.component = component;
           carModel.trackSequence += 1;
           //console.log(carModel.trackSequence);
-          carModel.roundTimes.push(jracer.model.frameNumber);
+          carModel.roundTimes.push(model.frameNumber);
           console.dir(carModel.roundTimes);
         }
 
@@ -286,4 +289,5 @@ jracer.createPhysicsEngine = function (model) {
     }
   };
 
-};
+}
+

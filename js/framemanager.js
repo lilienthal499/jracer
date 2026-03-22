@@ -1,9 +1,11 @@
-jracer.frameManager = (function (model) {
+import { model } from './model.js';
+
+function createFrameManager(modelInstance) {
   'use strict';
 
   let running = false;
   let lastFrameUpdate;
-  const frameDuration = model.frameDuration;
+  const frameDuration = modelInstance.frameDuration;
   let animationFrameId;
   const frameListeners = [];
   const subFrameListeners = [];
@@ -30,7 +32,7 @@ jracer.frameManager = (function (model) {
         frameListeners.forEach((listener) => {
           listener();
         });
-        model.frameNumber += 1;
+        modelInstance.frameNumber += 1;
         lastFrameUpdate += frameDuration;
       }
     }
@@ -76,5 +78,7 @@ jracer.frameManager = (function (model) {
       subFrameListeners.push(subFrameListener);
     }
   };
+}
 
-})(jracer.model);
+export const frameManager = createFrameManager(model);
+

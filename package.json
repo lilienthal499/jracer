@@ -1,6 +1,7 @@
 {
   "name": "jracer",
   "version": "4.0.0",
+  "type": "module",
   "description": "JavaScript Racing Game - A browser-based racing game with realistic physics simulation",
   "main": "js/application.js",
   "scripts": {
@@ -12,7 +13,13 @@
     "format:check": "prettier --check \"**/*.{js,html,css,json,md}\"",
     "serve": "npx live-server --port=5500 --open=index.html",
     "validate": "npm run lint && npm run format:check",
-    "test": "echo \"Tests not yet implemented\" && exit 0"
+    "test": "npm run test:vitest && npm run test:node",
+    "test:vitest": "vitest run",
+    "test:vitest:watch": "vitest",
+    "test:vitest:ui": "vitest --ui",
+    "test:vitest:coverage": "vitest run --coverage",
+    "test:node": "node --test tests/node/**/*.test.js",
+    "test:node:watch": "node --test --watch tests/node/**/*.test.js"
   },
   "keywords": [
     "game",
@@ -29,10 +36,14 @@
     "url": "git+https://github.com/yourusername/jracer.git"
   },
   "devDependencies": {
+    "@vitest/ui": "^4.1.0",
     "eslint": "^8.57.0",
+    "happy-dom": "^20.8.4",
     "http-server": "^14.1.1",
+    "jsdom": "^29.0.1",
     "live-server": "^1.2.0",
-    "prettier": "^3.2.5"
+    "prettier": "^3.2.5",
+    "vitest": "^4.1.0"
   },
   "engines": {
     "node": ">=14.0.0",
