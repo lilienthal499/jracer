@@ -171,6 +171,7 @@ function createModelCreator(startPosition, size) {
 
   function initializeGrid() {
     // Create size.x empty arrays and spread them into grid
+    // X dimension must be pre-initialized; Y dimension grows dynamically on assignment
     grid.push(...Array.from({ length: size.x }, () => []));
   }
 
