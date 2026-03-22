@@ -2,7 +2,8 @@ import { model } from './model.js';
 import { frameManager } from './framemanager.js';
 import { createCarController, createKeyboardController } from './controller.js';
 import { createPhysicsEngine } from './physicsengine.js';
-import { createTrack, Drawer } from './track.js';
+import { createTrack } from './track.js';
+import { Drawer } from './view/track.js';
 import { MovingCar, StaticCar } from './view/car.js';
 import {
   HeadUpDisplay,
