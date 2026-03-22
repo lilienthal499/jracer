@@ -1,7 +1,24 @@
 import { model } from '../model.js';
 
+/**
+ * Draws the racing track to a canvas element.
+ * Renders track curves, road markings, and optional debug grid.
+ *
+ * @param {CanvasRenderingContext2D} canvas - Canvas 2D context to draw on
+ * @param {Array} sequenceOfComponents - Track components from model (turns, straights)
+ * @param {number} gridSize - Size of one grid cell in pixels
+ * @param {boolean} showGrid - Whether to draw debug grid lines
+ */
 export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
   'use strict';
+
+  /**
+   * Draw a single turn component as a circular arc.
+   * Draws both inner and outer loop depending on innerLoop parameter.
+   *
+   * @param {Object} turn - Turn component from model with centerOfCircle, angles, size
+   * @param {boolean} innerLoop - True for outer edge, false for inner edge
+   */
   function drawTurn(turn, innerLoop) {
     let turnSize = turn.size;
     let startAngle;
@@ -12,11 +29,13 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
     }
     startAngle = turn.startCardinalDirection;
     endAngle = turn.endCardinalDirection;
+    // Flip angles for counter-clockwise turns
     if (!turn.clockwise) {
       startAngle = (startAngle + Math.PI) % (2 * Math.PI);
       endAngle = (endAngle + Math.PI) % (2 * Math.PI);
     }
 
+    // Calculate radius based on turn size and which edge (inner/outer)
     if (innerLoop !== turn.clockwise) {
       radius = gridSize * (turnSize - 0.7);
     } else {
@@ -33,12 +52,16 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
     );
   }
 
+  /**
+   * Draw debug grid lines showing the track grid structure.
+   */
   function drawGridLines() {
     canvas.strokeStyle = 'rgba(0,0,0,0.9)';
     canvas.lineWidth = 3;
     const width = model.track.dimensions.width;
     const height = model.track.dimensions.height;
 
+    // Vertical grid lines
     let x = 0;
     while (x <= width) {
       canvas.beginPath();
@@ -48,6 +71,7 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
       x += gridSize;
     }
 
+    // Horizontal grid lines
     let y = 0;
     while (y <= height) {
       canvas.beginPath();
@@ -58,7 +82,12 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
     }
   }
 
+  /**
+   * Main drawing routine - renders complete track with multiple passes.
+   * Uses canvas compositing operations to create track with inner/outer edges.
+   */
   function draw() {
+    // Draw outer edges of all turns
     canvas.beginPath();
 
     sequenceOfComponents.forEach(component => {
@@ -71,6 +100,7 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
 
     canvas.globalCompositeOperation = 'source-over';
 
+    // Fill track with radial gradient (darker at edges)
     const gradient = canvas.createRadialGradient(
       model.track.dimensions.width / 2,
       model.track.dimensions.height / 2,
@@ -90,20 +120,24 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
 
     canvas.globalCompositeOperation = 'source-atop';
 
+    // Draw road markings - red edges
     canvas.strokeStyle = 'rgb(200,30,30)';
     canvas.lineWidth = gridSize / 10;
     canvas.stroke();
 
+    // Dashed white center line
     canvas.setLineDash([gridSize / 8, gridSize / 8]);
     canvas.strokeStyle = 'rgb(255,255,255)';
     canvas.lineWidth = gridSize / 10;
     canvas.stroke();
     canvas.setLineDash([]);
 
+    // Thin white outer line
     canvas.strokeStyle = 'rgb(255,255,255)';
     canvas.lineWidth = gridSize / 25;
     canvas.stroke();
 
+    // Draw inner edges of all turns (creates hollow center)
     canvas.beginPath();
 
     sequenceOfComponents.forEach(component => {
@@ -112,11 +146,13 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
       }
     });
     canvas.closePath();
+    // Cut out inner track area
     canvas.globalCompositeOperation = 'destination-out';
     canvas.fill();
 
     canvas.globalCompositeOperation = 'source-atop';
 
+    // Draw inner edge markings (same as outer)
     canvas.strokeStyle = 'rgb(200,30,30)';
     canvas.lineWidth = gridSize / 10;
     canvas.stroke();
@@ -131,6 +167,7 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
     canvas.lineWidth = gridSize / 25;
     canvas.stroke();
 
+    // Optionally draw debug grid
     if (showGrid) {
       drawGridLines();
     }
