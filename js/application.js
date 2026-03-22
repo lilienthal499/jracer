@@ -17,14 +17,15 @@ export function startup(config) {
   'use strict';
 
   fetch(`tracks/${config.track.number}.json`)
-    .then((response) => response.json())
-    .then((trackData) => {
+    .then(response => response.json())
+    .then(trackData => {
       config.track.sections = trackData.sections;
       config.track.gridSize = trackData.gridSize;
 
       console.log(`Loaded track: ${trackData.name} (${trackData.description})`);
 
-      initializeGame(config);
+      const carControllers = initializeGame(config);
+      attachKeyboardControls(carControllers, config);
       startGameUI(config);
     });
 }
@@ -39,7 +40,9 @@ export function initializeGame(config) {
   const track = createTrack(config.track.sections, config.track.gridSize);
   model.track = track.getModel();
 
-  config.players.forEach((player) => {
+  const carControllers = [];
+
+  config.players.forEach(player => {
     const car = model.createCar();
     car.controls.maxSteeringAngle = player.maxSteeringAngle;
     car.position.x = model.track.startingPosition.x;
@@ -49,13 +52,24 @@ export function initializeGame(config) {
 
     const carController = createCarController(car);
     frameManager.addFrameListener(carController.update);
+    carControllers.push(carController);
 
-    const keyboardController = createKeyboardController(player.controls, carController);
+    physicsEngine.addCar(car);
+  });
+
+  return carControllers;
+}
+
+// Attach keyboard input to car controllers
+export function attachKeyboardControls(carControllers, config) {
+  config.players.forEach((player, index) => {
+    const keyboardController = createKeyboardController(
+      player.controls,
+      carControllers[index]
+    );
 
     document.addEventListener('keydown', keyboardController.getKeyHandler());
     document.addEventListener('keyup', keyboardController.getKeyHandler());
-
-    physicsEngine.addCar(car);
   });
 }
 
@@ -66,7 +80,6 @@ function startGameUI(config) {
   const screens = [];
 
   function createScreenView(players, playerIndex) {
-
     const carViews = [];
 
     model.cars.forEach((car, index) => {
@@ -81,10 +94,25 @@ function startGameUI(config) {
     const tireTracksView = TireTracks({}, model.cars);
     frameManager.addSubFrameListener(tireTracksView.update);
 
-    Drawer(tireTracksView.getCanvas(), model.track.sequenceOfComponents, model.track.gridSize);
+    Drawer(
+      tireTracksView.getCanvas(),
+      model.track.sequenceOfComponents,
+      model.track.gridSize
+    );
     carViews.push(MovingCar(players[playerIndex].view, firstCar));
-    const trackView = MovingTrack(config.track, firstCar, carViews, tireTracksView);
-    return Screen(players[playerIndex].view, trackView, firstCarView, firstCar, headUpDisplayView);
+    const trackView = MovingTrack(
+      config.track,
+      firstCar,
+      carViews,
+      tireTracksView
+    );
+    return Screen(
+      players[playerIndex].view,
+      trackView,
+      firstCarView,
+      firstCar,
+      headUpDisplayView
+    );
   }
 
   screens.push(createScreenView(config.players, 0));
@@ -106,7 +134,6 @@ function startGameUI(config) {
 
   window.setTimeout(frameManager.start, 1000);
 }
-
 
 /*
 Optionen:
