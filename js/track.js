@@ -1,6 +1,5 @@
 import { Vector } from './vector.js';
 import { model } from './model.js';
-import { config } from './config.js';
 
 export const Track = {
   NORTH: Math.PI,
@@ -171,10 +170,8 @@ function createModelCreator(startPosition, size) {
   const grid = [];
 
   function initializeGrid() {
-  // eslint-disable-next-line no-restricted-syntax
-    for (let index = 0; index < size.x; index = index + 1) {
-      grid[index] = [];
-    }
+    // Create size.x empty arrays and spread them into grid
+    grid.push(...Array.from({ length: size.x }, () => []));
   }
 
   function setGrid(positions, component) {
@@ -190,7 +187,7 @@ function createModelCreator(startPosition, size) {
   }
 
   function addStart() {
-    if (cursor !== null) {
+    if (cursor) {
       throw new Error("Only one 'Start' allowed");
     }
     cursor = createCursor(startPosition);
@@ -312,7 +309,7 @@ export function createTrack(sequenceOfComponents, gridSize) {
   return { getModel };
 }
 
-export function Drawer(canvas, sequenceOfComponents, gridSize) {
+export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
   'use strict';
   function drawTurn(turn, innerLoop) {
     let turnSize = turn.size;
@@ -443,7 +440,7 @@ export function Drawer(canvas, sequenceOfComponents, gridSize) {
     canvas.lineWidth = gridSize / 25;
     canvas.stroke();
 
-    if (config.track.showGrid) {
+    if (showGrid) {
       drawGridLines();
     }
   }

@@ -100,7 +100,8 @@ function startGameUI(config) {
     Drawer(
       tireTracksView.getCanvas(),
       model.track.sequenceOfComponents,
-      model.track.gridSize
+      model.track.gridSize,
+      config.track.showGrid
     );
     carViews.push(MovingCar(players[playerIndex].view, firstCar));
     const trackView = MovingTrack(
