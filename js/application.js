@@ -3,9 +3,8 @@ import { frameManager } from './framemanager.js';
 import { createCarController, createKeyboardController } from './controller.js';
 import { createPhysicsEngine } from './physicsengine.js';
 import { createTrack, Drawer } from './track.js';
+import { MovingCar, StaticCar } from './view/car.js';
 import {
-  MovingCar,
-  StaticCar,
   HeadUpDisplay,
   TireTracks,
   MovingTrack,
