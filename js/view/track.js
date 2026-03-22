@@ -76,14 +76,14 @@ export function Drawer(canvas, sequenceOfComponents, gridSize, showGrid) {
     for (let i = 0; i < data.length; i += 4) {
       // Random brightness variation for each pixel
       const variation = (Math.random() - 0.5) * 20;
-      const rIndex = i;
-      const gIndex = i + 1;
-      const bIndex = i + 2;
-      // aIndex = i + 3 would be alpha, left unchanged
+      const redIndex = i;
+      const greenIndex = i + 1;
+      const blueIndex = i + 2;
+      // alphaIndex = i + 3 would be alpha, left unchanged
 
-      data[rIndex] += variation;
-      data[gIndex] += variation;
-      data[bIndex] += variation;
+      data[redIndex] += variation;
+      data[greenIndex] += variation;
+      data[blueIndex] += variation;
     }
 
     textureCtx.putImageData(imageData, 0, 0);
