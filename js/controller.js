@@ -55,13 +55,11 @@ export function createCarController(car) {
       progress => {
         if (car.controls.steeringWheel > 0) {
           car.controls.steeringWheel -= progress;
-          car.controls.steeringWheel =
-            car.controls.steeringWheel > 0 ? car.controls.steeringWheel : 0;
+          car.controls.steeringWheel = Math.max(car.controls.steeringWheel, 0);
         }
         if (car.controls.steeringWheel < 0) {
           car.controls.steeringWheel += progress;
-          car.controls.steeringWheel =
-            car.controls.steeringWheel < 0 ? car.controls.steeringWheel : 0;
+          car.controls.steeringWheel = Math.min(car.controls.steeringWheel, 0);
         }
       }
     );
