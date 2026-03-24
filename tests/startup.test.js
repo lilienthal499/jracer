@@ -7,7 +7,5 @@ test('initializeGame runs without throwing', () => {
   const config = JSON.parse(readFileSync('backend/config.json', 'utf-8'));
   const trackData = JSON.parse(readFileSync('backend/tracks/2.json', 'utf-8'));
 
-  config.track.sections = trackData.sections;
-
-  expect(() => initializeGame(config)).not.toThrow();
+  expect(() => initializeGame(config, trackData)).not.toThrow();
 });

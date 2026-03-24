@@ -9,7 +9,13 @@
 export function Drawer(canvas, track, showGrid) {
   'use strict';
 
-  const { sequenceOfComponents, gridSize, edgeOffsetInner, edgeOffsetOuter, dimensions } = track;
+  const {
+    sequenceOfComponents,
+    gridSize,
+    edgeOffsetInner,
+    edgeOffsetOuter,
+    dimensions
+  } = track;
 
   /**
    * Draw a single turn component as a circular arc.
@@ -201,6 +207,9 @@ export function Drawer(canvas, track, showGrid) {
 
     // Draw road markings on inner edge
     drawRoadMarkings();
+
+    // Reset composite operation to default for grid
+    canvas.globalCompositeOperation = 'source-over';
 
     // Optionally draw debug grid
     if (showGrid) {

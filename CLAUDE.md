@@ -110,7 +110,7 @@ jracer.subnamespace.Component = function() { ... }
 2. **Frame Update** → PhysicsEngine calculates new car positions/velocities
 3. **Track Query** → Cars query track grid for current component (lap detection)
 4. **Sub-frame Update** → Views interpolate between last/next frame states
-5. **Render** → DOM updates via DOMProxy, canvas drawing for tracks/tire marks
+5. **Render** → DOM updates via createCachedStyleSetter, canvas drawing for tracks/tire marks
 
 ### Configuration (`config.js`)
 
@@ -148,9 +148,9 @@ jracer.subnamespace.Component = function() { ... }
 - Turn components calculate circle centers for canvas arc rendering
 
 ### Rendering Performance
-- `DOMProxy` pattern critical for performance - bypasses DOM writes when value unchanged
+- `createCachedStyleSetter` pattern critical for performance - bypasses DOM writes when value unchanged
 - Tire tracks drawn to persistent canvas (not cleared each frame)
-- Transform matrix caching via DOMProxy for rotations
+- Transform matrix caching via createCachedStyleSetter for rotations
 
 ### Multi-Player Split Screen
 - Each player can have independent camera mode (static vs moving, rotating vs fixed)

@@ -1,15 +1,6 @@
 {
-  "screen": {
-    "height": 600,
-    "width": 800,
-    "split": false
-  },
   "track": {
-    "number": 2,
-    "gridSize": 400,
-    "trackWidth": 0.8,
-    "sections": [],
-    "grid": [],
+    "number": 1,
     "showGrid": true
   },
   "players": [
@@ -21,7 +12,7 @@
         { "key": "LEFT", "code": "KeyA" },
         { "key": "RIGHT", "code": "KeyD" }
       ],
-      "view": { "color": "DarkSeaGreen", "rotateAndZoom": false },
+      "view": { "color": "DarkSeaGreen", "rotateAndZoom": false, "carType": "sedan" },
       "maxSteeringAngle": 0.2
     },
     {
@@ -32,7 +23,7 @@
         { "key": "LEFT", "code": "ArrowLeft" },
         { "key": "RIGHT", "code": "ArrowRight" }
       ],
-      "view": { "color": "Maroon", "rotateAndZoom": true },
+      "view": { "color": "Maroon", "rotateAndZoom": true, "carType": "formula" },
       "maxSteeringAngle": 0.17
     },
     {
@@ -43,7 +34,7 @@
         { "key": "LEFT", "code": "KeyJ" },
         { "key": "RIGHT", "code": "KeyL" }
       ],
-      "view": { "color": "Olive" },
+      "view": { "color": "Olive", "carType": "rally" },
       "maxSteeringAngle": 0.15
     }
   ]

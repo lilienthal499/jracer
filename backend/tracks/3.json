@@ -1,7 +1,9 @@
 {
-  "id": 1,
-  "name": "Beginner Oval",
+  "id": 3,
+  "name": "Left Turn Oval",
   "description": "Left-turn oval track for learning the basics",
+  "gridSize": 200,
+  "trackWidth": 0.8,
   "sections": [
     "START",
     "LEFT_TURN",

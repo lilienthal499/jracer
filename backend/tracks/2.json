@@ -2,6 +2,8 @@
   "id": 2,
   "name": "Technical Circuit",
   "description": "Current track with mixed turns and straights",
+  "gridSize": 200,
+  "trackWidth": 0.8,
   "sections": [
     "START",
     "LEFT_TURN",

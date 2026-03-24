@@ -23,28 +23,26 @@ export function startup() {
       fetch(`backend/tracks/${config.track.number}.json`)
         .then(response => response.json())
         .then(trackData => {
-          config.track.sections = trackData.sections;
-
           console.log(`Loaded track: ${trackData.name} (${trackData.description})`);
 
-          const carControllers = initializeGame(config);
+          const carControllers = initializeGame(config, trackData);
           attachKeyboardControls(carControllers, config);
-          startGameUI(config);
+          startGameUI(config, trackData);
         });
     });
 }
 
 // Testable: Initialize game logic without UI
-export function initializeGame(config) {
+export function initializeGame(config, trackData) {
   'use strict';
 
   const physicsEngine = createPhysicsEngine(model);
   physicsEngine.scheduleUpdates(frameManager);
 
   const track = createTrack(
-    config.track.sections,
-    config.track.gridSize,
-    config.track.trackWidth
+    trackData.sections,
+    trackData.gridSize,
+    trackData.trackWidth
   );
   model.track = track.getModel();
 
@@ -82,7 +80,7 @@ export function attachKeyboardControls(carControllers, config) {
 }
 
 // UI: Creates views and attaches to DOM
-function startGameUI(config) {
+function startGameUI(config, trackData) {
   'use strict';
 
   const screens = [];
@@ -109,7 +107,7 @@ function startGameUI(config) {
     );
     carViews.push(MovingCar(players[playerIndex].view, firstCar));
     const trackView = MovingTrack(
-      config.track,
+      trackData,
       firstCar,
       carViews,
       tireTracksView
