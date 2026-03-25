@@ -5,9 +5,9 @@ import { createPhysicsEngine } from './physicsengine.js';
 import { createTrack } from './track.js';
 import { Drawer } from './view/track.js';
 import { MovingCar, StaticCar } from './view/car.js';
+import { TireTracks } from './view/tiretracks.js';
 import {
   HeadUpDisplay,
-  TireTracks,
   MovingTrack,
   Screen,
   SplitScreen,
