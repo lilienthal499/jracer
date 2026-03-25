@@ -14,7 +14,8 @@ export function Drawer(canvas, track, showGrid) {
     gridSize,
     edgeOffsetInner,
     edgeOffsetOuter,
-    dimensions
+    dimensions,
+    isClockwise
   } = track;
 
   /**
@@ -163,16 +164,20 @@ export function Drawer(canvas, track, showGrid) {
    * Main drawing routine - renders complete track with multiple passes.
    * Uses canvas compositing operations to create track with inner/outer edges.
    *
-   * TODO: Detect and handle inside-out tracks (e.g., left-only turns where
-   * inner radius > outer radius). Current logic assumes standard orientation.
+   * For counter-clockwise tracks (isClockwise=false), the inner/outer logic
+   * is inverted - what would normally be the outer edge becomes the inner edge.
    */
   function draw() {
+    // For counter-clockwise tracks, swap inner/outer pass order
+    const outerPass = isClockwise;
+    const innerPass = !isClockwise;
+
     // Draw outer edges of all turns
     canvas.beginPath();
 
     sequenceOfComponents.forEach(component => {
       if (component.type === 'turn') {
-        drawTurn(component, true);
+        drawTurn(component, outerPass);
       }
     });
 
@@ -195,7 +200,7 @@ export function Drawer(canvas, track, showGrid) {
 
     sequenceOfComponents.forEach(component => {
       if (component.type === 'turn') {
-        drawTurn(component, false);
+        drawTurn(component, innerPass);
       }
     });
     canvas.closePath();
