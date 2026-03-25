@@ -358,6 +358,8 @@ function createStraight(cursor, gridSize, trackWidth) {
   segment.gridPosition = cursor.getPosition().copy();
   segment.cardinalDirection = cursor.getCardinalDirection();
 
+  // TODO: Extract collision logic to pure function for testability
+  // function isStraightOnTrack(position, gridPosition, cardinalDirection, gridSize, trackWidth)
   segment.isOnTrack = function (position) {
     // Convert pixel position to grid coordinates (0-based grid cells)
     // e.g., position 200px with gridSize=200 → normalized = 1.0 (center of grid cell 1)
@@ -411,6 +413,14 @@ function createTurn(cursor, clockwise, size, gridSize, trackWidth) {
   segment.centerOfCircle = cursor.getPosition().copy();
   segment.startCardinalDirection = cursor.getCardinalDirection();
 
+  // TODO: Extract collision logic to pure function for testability
+  // function isTurnOnTrack(position, centerOfCircle, size, gridSize, trackWidth)
+  // TODO: Add tests for edge cases:
+  //   - Car exactly at inner radius boundary
+  //   - Car exactly at outer radius boundary
+  //   - Car at center of turn circle
+  //   - Different turn sizes (1, 2, 3)
+  //   - Maximum track width (trackWidth approaching 1.0)
   segment.isOnTrack = function (position) {
     // Calculate track edge offsets from center line
     const halfTrackWidth = trackWidth / 2;
