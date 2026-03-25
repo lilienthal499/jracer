@@ -29,19 +29,6 @@ export function createCachedTextSetter(element) {
   return { set };
 }
 
-export function createCachedValueSetter(element) {
-  let oldValue = null;
-
-  function set(value) {
-    if (value !== oldValue) {
-      element.value = value;
-      oldValue = value;
-    }
-  }
-
-  return { set };
-}
-
 export function SplitScreen(viewConfig, screenViews, minimapView) {
   const DOMElement = document.createElement('div');
   DOMElement.className = 'splitScreen';

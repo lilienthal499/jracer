@@ -1,5 +1,3 @@
-import { createCachedValueSetter } from './view.js';
-
 /**
  * Head-Up Display component showing speed, lap count, and lap times.
  *
@@ -8,6 +6,20 @@ import { createCachedValueSetter } from './view.js';
  * @param {number} playerId - Unique player identifier for generating HTML IDs
  * @returns {Object} Component with getDOMElement() and update() methods
  */
+
+function createCachedValueSetter(element) {
+  let oldValue = null;
+
+  function set(value) {
+    if (value !== oldValue) {
+      element.value = value;
+      oldValue = value;
+    }
+  }
+
+  return { set };
+}
+
 export function HeadUpDisplay(viewConfig, carModel, playerId) {
   const DOMElement = document.createElement('div');
   DOMElement.className = 'headupdisplay';
