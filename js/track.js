@@ -163,12 +163,12 @@ function createTrackBuilder(startPosition, size) {
     grid.push(...Array.from({ length: size.x }, () => []));
   }
 
-  function setGrid(positions, component) {
+  function setGrid(positions, segment) {
     console.dir(positions);
-    console.dir(component);
+    console.dir(segment);
     positions.forEach(position => {
       if (grid[position.x][position.y] === undefined) {
-        grid[position.x][position.y] = component;
+        grid[position.x][position.y] = segment;
       } else {
         throw new Error('Overlapping Track!');
       }
@@ -180,32 +180,32 @@ function createTrackBuilder(startPosition, size) {
       throw new Error("Only one 'Start' allowed");
     }
     cursor = createCursor(startPosition);
-    const component = createHomeStraight(cursor);
-    sequence.push(component);
-    component.setSequenceNumber(sequence.length);
-    setGrid(cursor.getPositions(), component);
+    const segment = createHomeStraight(cursor);
+    sequence.push(segment);
+    segment.setSequenceNumber(sequence.length);
+    setGrid(cursor.getPositions(), segment);
   }
 
   function addFinish() {
-    const component = createHomeStraight(cursor);
-    sequence.push(component);
-    component.setSequenceNumber(sequence.length);
+    const segment = createHomeStraight(cursor);
+    sequence.push(segment);
+    segment.setSequenceNumber(sequence.length);
   }
 
   function addCurve(clockwise, curveSize) {
-    const component = createTurn(cursor, clockwise, curveSize);
-    sequence.push(component);
-    component.setSequenceNumber(sequence.length);
-    setGrid(cursor.getPositions(), component);
+    const segment = createTurn(cursor, clockwise, curveSize);
+    sequence.push(segment);
+    segment.setSequenceNumber(sequence.length);
+    setGrid(cursor.getPositions(), segment);
 
     turnBalance += clockwise ? 1 : -1;
   }
 
   function addStraight() {
-    const component = createStraight(cursor);
-    sequence.push(component);
-    component.setSequenceNumber(sequence.length);
-    setGrid(cursor.getPositions(), component);
+    const segment = createStraight(cursor);
+    sequence.push(segment);
+    segment.setSequenceNumber(sequence.length);
+    setGrid(cursor.getPositions(), segment);
   }
 
   function getSequence() {
@@ -225,10 +225,10 @@ function createTrackBuilder(startPosition, size) {
   return { addStart, addFinish, addCurve, addStraight, getSequence, getGrid, isClockwise };
 }
 
-function parseSequenceOfComponents(parser, sequenceOfComponents, startPosition) {
+function parseSequenceOfSegments(parser, sequenceOfSegments, startPosition) {
   'use strict';
-  sequenceOfComponents.forEach(component => {
-    switch (component) {
+  sequenceOfSegments.forEach(segment => {
+    switch (segment) {
       case Track.START:
         parser.addStart(startPosition);
         break;
@@ -257,18 +257,18 @@ function parseSequenceOfComponents(parser, sequenceOfComponents, startPosition) 
         parser.addStraight();
         break;
       default:
-        throw new Error(`Invalid Track Elememt ${component}`);
+        throw new Error(`Invalid Track Elememt ${segment}`);
     }
   });
 }
 
-export function createTrack(sequenceOfComponents, gridSize, trackWidth) {
+export function createTrack(sequenceOfSegments, gridSize, trackWidth) {
   'use strict';
   const sizeMeter = createSizeMeter();
-  parseSequenceOfComponents(sizeMeter, sequenceOfComponents);
+  parseSequenceOfSegments(sizeMeter, sequenceOfSegments);
 
   const trackBuilder = createTrackBuilder(sizeMeter.getStartingPoint(), sizeMeter.getSize());
-  parseSequenceOfComponents(trackBuilder, sequenceOfComponents, sizeMeter.getStartingPoint());
+  parseSequenceOfSegments(trackBuilder, sequenceOfSegments, sizeMeter.getStartingPoint());
 
   // Calculate edge offsets from track width
   // Track is centered on turn radius, so split width in half
@@ -292,7 +292,7 @@ export function createTrack(sequenceOfComponents, gridSize, trackWidth) {
         y: sizeMeter.getStartingPoint().y * gridSize + 0.5 * gridSize
       },
       gridSize,
-      sequenceOfComponents: trackBuilder.getSequence(),
+      sequenceOfSegments: trackBuilder.getSequence(),
       grid: trackBuilder.getGrid(),
       // Track width and calculated edge offsets (for rendering and collision)
       trackWidth,
@@ -306,7 +306,7 @@ export function createTrack(sequenceOfComponents, gridSize, trackWidth) {
   return { getModel };
 }
 
-function createTrackComponent() {
+function createTrackSegment() {
   'use strict';
   let sequenceNumber = null;
 
@@ -323,13 +323,13 @@ function createTrackComponent() {
 
 function createTurn(cursor, clockwise, size) {
   'use strict';
-  const component = createTrackComponent();
+  const segment = createTrackSegment();
 
-  component.type = 'turn';
-  component.clockwise = clockwise;
-  component.size = size;
-  component.centerOfCircle = cursor.getPosition().copy();
-  component.startCardinalDirection = cursor.getCardinalDirection();
+  segment.type = 'turn';
+  segment.clockwise = clockwise;
+  segment.size = size;
+  segment.centerOfCircle = cursor.getPosition().copy();
+  segment.startCardinalDirection = cursor.getCardinalDirection();
 
   function directionToOffset(direction, afterRotate) {
     const offset = new Vector();
@@ -364,8 +364,8 @@ function createTurn(cursor, clockwise, size) {
       cursor.rotate(clockwise);
       secondOffset = directionToOffset(cursor.getCardinalDirection(), true);
 
-      component.centerOfCircle.x += 0.5 + firstOffset.x * 0.5 + secondOffset.x * 0.5;
-      component.centerOfCircle.y += 0.5 + firstOffset.y * 0.5 + secondOffset.y * 0.5;
+      segment.centerOfCircle.x += 0.5 + firstOffset.x * 0.5 + secondOffset.x * 0.5;
+      segment.centerOfCircle.y += 0.5 + firstOffset.y * 0.5 + secondOffset.y * 0.5;
 
       cursor.moveAhead();
       break;
@@ -377,8 +377,8 @@ function createTurn(cursor, clockwise, size) {
       cursor.rotate(clockwise);
       secondOffset = directionToOffset(cursor.getCardinalDirection(), true);
 
-      component.centerOfCircle.x += 0.5 + firstOffset.x * 0.5 + secondOffset.x * 1.5;
-      component.centerOfCircle.y += 0.5 + firstOffset.y * 0.5 + secondOffset.y * 1.5;
+      segment.centerOfCircle.x += 0.5 + firstOffset.x * 0.5 + secondOffset.x * 1.5;
+      segment.centerOfCircle.y += 0.5 + firstOffset.y * 0.5 + secondOffset.y * 1.5;
 
       cursor.moveAhead();
       cursor.moveAhead();
@@ -391,8 +391,8 @@ function createTurn(cursor, clockwise, size) {
       cursor.rotate(clockwise);
       secondOffset = directionToOffset(cursor.getCardinalDirection(), true);
 
-      component.centerOfCircle.x += 0.5 + firstOffset.x * 0.5 + secondOffset.x * 2.5;
-      component.centerOfCircle.y += 0.5 + firstOffset.y * 0.5 + secondOffset.y * 2.5;
+      segment.centerOfCircle.x += 0.5 + firstOffset.x * 0.5 + secondOffset.x * 2.5;
+      segment.centerOfCircle.y += 0.5 + firstOffset.y * 0.5 + secondOffset.y * 2.5;
 
       cursor.moveAhead();
       cursor.rotate(!clockwise);
@@ -406,23 +406,23 @@ function createTurn(cursor, clockwise, size) {
       throw new Error(`Invalid curve size: ${size}`);
   }
 
-  component.endCardinalDirection = cursor.getCardinalDirection();
+  segment.endCardinalDirection = cursor.getCardinalDirection();
 
-  return component;
+  return segment;
 }
 
 function createHomeStraight(cursor) {
   'use strict';
-  const component = createTrackComponent();
-  component.type = 'homestraight';
+  const segment = createTrackSegment();
+  segment.type = 'homestraight';
   cursor.moveAhead();
-  return component;
+  return segment;
 }
 
 function createStraight(cursor) {
   'use strict';
-  const component = createTrackComponent();
-  component.type = 'straight';
+  const segment = createTrackSegment();
+  segment.type = 'straight';
   cursor.moveAhead();
-  return component;
+  return segment;
 }

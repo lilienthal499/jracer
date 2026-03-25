@@ -179,21 +179,21 @@ export function createPhysicsEngine(modelInstance) {
       next.notRealizedAcceleration = notRealizedAcceleration;
     }
 
-    function calculateTrackComponent() {
+    function calculateTrackSegment() {
       const gridX = Math.ceil(next.position.x / model.track.gridSize) - 1;
       const gridY = Math.ceil(next.position.y / model.track.gridSize) - 1;
-      let component;
+      let segment;
 
       try {
-        component = model.track.grid[gridX][gridY];
+        segment = model.track.grid[gridX][gridY];
 
-        if (carModel.trackSequence === model.track.sequenceOfComponents.length - 1 && component.getSequenceNumber() === 1) {
+        if (carModel.trackSequence === model.track.sequenceOfSegments.length - 1 && segment.getSequenceNumber() === 1) {
           carModel.round += 1;
           carModel.trackSequence = 1;
           //console.log(carModel.trackSequence);
         }
-        if (carModel.trackSequence === component.getSequenceNumber() - 1) {
-          carModel.component = component;
+        if (carModel.trackSequence === segment.getSequenceNumber() - 1) {
+          carModel.segment = segment;
           carModel.trackSequence += 1;
           //console.log(carModel.trackSequence);
           carModel.roundTimes.push(model.frameNumber);
@@ -225,7 +225,7 @@ export function createPhysicsEngine(modelInstance) {
 
       setCarModel(direction, displacement, directedVelocity);
 
-      calculateTrackComponent();
+      calculateTrackSegment();
     }
 
     function calculateSubFrame(progress) {

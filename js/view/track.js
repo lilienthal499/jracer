@@ -9,7 +9,7 @@
 export function Drawer(canvas, track, showGrid) {
   'use strict';
 
-  const { sequenceOfComponents, gridSize, edgeOffsetInner, edgeOffsetOuter, dimensions, isClockwise } = track;
+  const { sequenceOfSegments, gridSize, edgeOffsetInner, edgeOffsetOuter, dimensions, isClockwise } = track;
 
   /**
    * Draw a single turn component as a circular arc.
@@ -161,9 +161,9 @@ export function Drawer(canvas, track, showGrid) {
     // Draw outer edges of all turns
     canvas.beginPath();
 
-    sequenceOfComponents.forEach(component => {
-      if (component.type === 'turn') {
-        drawTurn(component, outerPass);
+    sequenceOfSegments.forEach(segment => {
+      if (segment.type === 'turn') {
+        drawTurn(segment, outerPass);
       }
     });
 
@@ -184,9 +184,9 @@ export function Drawer(canvas, track, showGrid) {
     // Draw inner edges of all turns (creates hollow center)
     canvas.beginPath();
 
-    sequenceOfComponents.forEach(component => {
-      if (component.type === 'turn') {
-        drawTurn(component, innerPass);
+    sequenceOfSegments.forEach(segment => {
+      if (segment.type === 'turn') {
+        drawTurn(segment, innerPass);
       }
     });
     canvas.closePath();

@@ -28,7 +28,7 @@ export function createCar() {
       sideOverhang: 3
     },
 
-    component: undefined,
+    segment: undefined,
     trackSequence: 0,
     round: 1,
     roundTimes: []
