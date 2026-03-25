@@ -43,9 +43,8 @@ body {
   position: absolute;
 }
 
-.track canvas.tireTracks {
+.track canvas {
   transform: scale(1, -1);
-  /*-webkit-transform: scale(1, -1);*/
 }
 
 .headupdisplay {

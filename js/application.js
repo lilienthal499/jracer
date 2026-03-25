@@ -99,7 +99,6 @@ function startGameUI(config, trackData) {
 
     // Create canvas for track and tire marks
     const trackCanvas = document.createElement('canvas');
-    trackCanvas.className = 'tireTracks';
     trackCanvas.width = model.track.dimensions.width;
     trackCanvas.height = model.track.dimensions.height;
 
