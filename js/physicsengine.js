@@ -162,7 +162,7 @@ export function createPhysicsEngine(modelInstance) {
     }
 
 
-    function copyModel(targetModel, sourceModel) {
+    function copyCarState(targetModel, sourceModel) {
 
       targetModel.direction = sourceModel.direction;
 
@@ -177,7 +177,7 @@ export function createPhysicsEngine(modelInstance) {
 
     function setCarModel(direction, displacement, velocity) {
 
-      copyModel(last, next);
+      copyCarState(last, next);
 
       next.direction = direction;
 
@@ -222,8 +222,8 @@ export function createPhysicsEngine(modelInstance) {
     }
 
     // Initialize
-    copyModel(next, carModel);
-    copyModel(last, carModel);
+    copyCarState(next, carModel);
+    copyCarState(last, carModel);
 
     function calculateNewFrame() {
 
