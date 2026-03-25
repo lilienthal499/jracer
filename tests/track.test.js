@@ -18,11 +18,7 @@ describe('Track parsing', () => {
       const trackData = JSON.parse(content);
 
       expect(() => {
-        const track = createTrack(
-          trackData.sections,
-          trackData.gridSize,
-          trackData.trackWidth
-        );
+        const track = createTrack(trackData.sections, trackData.gridSize, trackData.trackWidth);
         const model = track.getModel();
 
         // Basic validation
@@ -42,11 +38,7 @@ describe('Track parsing', () => {
 
   test('Track 1 (Beginner Oval) structure', () => {
     const trackData = JSON.parse(readFileSync('backend/tracks/1.json', 'utf-8'));
-    const track = createTrack(
-      trackData.sections,
-      trackData.gridSize,
-      trackData.trackWidth
-    );
+    const track = createTrack(trackData.sections, trackData.gridSize, trackData.trackWidth);
     const model = track.getModel();
 
     expect(trackData.name).toBe('Beginner Oval');
@@ -58,11 +50,7 @@ describe('Track parsing', () => {
 
   test('Track 2 (Technical Circuit) structure', () => {
     const trackData = JSON.parse(readFileSync('backend/tracks/2.json', 'utf-8'));
-    const track = createTrack(
-      trackData.sections,
-      trackData.gridSize,
-      trackData.trackWidth
-    );
+    const track = createTrack(trackData.sections, trackData.gridSize, trackData.trackWidth);
     const model = track.getModel();
 
     expect(trackData.name).toBe('Technical Circuit');
@@ -74,11 +62,7 @@ describe('Track parsing', () => {
 
   test('Track 3 (Left Turn Oval) structure', () => {
     const trackData = JSON.parse(readFileSync('backend/tracks/3.json', 'utf-8'));
-    const track = createTrack(
-      trackData.sections,
-      trackData.gridSize,
-      trackData.trackWidth
-    );
+    const track = createTrack(trackData.sections, trackData.gridSize, trackData.trackWidth);
     const model = track.getModel();
 
     expect(trackData.name).toBe('Left Turn Oval');

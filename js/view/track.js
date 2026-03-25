@@ -9,14 +9,7 @@
 export function Drawer(canvas, track, showGrid) {
   'use strict';
 
-  const {
-    sequenceOfComponents,
-    gridSize,
-    edgeOffsetInner,
-    edgeOffsetOuter,
-    dimensions,
-    isClockwise
-  } = track;
+  const { sequenceOfComponents, gridSize, edgeOffsetInner, edgeOffsetOuter, dimensions, isClockwise } = track;
 
   /**
    * Draw a single turn component as a circular arc.
@@ -48,14 +41,7 @@ export function Drawer(canvas, track, showGrid) {
       radius = gridSize * (turnSize - edgeOffsetOuter);
     }
 
-    canvas.arc(
-      turn.centerOfCircle.x * gridSize,
-      turn.centerOfCircle.y * gridSize,
-      radius,
-      startAngle,
-      endAngle,
-      turn.clockwise
-    );
+    canvas.arc(turn.centerOfCircle.x * gridSize, turn.centerOfCircle.y * gridSize, radius, startAngle, endAngle, turn.clockwise);
   }
 
   /**

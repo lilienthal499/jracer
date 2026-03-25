@@ -26,6 +26,7 @@ code jracer.code-workspace  # Open workspace with proper settings
 ## Architecture & Code Organization
 
 ### Module Loading Order (Critical)
+
 JavaScript files are loaded via `<script>` tags in `index.html` in **strict dependency order**. This order must be maintained:
 
 1. `application.js` - Creates global `jracer` namespace
@@ -40,7 +41,9 @@ JavaScript files are loaded via `<script>` tags in `index.html` in **strict depe
 Bootstrap: `jracer.startup(jracer.config)` is called inline after all scripts load.
 
 ### Global Namespace Pattern
+
 All code uses the `jracer` global namespace object to avoid conflicts:
+
 ```javascript
 jracer.ComponentName = function() { ... }
 jracer.subnamespace = {};
@@ -52,6 +55,7 @@ jracer.subnamespace.Component = function() { ... }
 ### Core Architecture Components
 
 #### Frame Manager (`framemanager.js`)
+
 - Game loop using `requestAnimationFrame`
 - Runs at 60 FPS (configurable in `model.js`)
 - Two update cycles per frame:
@@ -60,6 +64,7 @@ jracer.subnamespace.Component = function() { ... }
 - Sub-frame updates receive a `progress` parameter (0-1) for interpolation between frames
 
 #### Physics Engine (`physicsengine.js`)
+
 - Custom realistic car physics (no external library)
 - Key systems:
   - **CarPhysicsController**: Per-car physics state machine
@@ -71,6 +76,7 @@ jracer.subnamespace.Component = function() { ... }
 - Fixed time step: `model.frameDurationInSeconds`
 
 #### Track System (`track.js`)
+
 - **Procedural track generation** from component array
 - Components: `START`, `FINISH`, `STRAIGHT`, `LEFT_TURN`, `RIGHT_TURN`, `WIDE_*_TURN`, `EXTRA_WIDE_*_TURN`
 - Track generation process:
@@ -81,6 +87,7 @@ jracer.subnamespace.Component = function() { ... }
 - **Sequence tracking**: Each track component has a sequence number for lap counting
 
 #### View System (`view.js`)
+
 - Component-based rendering using DOM manipulation
 - Key view types:
   - `SplitScreen`: Multi-player viewport management
@@ -93,12 +100,14 @@ jracer.subnamespace.Component = function() { ... }
 - **DOMProxy pattern**: Caches DOM property values to avoid unnecessary reflows
 
 #### Model (`model.js`)
+
 - Central game state in `jracer.model` object
 - `Car` constructor: position, velocity, direction, controls, dimensions, lap tracking
 - Frame timing constants (60 FPS default)
 - Track grid and dimensions
 
 #### Controller (`controller.js`)
+
 - Keyboard input mapping to car controls
 - `Keys` enum: `UP`, `DOWN`, `LEFT`, `RIGHT`
 - Maps key codes to control values (-1, 0, 1)
@@ -137,22 +146,26 @@ jracer.subnamespace.Component = function() { ... }
 ## Important Implementation Notes
 
 ### Physics Gotchas
+
 - `calculateDirection()` must be called before `calculateAcceleration()` in physics update
 - Angular velocity persists between frames (car has momentum in turns)
 - `notRealizedAcceleration` tracks forces that exceed tire friction (causes drifting)
 
 ### Track Generation
+
 - Track must form a closed loop (FINISH returns to START position/direction)
 - Grid size determines track scale (default 400px per component)
 - Track components use a `Cursor` to track position/direction during generation
 - Turn components calculate circle centers for canvas arc rendering
 
 ### Rendering Performance
+
 - `createCachedStyleSetter` pattern critical for performance - bypasses DOM writes when value unchanged
 - Tire tracks drawn to persistent canvas (not cleared each frame)
 - Transform matrix caching via createCachedStyleSetter for rotations
 
 ### Multi-Player Split Screen
+
 - Each player can have independent camera mode (static vs moving, rotating vs fixed)
 - `SplitScreen` component orchestrates multiple `Screen` views
 - Cars render in each other's views as `MovingCar` instances
@@ -160,6 +173,7 @@ jracer.subnamespace.Component = function() { ... }
 ## Common Modification Patterns
 
 **Adding a new track component type:**
+
 1. Define constant in `track.js` (e.g., `jracer.Track.HAIRPIN = 'HAIRPIN'`)
 2. Add parsing case in `parseSequenceOfComponents()`
 3. Create component constructor extending `jracer.Track.Component`
@@ -167,12 +181,14 @@ jracer.subnamespace.Component = function() { ... }
 5. Add rendering logic in `Track.Drawer`
 
 **Adding new physics behavior:**
+
 1. Modify `CarPhysicsController` in `physicsengine.js`
 2. Update `calculateAcceleration()` or `calculateDirection()`
 3. Ensure changes work with fixed time step
 4. Test with different frame rates (modify `model.framesPerSecond`)
 
 **Adding new HUD elements:**
+
 1. Extend `HeadUpDisplay` in `view.js`
 2. Create DOM elements in `createDOMElement()`
 3. Update values in `this.update()` method
@@ -181,6 +197,7 @@ jracer.subnamespace.Component = function() { ... }
 ## Historical Context
 
 This is a personal project from 2009-2015, preserved for historical/educational purposes. The code reflects JavaScript practices from that era:
+
 - Pre-ES6 syntax
 - Constructor functions instead of classes
 - Manual namespace management

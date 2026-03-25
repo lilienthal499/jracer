@@ -30,39 +30,30 @@ export function createCarController(car) {
   let rightIsPressed = false;
 
   function steeringWheelTurnedRight() {
-    delayedControllers.steeringWheel = createDelayedController(
-      400,
-      progress => {
-        // This could be non-linear
-        car.controls.steeringWheel = progress;
-      }
-    );
+    delayedControllers.steeringWheel = createDelayedController(400, progress => {
+      // This could be non-linear
+      car.controls.steeringWheel = progress;
+    });
   }
 
   function steeringWheelTurnedLeft() {
-    delayedControllers.steeringWheel = createDelayedController(
-      400,
-      progress => {
-        // This could be non-linear
-        car.controls.steeringWheel = -progress;
-      }
-    );
+    delayedControllers.steeringWheel = createDelayedController(400, progress => {
+      // This could be non-linear
+      car.controls.steeringWheel = -progress;
+    });
   }
 
   function steeringWheelNotTurned() {
-    delayedControllers.steeringWheel = createDelayedController(
-      600,
-      progress => {
-        if (car.controls.steeringWheel > 0) {
-          car.controls.steeringWheel -= progress;
-          car.controls.steeringWheel = Math.max(car.controls.steeringWheel, 0);
-        }
-        if (car.controls.steeringWheel < 0) {
-          car.controls.steeringWheel += progress;
-          car.controls.steeringWheel = Math.min(car.controls.steeringWheel, 0);
-        }
+    delayedControllers.steeringWheel = createDelayedController(600, progress => {
+      if (car.controls.steeringWheel > 0) {
+        car.controls.steeringWheel -= progress;
+        car.controls.steeringWheel = Math.max(car.controls.steeringWheel, 0);
       }
-    );
+      if (car.controls.steeringWheel < 0) {
+        car.controls.steeringWheel += progress;
+        car.controls.steeringWheel = Math.min(car.controls.steeringWheel, 0);
+      }
+    });
     car.controls.steeringWheel = 0;
   }
 

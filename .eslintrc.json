@@ -63,10 +63,7 @@
     "dot-notation": "error",
     "no-useless-return": "error",
     "no-shadow": "error",
-    "no-use-before-define": [
-      "error",
-      { "functions": false, "classes": true, "variables": true }
-    ],
+    "no-use-before-define": ["error", { "functions": false, "classes": true, "variables": true }],
     "consistent-return": "error",
     "no-empty-function": "warn",
     "no-eval": "error",

@@ -28,8 +28,8 @@ function createFrameManager(modelInstance) {
     }
 
     function notifyAboutFrames() {
-      while ((now - lastFrameUpdate) >= frameDuration) {
-        frameListeners.forEach((listener) => {
+      while (now - lastFrameUpdate >= frameDuration) {
+        frameListeners.forEach(listener => {
           listener();
         });
         modelInstance.frameNumber += 1;
@@ -39,7 +39,7 @@ function createFrameManager(modelInstance) {
 
     function notifyAboutSubFrame() {
       const subFrameProgress = getFrameProgress();
-      subFrameListeners.forEach((listener) => {
+      subFrameListeners.forEach(listener => {
         listener(subFrameProgress);
       });
     }
@@ -81,4 +81,3 @@ function createFrameManager(modelInstance) {
 }
 
 export const frameManager = createFrameManager(model);
-

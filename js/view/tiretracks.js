@@ -121,14 +121,17 @@ export function TireTracks(canvas, carModels) {
   const carTireTracks = [];
   const canvasContext = canvas.getContext('2d');
 
-  carModels.forEach((carModel) => {
+  carModels.forEach(carModel => {
     carTireTracks.push(createCarTireTracks(carModel, canvasContext));
   });
 
   function update() {
-    carTireTracks.slice().reverse().forEach((track) => {
-      track.update();
-    });
+    carTireTracks
+      .slice()
+      .reverse()
+      .forEach(track => {
+        track.update();
+      });
   }
 
   return { update };

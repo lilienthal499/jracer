@@ -4,15 +4,5 @@
   "description": "Left-turn oval track for learning the basics",
   "gridSize": 200,
   "trackWidth": 0.8,
-  "sections": [
-    "START",
-    "LEFT_TURN",
-    "STRAIGHT",
-    "LEFT_TURN",
-    "STRAIGHT",
-    "LEFT_TURN",
-    "STRAIGHT",
-    "LEFT_TURN",
-    "FINISH"
-  ]
+  "sections": ["START", "LEFT_TURN", "STRAIGHT", "LEFT_TURN", "STRAIGHT", "LEFT_TURN", "STRAIGHT", "LEFT_TURN", "FINISH"]
 }

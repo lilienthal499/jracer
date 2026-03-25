@@ -4,15 +4,5 @@
   "description": "Simple oval track for learning the basics",
   "gridSize": 1000,
   "trackWidth": 0.4,
-  "sections": [
-    "START",
-    "RIGHT_TURN",
-    "STRAIGHT",
-    "RIGHT_TURN",
-    "STRAIGHT",
-    "RIGHT_TURN",
-    "STRAIGHT",
-    "RIGHT_TURN",
-    "FINISH"
-  ]
+  "sections": ["START", "RIGHT_TURN", "STRAIGHT", "RIGHT_TURN", "STRAIGHT", "RIGHT_TURN", "STRAIGHT", "RIGHT_TURN", "FINISH"]
 }

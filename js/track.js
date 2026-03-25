@@ -91,11 +91,7 @@ function createSizeMeter() {
 
   function addFinish() {
     const currentPosition = cursor.getPosition();
-    if (
-      currentPosition.x !== 0 ||
-      currentPosition.y !== 0 ||
-      cursor.getCardinalDirection() !== Track.NORTH
-    ) {
+    if (currentPosition.x !== 0 || currentPosition.y !== 0 || cursor.getCardinalDirection() !== Track.NORTH) {
       throw new Error('Finish does not match Start!');
     }
   }
@@ -137,10 +133,7 @@ function createSizeMeter() {
   }
 
   function getSize() {
-    return new Vector(
-      Math.abs(minimum.x) + maximum.x + 1,
-      Math.abs(minimum.y) + maximum.y + 1
-    );
+    return new Vector(Math.abs(minimum.x) + maximum.x + 1, Math.abs(minimum.y) + maximum.y + 1);
   }
 
   function getStartingPoint() {
@@ -232,11 +225,7 @@ function createTrackBuilder(startPosition, size) {
   return { addStart, addFinish, addCurve, addStraight, getSequence, getGrid, isClockwise };
 }
 
-function parseSequenceOfComponents(
-  parser,
-  sequenceOfComponents,
-  startPosition
-) {
+function parseSequenceOfComponents(parser, sequenceOfComponents, startPosition) {
   'use strict';
   sequenceOfComponents.forEach(component => {
     switch (component) {
@@ -278,15 +267,8 @@ export function createTrack(sequenceOfComponents, gridSize, trackWidth) {
   const sizeMeter = createSizeMeter();
   parseSequenceOfComponents(sizeMeter, sequenceOfComponents);
 
-  const trackBuilder = createTrackBuilder(
-    sizeMeter.getStartingPoint(),
-    sizeMeter.getSize()
-  );
-  parseSequenceOfComponents(
-    trackBuilder,
-    sequenceOfComponents,
-    sizeMeter.getStartingPoint()
-  );
+  const trackBuilder = createTrackBuilder(sizeMeter.getStartingPoint(), sizeMeter.getSize());
+  parseSequenceOfComponents(trackBuilder, sequenceOfComponents, sizeMeter.getStartingPoint());
 
   // Calculate edge offsets from track width
   // Track is centered on turn radius, so split width in half
@@ -298,18 +280,8 @@ export function createTrack(sequenceOfComponents, gridSize, trackWidth) {
     console.dir(sizeMeter.getSize());
     console.dir(sizeMeter.getStartingPoint());
     console.dir(trackBuilder.getGrid());
-    console.dir(
-      trackBuilder.getGrid()[sizeMeter.getStartingPoint().x][
-        sizeMeter.getStartingPoint().y
-      ]
-    );
-    console.dir(
-      trackBuilder
-        .getGrid()
-        [
-          sizeMeter.getStartingPoint().x
-        ][sizeMeter.getStartingPoint().y].getSequenceNumber()
-    );
+    console.dir(trackBuilder.getGrid()[sizeMeter.getStartingPoint().x][sizeMeter.getStartingPoint().y]);
+    console.dir(trackBuilder.getGrid()[sizeMeter.getStartingPoint().x][sizeMeter.getStartingPoint().y].getSequenceNumber());
     return {
       dimensions: {
         width: sizeMeter.getSize().x * gridSize,
@@ -392,10 +364,8 @@ function createTurn(cursor, clockwise, size) {
       cursor.rotate(clockwise);
       secondOffset = directionToOffset(cursor.getCardinalDirection(), true);
 
-      component.centerOfCircle.x +=
-        0.5 + firstOffset.x * 0.5 + secondOffset.x * 0.5;
-      component.centerOfCircle.y +=
-        0.5 + firstOffset.y * 0.5 + secondOffset.y * 0.5;
+      component.centerOfCircle.x += 0.5 + firstOffset.x * 0.5 + secondOffset.x * 0.5;
+      component.centerOfCircle.y += 0.5 + firstOffset.y * 0.5 + secondOffset.y * 0.5;
 
       cursor.moveAhead();
       break;
@@ -407,10 +377,8 @@ function createTurn(cursor, clockwise, size) {
       cursor.rotate(clockwise);
       secondOffset = directionToOffset(cursor.getCardinalDirection(), true);
 
-      component.centerOfCircle.x +=
-        0.5 + firstOffset.x * 0.5 + secondOffset.x * 1.5;
-      component.centerOfCircle.y +=
-        0.5 + firstOffset.y * 0.5 + secondOffset.y * 1.5;
+      component.centerOfCircle.x += 0.5 + firstOffset.x * 0.5 + secondOffset.x * 1.5;
+      component.centerOfCircle.y += 0.5 + firstOffset.y * 0.5 + secondOffset.y * 1.5;
 
       cursor.moveAhead();
       cursor.moveAhead();
@@ -423,10 +391,8 @@ function createTurn(cursor, clockwise, size) {
       cursor.rotate(clockwise);
       secondOffset = directionToOffset(cursor.getCardinalDirection(), true);
 
-      component.centerOfCircle.x +=
-        0.5 + firstOffset.x * 0.5 + secondOffset.x * 2.5;
-      component.centerOfCircle.y +=
-        0.5 + firstOffset.y * 0.5 + secondOffset.y * 2.5;
+      component.centerOfCircle.x += 0.5 + firstOffset.x * 0.5 + secondOffset.x * 2.5;
+      component.centerOfCircle.y += 0.5 + firstOffset.y * 0.5 + secondOffset.y * 2.5;
 
       cursor.moveAhead();
       cursor.rotate(!clockwise);

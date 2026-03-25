@@ -30,7 +30,6 @@ export function createPhysicsEngine(modelInstance) {
   }
 
   function createCarPhysicsController(carModel) {
-
     const undirectedVelocity = new Vector(0, 0);
     const directedVelocity = new Vector(0, 0);
     let angularVelocity = 0;
@@ -54,9 +53,7 @@ export function createPhysicsEngine(modelInstance) {
     };
 
     function calculateDirection() {
-
       function calculateTargetAngularVelocity() {
-
         let targetAngularVelocity = 0;
         const currentSteeringAngle = carModel.controls.maxSteeringAngle * carModel.controls.steeringWheel;
 
@@ -69,7 +66,6 @@ export function createPhysicsEngine(modelInstance) {
       }
 
       function calculateAngularAcceleration(targetAngularVelocity) {
-
         let angularAcceleration;
         const friction = next.velocity.drifting ? TURNING_FRICTION_SLIDE : TURNING_FRICTION;
 
@@ -95,7 +91,6 @@ export function createPhysicsEngine(modelInstance) {
     }
 
     function calculateAcceleration(velocity) {
-
       function getCurrentFriction() {
         // if (carModel.next.velocity.drifting) {
         // console.log("drifting");
@@ -134,7 +129,6 @@ export function createPhysicsEngine(modelInstance) {
         acceleration.y += currentFriction;
       }
 
-
       // lateral
       if (velocity.x > 0) {
         acceleration.x -= currentFriction;
@@ -150,20 +144,15 @@ export function createPhysicsEngine(modelInstance) {
     }
 
     function calculateVelocity(acceleration, velocity) {
-
       velocity.x = increaseAbsoluteValue(velocity.x, acceleration.x * dt);
       velocity.y = increaseAbsoluteValue(velocity.y, acceleration.y * dt);
-
     }
-
 
     function calculateDisplacement(velocity) {
       return new Vector(velocity.x * dt, velocity.y * dt);
     }
 
-
     function copyCarState(targetModel, sourceModel) {
-
       targetModel.direction = sourceModel.direction;
 
       targetModel.position.x = sourceModel.position.x;
@@ -171,12 +160,9 @@ export function createPhysicsEngine(modelInstance) {
 
       targetModel.velocity.lateral = sourceModel.velocity.lateral;
       targetModel.velocity.forward = sourceModel.velocity.forward;
-
     }
 
-
     function setCarModel(direction, displacement, velocity) {
-
       copyCarState(last, next);
 
       next.direction = direction;
@@ -191,11 +177,9 @@ export function createPhysicsEngine(modelInstance) {
 
       next.velocity.drifting = Math.abs(next.velocity.lateral) > 0 || angularDrifting || Math.abs(notRealizedAcceleration) > 0;
       next.notRealizedAcceleration = notRealizedAcceleration;
-
     }
 
     function calculateTrackComponent() {
-
       const gridX = Math.ceil(next.position.x / model.track.gridSize) - 1;
       const gridY = Math.ceil(next.position.y / model.track.gridSize) - 1;
       let component;
@@ -203,19 +187,18 @@ export function createPhysicsEngine(modelInstance) {
       try {
         component = model.track.grid[gridX][gridY];
 
-        if (carModel.trackSequence === model.track.sequenceOfComponents.length - 1 && component.getSequenceNumber() === 1){
+        if (carModel.trackSequence === model.track.sequenceOfComponents.length - 1 && component.getSequenceNumber() === 1) {
           carModel.round += 1;
           carModel.trackSequence = 1;
           //console.log(carModel.trackSequence);
         }
-        if (carModel.trackSequence === component.getSequenceNumber() - 1){
+        if (carModel.trackSequence === component.getSequenceNumber() - 1) {
           carModel.component = component;
           carModel.trackSequence += 1;
           //console.log(carModel.trackSequence);
           carModel.roundTimes.push(model.frameNumber);
           console.dir(carModel.roundTimes);
         }
-
       } catch (TypeError) {
         console.log('Outside Track Area');
       }
@@ -226,7 +209,6 @@ export function createPhysicsEngine(modelInstance) {
     copyCarState(last, carModel);
 
     function calculateNewFrame() {
-
       const direction = calculateDirection();
 
       directedVelocity.copyFrom(undirectedVelocity);
@@ -244,7 +226,6 @@ export function createPhysicsEngine(modelInstance) {
       setCarModel(direction, displacement, directedVelocity);
 
       calculateTrackComponent();
-
     }
 
     function calculateSubFrame(progress) {
@@ -252,7 +233,7 @@ export function createPhysicsEngine(modelInstance) {
 
       function calculateCurrentValue(lastValue, nextValue) {
         const diff = nextValue - lastValue;
-        return nextValue + (diff * progress);
+        return nextValue + diff * progress;
       }
 
       current.position.x = calculateCurrentValue(last.position.x, next.position.x);
@@ -260,24 +241,22 @@ export function createPhysicsEngine(modelInstance) {
       current.direction = calculateCurrentValue(last.direction, next.direction);
       current.velocity.forward = calculateCurrentValue(last.velocity.forward, next.velocity.forward);
       current.velocity.lateral = calculateCurrentValue(last.velocity.lateral, next.velocity.lateral);
-
     }
 
     return { calculateNewFrame, calculateSubFrame };
   }
 
   function updateAllCarsSubFrame(progress) {
-    carPhysicsControllers.forEach((carPhysicsController) => {
+    carPhysicsControllers.forEach(carPhysicsController => {
       carPhysicsController.calculateSubFrame(progress);
     });
   }
 
   function updateAllCarsFrame() {
-    carPhysicsControllers.forEach((carPhysicsController) => {
+    carPhysicsControllers.forEach(carPhysicsController => {
       carPhysicsController.calculateNewFrame();
     });
   }
-
 
   return {
     addCar: function (carModel) {
@@ -288,6 +267,4 @@ export function createPhysicsEngine(modelInstance) {
       frameManager.addFrameListener(updateAllCarsFrame);
     }
   };
-
 }
-

@@ -55,11 +55,10 @@ export const model = {
     gridSize: 100,
     // Track edge offsets from turn center (as fraction of gridSize)
     // Used for rendering curved sections
-    edgeOffsetInner: 0.7,  // Smaller radius (tighter turn)
-    edgeOffsetOuter: 0.3   // Larger radius (wider turn)
+    edgeOffsetInner: 0.7, // Smaller radius (tighter turn)
+    edgeOffsetOuter: 0.3 // Larger radius (wider turn)
   }
 };
 
 model.frameDuration = Math.floor(1000 / model.framesPerSecond);
 model.frameDurationInSeconds = model.frameDuration / 1000;
-

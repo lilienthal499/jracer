@@ -14,6 +14,7 @@ Open your browser at http://localhost:5500
 ## Documentation
 
 See the [docs/](docs/) folder for complete documentation:
+
 - **README.md** - Full project history
 - **DEVELOPMENT.md** - Development guide
 - **TIMELINE.md** - Development timeline
