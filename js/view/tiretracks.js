@@ -56,7 +56,7 @@ function createCarTireTracks(carModel, canvas) {
           canvas.globalCompositeOperation = 'source-atop';
           canvas.stroke();
 
-          // Layer 2: Dark green shadow for depth effect
+          // Layer 2: Dark green for grass/off-track marks
           canvas.globalAlpha = globalAlpha * 0.9;
           canvas.strokeStyle = 'rgb(0,100,0)';
           canvas.globalCompositeOperation = 'destination-over';
