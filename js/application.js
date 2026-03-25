@@ -97,7 +97,7 @@ function startGameUI(config, trackData) {
     const firstCarView = StaticCar(players[playerIndex].view, firstCar);
     const headUpDisplayView = HeadUpDisplay({}, firstCar);
 
-    const tireTracksView = TireTracks({}, model.cars);
+    const tireTracksView = TireTracks(model.cars);
     frameManager.addSubFrameListener(tireTracksView.update);
 
     Drawer(
