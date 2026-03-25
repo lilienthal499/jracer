@@ -97,20 +97,29 @@ function startGameUI(config, trackData) {
     const firstCarView = StaticCar(players[playerIndex].view, firstCar);
     const headUpDisplayView = HeadUpDisplay({}, firstCar);
 
-    const tireTracksView = TireTracks(model.cars);
-    frameManager.addSubFrameListener(tireTracksView.update);
+    // Create canvas for track and tire marks
+    const trackCanvas = document.createElement('canvas');
+    trackCanvas.className = 'tireTracks';
+    trackCanvas.width = model.track.dimensions.width;
+    trackCanvas.height = model.track.dimensions.height;
 
+    // Draw track on canvas
     Drawer(
-      tireTracksView.getCanvas(),
+      trackCanvas.getContext('2d'),
       model.track,
       config.track.showGrid
     );
+
+    // Set up tire track rendering on same canvas
+    const tireTracksView = TireTracks(trackCanvas, model.cars);
+    frameManager.addSubFrameListener(tireTracksView.update);
+
     carViews.push(MovingCar(players[playerIndex].view, firstCar));
     const trackView = MovingTrack(
       trackData,
       firstCar,
       carViews,
-      tireTracksView
+      trackCanvas
     );
     return Screen(
       players[playerIndex].view,

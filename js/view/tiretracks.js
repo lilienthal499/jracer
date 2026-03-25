@@ -1,5 +1,4 @@
 import { Vector } from '../vector.js';
-import { model } from '../model.js';
 
 /**
  * Tire track rendering system.
@@ -110,29 +109,21 @@ function createCarTireTracks(carModel, canvas) {
 }
 
 /**
- * TireTracks component - manages persistent canvas for all cars' tire marks.
+ * TireTracks component - manages tire mark rendering for all cars.
  *
- * Creates full-screen canvas that accumulates tire tracks across frames.
- * Cars rendered in reverse order for proper z-ordering.
+ * Renders tire tracks on provided canvas. Cars rendered in reverse order for proper z-ordering.
  * Canvas never cleared - tire marks persist throughout race.
+ *
+ * @param {HTMLCanvasElement} canvas - Canvas element to draw tire tracks on
+ * @param {Array<Object>} carModels - Array of car model objects
  */
-export function TireTracks(carModels) {
+export function TireTracks(canvas, carModels) {
   const carTireTracks = [];
-
-  const DOMElement = document.createElement('canvas');
-  DOMElement.className = 'tireTracks';
-  DOMElement.width = model.track.dimensions.width;
-  DOMElement.height = model.track.dimensions.height;
-
-  const canvasContext = DOMElement.getContext('2d');
+  const canvasContext = canvas.getContext('2d');
 
   carModels.forEach((carModel) => {
     carTireTracks.push(createCarTireTracks(carModel, canvasContext));
   });
-
-  function getDOMElement() {
-    return DOMElement;
-  }
 
   function update() {
     carTireTracks.slice().reverse().forEach((track) => {
@@ -140,9 +131,5 @@ export function TireTracks(carModels) {
     });
   }
 
-  function getCanvas() {
-    return canvasContext;
-  }
-
-  return { getDOMElement, update, getCanvas };
+  return { update };
 }

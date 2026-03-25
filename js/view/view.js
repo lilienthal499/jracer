@@ -163,7 +163,7 @@ function createTrack(carViews) {
   return { addCarViews, update, getDOMElement };
 }
 
-export function MovingTrack(viewConfig, carModel, carViews, tireTracksView) {
+export function MovingTrack(viewConfig, carModel, carViews, trackCanvas) {
   const track = createTrack(carViews);
   const originalOffset = new Vector(0, 0);
   const rotatedOffset = new Vector();
@@ -171,7 +171,7 @@ export function MovingTrack(viewConfig, carModel, carViews, tireTracksView) {
   const left = createCachedStyleSetter(track.getDOMElement().style, 'left');
   const bottom = createCachedStyleSetter(track.getDOMElement().style, 'bottom');
 
-  track.getDOMElement().appendChild(tireTracksView.getDOMElement());
+  track.getDOMElement().appendChild(trackCanvas);
   track.addCarViews();
 
   function update() {
