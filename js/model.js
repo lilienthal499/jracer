@@ -34,7 +34,7 @@ export function createCar() {
     roundTimes: [],
 
     isOnTrack: function () {
-      return this.segment && this.segment.isOnTrack(this.position);
+      return this.segment.isOnTrack(this.position);
     }
   };
 

@@ -1,5 +1,4 @@
 import { Vector } from '../vector.js';
-import { model } from '../model.js';
 
 ('use strict');
 

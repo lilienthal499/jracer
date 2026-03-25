@@ -150,7 +150,7 @@ function createSizeMeter() {
   };
 }
 
-function createTrackBuilder(startPosition, size) {
+function createTrackBuilder(startPosition, size, gridSize, trackWidth) {
   'use strict';
   let cursor = null;
   const sequence = [];
@@ -180,20 +180,20 @@ function createTrackBuilder(startPosition, size) {
       throw new Error("Only one 'Start' allowed");
     }
     cursor = createCursor(startPosition);
-    const segment = createHomeStraight(cursor);
+    const segment = createHomeStraight(cursor, gridSize, trackWidth);
     sequence.push(segment);
     segment.setSequenceNumber(sequence.length);
     setGrid(cursor.getPositions(), segment);
   }
 
   function addFinish() {
-    const segment = createHomeStraight(cursor);
+    const segment = createHomeStraight(cursor, gridSize, trackWidth);
     sequence.push(segment);
     segment.setSequenceNumber(sequence.length);
   }
 
   function addCurve(clockwise, curveSize) {
-    const segment = createTurn(cursor, clockwise, curveSize);
+    const segment = createTurn(cursor, clockwise, curveSize, gridSize, trackWidth);
     sequence.push(segment);
     segment.setSequenceNumber(sequence.length);
     setGrid(cursor.getPositions(), segment);
@@ -202,7 +202,7 @@ function createTrackBuilder(startPosition, size) {
   }
 
   function addStraight() {
-    const segment = createStraight(cursor);
+    const segment = createStraight(cursor, gridSize, trackWidth);
     sequence.push(segment);
     segment.setSequenceNumber(sequence.length);
     setGrid(cursor.getPositions(), segment);
@@ -267,18 +267,11 @@ export function createTrack(sequenceOfSegments, gridSize, trackWidth) {
   const sizeMeter = createSizeMeter();
   parseSequenceOfSegments(sizeMeter, sequenceOfSegments);
 
-  const trackBuilder = createTrackBuilder(sizeMeter.getStartingPoint(), sizeMeter.getSize());
+  const trackBuilder = createTrackBuilder(sizeMeter.getStartingPoint(), sizeMeter.getSize(), gridSize, trackWidth);
   parseSequenceOfSegments(trackBuilder, sequenceOfSegments, sizeMeter.getStartingPoint());
 
   // Create off-track segment (singleton)
-  const offTrackSegment = createTrackSegment();
-  offTrackSegment.type = 'offtrack';
-  offTrackSegment.setSequenceNumber(0);
-
-  // Off-track always returns false
-  offTrackSegment.isOnTrack = function (position) {
-    return false;
-  };
+  const offTrackSegment = createOffTrackSegment();
 
   // Calculate edge offsets from track width
   // Track is centered on turn radius, so split width in half
@@ -315,6 +308,7 @@ export function createTrack(sequenceOfSegments, gridSize, trackWidth) {
       gridSize,
       sequenceOfSegments: trackBuilder.getSequence(),
       grid: trackBuilder.getGrid(),
+      offTrackSegment,
       // Track width and calculated edge offsets (for rendering and collision)
       trackWidth,
       edgeOffsetInner,
@@ -328,6 +322,10 @@ export function createTrack(sequenceOfSegments, gridSize, trackWidth) {
 
   return { getModel };
 }
+
+// ============================================================================
+// Track Segment Creation Functions
+// ============================================================================
 
 // ============================================================================
 // Track Segment Creation Functions
@@ -353,7 +351,55 @@ function createTrackSegment() {
   return { setSequenceNumber, getSequenceNumber, isOnTrack };
 }
 
-function createTurn(cursor, clockwise, size) {
+function createStraight(cursor, gridSize, trackWidth) {
+  'use strict';
+  const segment = createTrackSegment();
+  segment.type = 'straight';
+  segment.gridPosition = cursor.getPosition().copy();
+  segment.cardinalDirection = cursor.getCardinalDirection();
+
+  segment.isOnTrack = function (position) {
+    const normalizedPosition = {
+      x: position.x / gridSize,
+      y: position.y / gridSize
+    };
+    const halfTrackWidth = trackWidth / 2;
+
+    if (segment.cardinalDirection === Track.NORTH || segment.cardinalDirection === Track.SOUTH) {
+      const centerX = segment.gridPosition.x + 0.5;
+      const distance = Math.abs(normalizedPosition.x - centerX);
+      return distance <= halfTrackWidth;
+    }
+    const centerY = segment.gridPosition.y + 0.5;
+    const distance = Math.abs(normalizedPosition.y - centerY);
+    return distance <= halfTrackWidth;
+  };
+
+  cursor.moveAhead();
+  return segment;
+}
+
+function createHomeStraight(cursor, gridSize, trackWidth) {
+  'use strict';
+  const segment = createStraight(cursor, gridSize, trackWidth);
+  segment.type = 'homestraight';
+  return segment;
+}
+
+function createOffTrackSegment() {
+  'use strict';
+  const segment = createTrackSegment();
+  segment.type = 'offtrack';
+  segment.setSequenceNumber(0);
+
+  segment.isOnTrack = function (position) {
+    return false;
+  };
+
+  return segment;
+}
+
+function createTurn(cursor, clockwise, size, gridSize, trackWidth) {
   'use strict';
   const segment = createTrackSegment();
 
@@ -362,6 +408,12 @@ function createTurn(cursor, clockwise, size) {
   segment.size = size;
   segment.centerOfCircle = cursor.getPosition().copy();
   segment.startCardinalDirection = cursor.getCardinalDirection();
+
+  segment.isOnTrack = function (position) {
+    // TODO: Implement turn-specific logic
+    // Check if distance from centerOfCircle is between inner and outer radius
+    return true;
+  };
 
   function directionToOffset(direction, afterRotate) {
     const offset = new Vector();
@@ -440,44 +492,5 @@ function createTurn(cursor, clockwise, size) {
 
   segment.endCardinalDirection = cursor.getCardinalDirection();
 
-  // Override isOnTrack for turn segments
-  segment.isOnTrack = function (position) {
-    // TODO: Implement turn-specific logic
-    // Check if distance from centerOfCircle is between inner and outer radius
-    return true;
-  };
-
-  return segment;
-}
-
-function createStraight(cursor) {
-  'use strict';
-  const segment = createTrackSegment();
-  segment.type = 'straight';
-
-  // Override isOnTrack for straight segments
-  segment.isOnTrack = function (position) {
-    // TODO: Implement straight-specific logic
-    // Check if perpendicular distance from center line is within trackWidth/2
-    return true;
-  };
-
-  cursor.moveAhead();
-  return segment;
-}
-
-function createHomeStraight(cursor) {
-  'use strict';
-  const segment = createTrackSegment();
-  segment.type = 'homestraight';
-
-  // Override isOnTrack for straight segments
-  segment.isOnTrack = function (position) {
-    // TODO: Implement straight-specific logic
-    // Check if perpendicular distance from center line is within trackWidth/2
-    return true;
-  };
-
-  cursor.moveAhead();
   return segment;
 }
