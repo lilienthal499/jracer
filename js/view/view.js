@@ -93,17 +93,9 @@ export function Screen(viewConfig, trackView, carView, carModel, tachometerView)
     function calculateScale(velocity) {
       const MAX_ZOOM_FACTOR = 0.7;
       const MIN_ZOOM_FACTOR = 1;
-      let targetZoomFactor;
 
-      targetZoomFactor = 1 - velocity / 800;
-
-      if (targetZoomFactor < MAX_ZOOM_FACTOR) {
-        targetZoomFactor = MAX_ZOOM_FACTOR;
-      }
-
-      if (targetZoomFactor > MIN_ZOOM_FACTOR) {
-        targetZoomFactor = MIN_ZOOM_FACTOR;
-      }
+      let targetZoomFactor = 1 - velocity / 800;
+      targetZoomFactor = Math.max(MAX_ZOOM_FACTOR, Math.min(MIN_ZOOM_FACTOR, targetZoomFactor));
 
       if (!averageScaleCalculator) {
         averageScaleCalculator = createAverageCalculator(targetZoomFactor, 100);
