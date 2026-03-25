@@ -32,6 +32,10 @@ describe('Track parsing', () => {
         expect(model.startingPosition).toBeDefined();
         expect(model.sequenceOfComponents).toBeDefined();
         expect(model.sequenceOfComponents.length).toBeGreaterThan(0);
+
+        // Turn direction validation
+        expect(model.isClockwise).toBeDefined();
+        expect(typeof model.isClockwise).toBe('boolean');
       }).not.toThrow();
     });
   });
@@ -49,6 +53,7 @@ describe('Track parsing', () => {
     expect(model.sequenceOfComponents.length).toBe(9);
     expect(model.dimensions.width).toBe(3000);
     expect(model.dimensions.height).toBe(3000);
+    expect(model.isClockwise).toBe(true);
   });
 
   test('Track 2 (Technical Circuit) structure', () => {
@@ -64,6 +69,7 @@ describe('Track parsing', () => {
     expect(model.sequenceOfComponents.length).toBe(15);
     expect(model.dimensions.width).toBe(1200);
     expect(model.dimensions.height).toBe(1000);
+    expect(model.isClockwise).toBe(true);
   });
 
   test('Track 3 (Left Turn Oval) structure', () => {
@@ -79,5 +85,6 @@ describe('Track parsing', () => {
     expect(model.sequenceOfComponents.length).toBe(9);
     expect(model.dimensions.width).toBe(600);
     expect(model.dimensions.height).toBe(600);
+    expect(model.isClockwise).toBe(false);
   });
 });

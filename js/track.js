@@ -162,6 +162,7 @@ function createTrackBuilder(startPosition, size) {
   let cursor = null;
   const sequence = [];
   const grid = [];
+  let turnBalance = 0;
 
   function initializeGrid() {
     // Create size.x empty arrays and spread them into grid
@@ -203,6 +204,8 @@ function createTrackBuilder(startPosition, size) {
     sequence.push(component);
     component.setSequenceNumber(sequence.length);
     setGrid(cursor.getPositions(), component);
+
+    turnBalance += clockwise ? 1 : -1;
   }
 
   function addStraight() {
@@ -220,9 +223,13 @@ function createTrackBuilder(startPosition, size) {
     return grid;
   }
 
+  function isClockwise() {
+    return turnBalance > 0;
+  }
+
   initializeGrid();
 
-  return { addStart, addFinish, addCurve, addStraight, getSequence, getGrid };
+  return { addStart, addFinish, addCurve, addStraight, getSequence, getGrid, isClockwise };
 }
 
 function parseSequenceOfComponents(
@@ -318,7 +325,9 @@ export function createTrack(sequenceOfComponents, gridSize, trackWidth) {
       // Track width and calculated edge offsets (for rendering and collision)
       trackWidth,
       edgeOffsetInner,
-      edgeOffsetOuter
+      edgeOffsetOuter,
+      // Track direction
+      isClockwise: trackBuilder.isClockwise()
     };
   }
 
