@@ -55,7 +55,7 @@ export function HeadUpDisplay(viewConfig, carModel, playerId) {
     round.set(carModel.round);
     lastTime.set(carModel.roundTimes[carModel.roundTimes.length - 1]);
     currentSegment.set(carModel.segment.getSequenceNumber());
-    onTrack.set(carModel.segment.type !== 'offtrack' ? 'Yes' : 'No');
+    onTrack.set(carModel.isOnTrack() ? 'Yes' : 'No');
   }
 
   update();

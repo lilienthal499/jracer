@@ -1,7 +1,7 @@
 import { Vector } from './vector.js';
 
 export function createCar() {
-  return {
+  const car = {
     position: new Vector(0, 0),
 
     velocity: {
@@ -31,8 +31,14 @@ export function createCar() {
     segment: undefined,
     trackSequence: 0,
     round: 1,
-    roundTimes: []
+    roundTimes: [],
+
+    isOnTrack: function () {
+      return this.segment && this.segment.isOnTrack(this.position);
+    }
   };
+
+  return car;
 }
 
 export const model = {

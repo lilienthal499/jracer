@@ -18,7 +18,7 @@ export function startup() {
       fetch(`backend/tracks/${config.track.number}.json`)
         .then(response => response.json())
         .then(trackData => {
-          console.log(`Loaded track: ${trackData.name} (${trackData.description})`);
+          // console.log(`Loaded track: ${trackData.name} (${trackData.description})`);
 
           const carControllers = initializeGame(config, trackData);
           attachKeyboardControls(carControllers, config);

@@ -184,7 +184,7 @@ export function createPhysicsEngine(modelInstance) {
       carModel.segment = segment;
 
       if (segment.type === 'offtrack') {
-        console.log('Outside Track Area');
+        // console.log('Outside Track Area');
         return;
       }
 
@@ -192,15 +192,15 @@ export function createPhysicsEngine(modelInstance) {
       if (carModel.trackSequence === model.track.sequenceOfSegments.length - 1 && segment.getSequenceNumber() === 1) {
         carModel.round += 1;
         carModel.trackSequence = 1;
-        //console.log(carModel.trackSequence);
+        // console.log(carModel.trackSequence);
       }
 
       // Checkpoint progression
       if (carModel.trackSequence === segment.getSequenceNumber() - 1) {
         carModel.trackSequence += 1;
-        //console.log(carModel.trackSequence);
+        // console.log(carModel.trackSequence);
         carModel.roundTimes.push(model.frameNumber);
-        console.dir(carModel.roundTimes);
+        // console.dir(carModel.roundTimes);
       }
     }
 

@@ -164,8 +164,8 @@ function createTrackBuilder(startPosition, size) {
   }
 
   function setGrid(positions, segment) {
-    console.dir(positions);
-    console.dir(segment);
+    // console.dir(positions);
+    // console.dir(segment);
     positions.forEach(position => {
       if (grid[position.x][position.y] === undefined) {
         grid[position.x][position.y] = segment;
@@ -275,6 +275,11 @@ export function createTrack(sequenceOfSegments, gridSize, trackWidth) {
   offTrackSegment.type = 'offtrack';
   offTrackSegment.setSequenceNumber(0);
 
+  // Off-track always returns false
+  offTrackSegment.isOnTrack = function (position) {
+    return false;
+  };
+
   // Calculate edge offsets from track width
   // Track is centered on turn radius, so split width in half
   const halfTrackWidth = trackWidth / 2;
@@ -293,11 +298,11 @@ export function createTrack(sequenceOfSegments, gridSize, trackWidth) {
   }
 
   function getModel() {
-    console.dir(sizeMeter.getSize());
-    console.dir(sizeMeter.getStartingPoint());
-    console.dir(trackBuilder.getGrid());
-    console.dir(trackBuilder.getGrid()[sizeMeter.getStartingPoint().x][sizeMeter.getStartingPoint().y]);
-    console.dir(trackBuilder.getGrid()[sizeMeter.getStartingPoint().x][sizeMeter.getStartingPoint().y].getSequenceNumber());
+    // console.dir(sizeMeter.getSize());
+    // console.dir(sizeMeter.getStartingPoint());
+    // console.dir(trackBuilder.getGrid());
+    // console.dir(trackBuilder.getGrid()[sizeMeter.getStartingPoint().x][sizeMeter.getStartingPoint().y]);
+    // console.dir(trackBuilder.getGrid()[sizeMeter.getStartingPoint().x][sizeMeter.getStartingPoint().y].getSequenceNumber());
     return {
       dimensions: {
         width: sizeMeter.getSize().x * gridSize,
@@ -324,6 +329,10 @@ export function createTrack(sequenceOfSegments, gridSize, trackWidth) {
   return { getModel };
 }
 
+// ============================================================================
+// Track Segment Creation Functions
+// ============================================================================
+
 function createTrackSegment() {
   'use strict';
   let sequenceNumber = null;
@@ -336,7 +345,12 @@ function createTrackSegment() {
     return sequenceNumber;
   }
 
-  return { setSequenceNumber, getSequenceNumber };
+  function isOnTrack(position) {
+    // Default implementation (will be overridden in specific segment types)
+    return true;
+  }
+
+  return { setSequenceNumber, getSequenceNumber, isOnTrack };
 }
 
 function createTurn(cursor, clockwise, size) {
@@ -426,14 +440,13 @@ function createTurn(cursor, clockwise, size) {
 
   segment.endCardinalDirection = cursor.getCardinalDirection();
 
-  return segment;
-}
+  // Override isOnTrack for turn segments
+  segment.isOnTrack = function (position) {
+    // TODO: Implement turn-specific logic
+    // Check if distance from centerOfCircle is between inner and outer radius
+    return true;
+  };
 
-function createHomeStraight(cursor) {
-  'use strict';
-  const segment = createTrackSegment();
-  segment.type = 'homestraight';
-  cursor.moveAhead();
   return segment;
 }
 
@@ -441,6 +454,30 @@ function createStraight(cursor) {
   'use strict';
   const segment = createTrackSegment();
   segment.type = 'straight';
+
+  // Override isOnTrack for straight segments
+  segment.isOnTrack = function (position) {
+    // TODO: Implement straight-specific logic
+    // Check if perpendicular distance from center line is within trackWidth/2
+    return true;
+  };
+
+  cursor.moveAhead();
+  return segment;
+}
+
+function createHomeStraight(cursor) {
+  'use strict';
+  const segment = createTrackSegment();
+  segment.type = 'homestraight';
+
+  // Override isOnTrack for straight segments
+  segment.isOnTrack = function (position) {
+    // TODO: Implement straight-specific logic
+    // Check if perpendicular distance from center line is within trackWidth/2
+    return true;
+  };
+
   cursor.moveAhead();
   return segment;
 }
