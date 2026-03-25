@@ -4,6 +4,7 @@
   "description": "Current track with mixed turns and straights",
   "gridSize": 200,
   "trackWidth": 0.8,
+  "lapCount": 5,
   "sections": [
     "START",
     "LEFT_TURN",

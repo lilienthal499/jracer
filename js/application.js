@@ -84,7 +84,7 @@ function startGameUI(config, trackData) {
     });
     const firstCar = model.cars[playerIndex];
     const firstCarView = StaticCar(players[playerIndex].view, firstCar);
-    const headUpDisplayView = HeadUpDisplay({}, firstCar, playerIndex);
+    const headUpDisplayView = HeadUpDisplay({}, firstCar, playerIndex, model.track);
 
     // Create canvas for track and tire marks
     const trackCanvas = document.createElement('canvas');
