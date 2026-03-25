@@ -10,6 +10,7 @@ export function createPhysicsEngine(modelInstance) {
   const ROLLING_RESISTANCE = 50;
   const STATIC_FRICTION = 550;
   const DRIFTING_FRICTION = STATIC_FRICTION * 0.9;
+  const OFF_TRACK_RESISTANCE = 150;
   const AERODYNAMIC_RESISTANCE_FRONT = 0.001;
   const AERODYNAMIC_RESISTANCE_SIDE = 0;
   const TURNING_FRICTION = 0.4;
@@ -92,10 +93,12 @@ export function createPhysicsEngine(modelInstance) {
 
     function calculateAcceleration(velocity) {
       function getCurrentFriction() {
-        // if (carModel.next.velocity.drifting) {
-        // console.log("drifting");
-        // }
+        // Off-track: high friction slows car down
+        if (!carModel.isOnTrack()) {
+          return OFF_TRACK_RESISTANCE;
+        }
 
+        // On-track: normal friction based on drifting state
         return next.velocity.drifting ? DRIFTING_FRICTION : STATIC_FRICTION;
       }
 
@@ -112,15 +115,17 @@ export function createPhysicsEngine(modelInstance) {
         if (acceleration.y < -currentFriction) {
           notRealizedAcceleration += acceleration.y + currentFriction;
           // console.log("Zu stark gebremst!" + notRealizedAcceleration);
-          acceleration.y = -DRIFTING_FRICTION;
+          acceleration.y = -currentFriction;
         }
-        acceleration.y -= ROLLING_RESISTANCE;
+        // Off-track drag: much higher rolling resistance
+        const rollingResistance = carModel.isOnTrack() ? ROLLING_RESISTANCE : OFF_TRACK_RESISTANCE;
+        acceleration.y -= rollingResistance;
         acceleration.y -= Math.pow(velocity.y, 2) * AERODYNAMIC_RESISTANCE_FRONT;
       }
 
       if (acceleration.y > currentFriction) {
         notRealizedAcceleration += acceleration.y - currentFriction;
-        acceleration.y = DRIFTING_FRICTION;
+        acceleration.y = currentFriction;
         // console.log("Zu schnell beschleunigt! " + notRealizedAcceleration);
       }
 
