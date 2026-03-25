@@ -162,7 +162,7 @@ function createSizeMeter() {
   return { addStart, addFinish, addCurve, addStraight, getSize, getStartingPoint };
 }
 
-function createModelCreator(startPosition, size) {
+function createTrackBuilder(startPosition, size) {
   'use strict';
   let cursor = null;
   const sequence = [];
@@ -272,11 +272,11 @@ export function createTrack(sequenceOfComponents, gridSize, trackWidth) {
   const sizeMeter = createSizeMeter();
   parseSequenceOfComponents(sizeMeter, sequenceOfComponents);
 
-  const modelCreator = createModelCreator(
+  const trackBuilder = createTrackBuilder(
     sizeMeter.getStartingPoint(),
     sizeMeter.getSize()
   );
-  parseSequenceOfComponents(modelCreator, sequenceOfComponents, sizeMeter.getStartingPoint());
+  parseSequenceOfComponents(trackBuilder, sequenceOfComponents, sizeMeter.getStartingPoint());
 
   // Calculate edge offsets from track width
   // Track is centered on turn radius, so split width in half
@@ -287,14 +287,14 @@ export function createTrack(sequenceOfComponents, gridSize, trackWidth) {
   function getModel() {
     console.dir(sizeMeter.getSize());
     console.dir(sizeMeter.getStartingPoint());
-    console.dir(modelCreator.getGrid());
+    console.dir(trackBuilder.getGrid());
     console.dir(
-      modelCreator.getGrid()[sizeMeter.getStartingPoint().x][
+      trackBuilder.getGrid()[sizeMeter.getStartingPoint().x][
         sizeMeter.getStartingPoint().y
       ]
     );
     console.dir(
-      modelCreator
+      trackBuilder
         .getGrid()[sizeMeter.getStartingPoint().x][sizeMeter.getStartingPoint().y].getSequenceNumber()
     );
     return {
@@ -307,8 +307,8 @@ export function createTrack(sequenceOfComponents, gridSize, trackWidth) {
         y: sizeMeter.getStartingPoint().y * gridSize + 0.5 * gridSize
       },
       gridSize,
-      sequenceOfComponents: modelCreator.getSequence(),
-      grid: modelCreator.getGrid(),
+      sequenceOfComponents: trackBuilder.getSequence(),
+      grid: trackBuilder.getGrid(),
       // Track width and calculated edge offsets (for rendering and collision)
       trackWidth,
       edgeOffsetInner,

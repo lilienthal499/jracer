@@ -75,7 +75,7 @@ jracer.subnamespace.Component = function() { ... }
 - Components: `START`, `FINISH`, `STRAIGHT`, `LEFT_TURN`, `RIGHT_TURN`, `WIDE_*_TURN`, `EXTRA_WIDE_*_TURN`
 - Track generation process:
   1. `SizeMeter` pass: Calculate bounding box
-  2. `ModelCreator` pass: Generate grid and sequence
+  2. `TrackBuilder` pass: Generate grid and sequence
   3. `Track.Drawer`: Render to canvas with visual styling
 - **Grid-based collision detection**: Track divided into grid cells, cars query current grid position
 - **Sequence tracking**: Each track component has a sequence number for lap counting
