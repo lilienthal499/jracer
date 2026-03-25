@@ -359,20 +359,22 @@ function createStraight(cursor, gridSize, trackWidth) {
   segment.cardinalDirection = cursor.getCardinalDirection();
 
   segment.isOnTrack = function (position) {
+    // Convert pixel position to grid coordinates (0-based grid cells)
+    // e.g., position 200px with gridSize=200 → normalized = 1.0 (center of grid cell 1)
     const normalizedPosition = {
       x: position.x / gridSize,
       y: position.y / gridSize
     };
-    const halfTrackWidth = trackWidth / 2;
 
-    if (segment.cardinalDirection === Track.NORTH || segment.cardinalDirection === Track.SOUTH) {
-      const centerX = segment.gridPosition.x + 0.5;
-      const distance = Math.abs(normalizedPosition.x - centerX);
-      return distance <= halfTrackWidth;
-    }
-    const centerY = segment.gridPosition.y + 0.5;
-    const distance = Math.abs(normalizedPosition.y - centerY);
-    return distance <= halfTrackWidth;
+    // Check perpendicular distance from track center line
+    // Vertical segments (NORTH/SOUTH): check horizontal distance (x-axis)
+    // Horizontal segments (EAST/WEST): check vertical distance (y-axis)
+    const isVertical = segment.cardinalDirection === Track.NORTH || segment.cardinalDirection === Track.SOUTH;
+    const center = (isVertical ? segment.gridPosition.x : segment.gridPosition.y) + 0.5;
+    const carPosition = isVertical ? normalizedPosition.x : normalizedPosition.y;
+    const distance = Math.abs(carPosition - center);
+
+    return distance <= trackWidth / 2;
   };
 
   cursor.moveAhead();
@@ -410,9 +412,28 @@ function createTurn(cursor, clockwise, size, gridSize, trackWidth) {
   segment.startCardinalDirection = cursor.getCardinalDirection();
 
   segment.isOnTrack = function (position) {
-    // TODO: Implement turn-specific logic
-    // Check if distance from centerOfCircle is between inner and outer radius
-    return true;
+    // Calculate track edge offsets from center line
+    const halfTrackWidth = trackWidth / 2;
+    const edgeOffsetInner = 0.5 + halfTrackWidth;
+    const edgeOffsetOuter = 0.5 - halfTrackWidth;
+
+    // Calculate inner and outer radii in pixels
+    const innerRadius = gridSize * (size - edgeOffsetInner);
+    const outerRadius = gridSize * (size - edgeOffsetOuter);
+
+    // Convert center from grid coordinates to pixel coordinates
+    const centerPixel = {
+      x: segment.centerOfCircle.x * gridSize,
+      y: segment.centerOfCircle.y * gridSize
+    };
+
+    // Calculate distance from car position to circle center
+    const dx = position.x - centerPixel.x;
+    const dy = position.y - centerPixel.y;
+    const distanceFromCenter = Math.sqrt(dx * dx + dy * dy);
+
+    // Car is on-track if distance is between inner and outer radius
+    return distanceFromCenter >= innerRadius && distanceFromCenter <= outerRadius;
   };
 
   function directionToOffset(direction, afterRotate) {
