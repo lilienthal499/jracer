@@ -276,6 +276,17 @@ export function createTrack(sequenceOfSegments, gridSize, trackWidth) {
   const edgeOffsetInner = 0.5 + halfTrackWidth; // 0.5 + 0.2 = 0.7
   const edgeOffsetOuter = 0.5 - halfTrackWidth; // 0.5 - 0.2 = 0.3
 
+  function getSegmentAtPosition(x, y) {
+    const gridX = Math.ceil(x / gridSize) - 1;
+    const gridY = Math.ceil(y / gridSize) - 1;
+
+    try {
+      return trackBuilder.getGrid()[gridX][gridY];
+    } catch (TypeError) {
+      return null; // Off track
+    }
+  }
+
   function getModel() {
     console.dir(sizeMeter.getSize());
     console.dir(sizeMeter.getStartingPoint());
@@ -299,7 +310,9 @@ export function createTrack(sequenceOfSegments, gridSize, trackWidth) {
       edgeOffsetInner,
       edgeOffsetOuter,
       // Track direction
-      isClockwise: trackBuilder.isClockwise()
+      isClockwise: trackBuilder.isClockwise(),
+      // Query methods
+      getSegmentAtPosition
     };
   }
 

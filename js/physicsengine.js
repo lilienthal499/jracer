@@ -180,27 +180,27 @@ export function createPhysicsEngine(modelInstance) {
     }
 
     function calculateTrackSegment() {
-      const gridX = Math.ceil(next.position.x / model.track.gridSize) - 1;
-      const gridY = Math.ceil(next.position.y / model.track.gridSize) - 1;
-      let segment;
+      const segment = model.track.getSegmentAtPosition(next.position.x, next.position.y);
 
-      try {
-        segment = model.track.grid[gridX][gridY];
-
-        if (carModel.trackSequence === model.track.sequenceOfSegments.length - 1 && segment.getSequenceNumber() === 1) {
-          carModel.round += 1;
-          carModel.trackSequence = 1;
-          //console.log(carModel.trackSequence);
-        }
-        if (carModel.trackSequence === segment.getSequenceNumber() - 1) {
-          carModel.segment = segment;
-          carModel.trackSequence += 1;
-          //console.log(carModel.trackSequence);
-          carModel.roundTimes.push(model.frameNumber);
-          console.dir(carModel.roundTimes);
-        }
-      } catch (TypeError) {
+      if (!segment) {
         console.log('Outside Track Area');
+        return;
+      }
+
+      // Lap completion detection
+      if (carModel.trackSequence === model.track.sequenceOfSegments.length - 1 && segment.getSequenceNumber() === 1) {
+        carModel.round += 1;
+        carModel.trackSequence = 1;
+        //console.log(carModel.trackSequence);
+      }
+
+      // Checkpoint progression
+      if (carModel.trackSequence === segment.getSequenceNumber() - 1) {
+        carModel.segment = segment;
+        carModel.trackSequence += 1;
+        //console.log(carModel.trackSequence);
+        carModel.roundTimes.push(model.frameNumber);
+        console.dir(carModel.roundTimes);
       }
     }
 
