@@ -63,6 +63,15 @@ body {
   padding-left: 10px;
 }
 
+.headupdisplay input {
+  width: 60px;
+  text-align: center;
+  border: none;
+  background-color: transparent;
+  font-family: inherit;
+  font-size: inherit;
+}
+
 .car {
   position: absolute;
   bottom: 0px;

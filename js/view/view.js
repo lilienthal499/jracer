@@ -1,7 +1,7 @@
 import { Vector } from '../vector.js';
 import { model } from '../model.js';
 
-'use strict';
+('use strict');
 
 export function createCachedStyleSetter(style, property) {
   let oldValue = null;
@@ -16,17 +16,43 @@ export function createCachedStyleSetter(style, property) {
   return { set };
 }
 
+export function createCachedTextSetter(element) {
+  let oldValue = null;
+
+  function set(value) {
+    if (value !== oldValue) {
+      element.textContent = value;
+      oldValue = value;
+    }
+  }
+
+  return { set };
+}
+
+export function createCachedValueSetter(element) {
+  let oldValue = null;
+
+  function set(value) {
+    if (value !== oldValue) {
+      element.value = value;
+      oldValue = value;
+    }
+  }
+
+  return { set };
+}
+
 export function SplitScreen(viewConfig, screenViews, minimapView) {
   const DOMElement = document.createElement('div');
   DOMElement.className = 'splitScreen';
 
   DOMElement.appendChild(minimapView.getDOMElement());
-  screenViews.forEach((view) => {
+  screenViews.forEach(view => {
     DOMElement.appendChild(view.getDOMElement());
   });
 
   function update(frameProgress) {
-    screenViews.forEach((view) => {
+    screenViews.forEach(view => {
       view.update(frameProgress);
     });
   }
@@ -137,13 +163,13 @@ function createTrack(carViews) {
   DOMElement.className = 'track';
 
   function addCarViews() {
-    carViews.forEach((view) => {
+    carViews.forEach(view => {
       DOMElement.appendChild(view.getDOMElement());
     });
   }
 
   function update() {
-    carViews.forEach((view) => {
+    carViews.forEach(view => {
       view.update();
     });
   }
@@ -177,45 +203,6 @@ export function MovingTrack(viewConfig, carModel, carViews, trackCanvas) {
   update();
 
   return { update, getDOMElement: track.getDOMElement };
-}
-
-export function HeadUpDisplay(viewConfig, carModel) {
-  const DOMElement = document.createElement('div');
-  DOMElement.className = 'headupdisplay';
-
-  let label;
-
-  label = document.createElement('label');
-  label.appendChild(document.createTextNode('像素/秒'));
-  DOMElement.appendChild(label);
-  const speed = document.createElement('span');
-  DOMElement.appendChild(speed);
-
-  label = document.createElement('label');
-  label.appendChild(document.createTextNode('轮'));
-  DOMElement.appendChild(label);
-  const round = document.createElement('span');
-  DOMElement.appendChild(round);
-
-  label = document.createElement('label');
-  label.appendChild(document.createTextNode('Zeit'));
-  DOMElement.appendChild(label);
-  const lastTime = document.createElement('span');
-  DOMElement.appendChild(lastTime);
-
-  function getDOMElement() {
-    return DOMElement;
-  }
-
-  function update() {
-    speed.textContent = Math.round(carModel.velocity.forward);
-    round.textContent = carModel.round;
-    lastTime.textContent = carModel.roundTimes[carModel.roundTimes.length - 1];
-  }
-
-  update();
-
-  return { getDOMElement, update };
 }
 
 export function MiniMap(viewConfig) {
