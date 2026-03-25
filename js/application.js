@@ -44,6 +44,7 @@ export function initializeGame(config, trackData) {
     car.controls.maxSteeringAngle = player.maxSteeringAngle;
     car.position.x = model.track.startingPosition.x;
     car.position.y = model.track.startingPosition.y;
+    car.segment = model.track.getSegmentAtPosition(car.position.x, car.position.y);
 
     model.cars.push(car);
 

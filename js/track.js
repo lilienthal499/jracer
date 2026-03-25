@@ -270,6 +270,11 @@ export function createTrack(sequenceOfSegments, gridSize, trackWidth) {
   const trackBuilder = createTrackBuilder(sizeMeter.getStartingPoint(), sizeMeter.getSize());
   parseSequenceOfSegments(trackBuilder, sequenceOfSegments, sizeMeter.getStartingPoint());
 
+  // Create off-track segment (singleton)
+  const offTrackSegment = createTrackSegment();
+  offTrackSegment.type = 'offtrack';
+  offTrackSegment.setSequenceNumber(0);
+
   // Calculate edge offsets from track width
   // Track is centered on turn radius, so split width in half
   const halfTrackWidth = trackWidth / 2;
@@ -281,9 +286,9 @@ export function createTrack(sequenceOfSegments, gridSize, trackWidth) {
     const gridY = Math.ceil(y / gridSize) - 1;
 
     try {
-      return trackBuilder.getGrid()[gridX][gridY];
+      return trackBuilder.getGrid()[gridX][gridY] || offTrackSegment;
     } catch (TypeError) {
-      return null; // Off track
+      return offTrackSegment;
     }
   }
 

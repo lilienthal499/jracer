@@ -1,5 +1,5 @@
-import { Vector } from './vector.js';
 import { model } from './model.js';
+import { Vector } from './vector.js';
 
 export function createPhysicsEngine(modelInstance) {
   'use strict';
@@ -181,8 +181,9 @@ export function createPhysicsEngine(modelInstance) {
 
     function calculateTrackSegment() {
       const segment = model.track.getSegmentAtPosition(next.position.x, next.position.y);
+      carModel.segment = segment;
 
-      if (!segment) {
+      if (segment.type === 'offtrack') {
         console.log('Outside Track Area');
         return;
       }
@@ -196,7 +197,6 @@ export function createPhysicsEngine(modelInstance) {
 
       // Checkpoint progression
       if (carModel.trackSequence === segment.getSequenceNumber() - 1) {
-        carModel.segment = segment;
         carModel.trackSequence += 1;
         //console.log(carModel.trackSequence);
         carModel.roundTimes.push(model.frameNumber);

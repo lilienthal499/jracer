@@ -26,8 +26,8 @@ describe('Track parsing', () => {
         expect(model.dimensions.width).toBeGreaterThan(0);
         expect(model.dimensions.height).toBeGreaterThan(0);
         expect(model.startingPosition).toBeDefined();
-        expect(model.sequenceOfComponents).toBeDefined();
-        expect(model.sequenceOfComponents.length).toBeGreaterThan(0);
+        expect(model.sequenceOfSegments).toBeDefined();
+        expect(model.sequenceOfSegments.length).toBeGreaterThan(0);
 
         // Turn direction validation
         expect(model.isClockwise).toBeDefined();
@@ -42,7 +42,7 @@ describe('Track parsing', () => {
     const model = track.getModel();
 
     expect(trackData.name).toBe('Beginner Oval');
-    expect(model.sequenceOfComponents.length).toBe(9);
+    expect(model.sequenceOfSegments.length).toBe(9);
     expect(model.dimensions.width).toBe(3000);
     expect(model.dimensions.height).toBe(3000);
     expect(model.isClockwise).toBe(true);
@@ -54,7 +54,7 @@ describe('Track parsing', () => {
     const model = track.getModel();
 
     expect(trackData.name).toBe('Technical Circuit');
-    expect(model.sequenceOfComponents.length).toBe(15);
+    expect(model.sequenceOfSegments.length).toBe(15);
     expect(model.dimensions.width).toBe(1200);
     expect(model.dimensions.height).toBe(1000);
     expect(model.isClockwise).toBe(true);
@@ -66,7 +66,7 @@ describe('Track parsing', () => {
     const model = track.getModel();
 
     expect(trackData.name).toBe('Left Turn Oval');
-    expect(model.sequenceOfComponents.length).toBe(9);
+    expect(model.sequenceOfSegments.length).toBe(9);
     expect(model.dimensions.width).toBe(600);
     expect(model.dimensions.height).toBe(600);
     expect(model.isClockwise).toBe(false);

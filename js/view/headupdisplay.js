@@ -43,6 +43,8 @@ export function HeadUpDisplay(viewConfig, carModel, playerId) {
   const speed = createField('speed', '像素/秒');
   const round = createField('round', '轮');
   const lastTime = createField('lasttime', 'Zeit');
+  const currentSegment = createField('currentsegment', 'Current Segment');
+  const onTrack = createField('ontrack', 'On Track');
 
   function getDOMElement() {
     return DOMElement;
@@ -52,6 +54,8 @@ export function HeadUpDisplay(viewConfig, carModel, playerId) {
     speed.set(Math.round(carModel.velocity.forward));
     round.set(carModel.round);
     lastTime.set(carModel.roundTimes[carModel.roundTimes.length - 1]);
+    currentSegment.set(carModel.segment.getSequenceNumber());
+    onTrack.set(carModel.segment.type !== 'offtrack' ? 'Yes' : 'No');
   }
 
   update();
