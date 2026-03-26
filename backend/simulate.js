@@ -11,6 +11,7 @@ import { model } from '../js/model.js';
 import { createPhysicsEngine } from '../js/physicsengine.js';
 import { createTrack } from '../js/track.js';
 import { createCarController, createPlaybackController } from '../js/controller.js';
+import { createFrameManager } from '../js/framemanager.js';
 
 // Load configuration
 const config = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf8'));
@@ -31,11 +32,6 @@ console.log(`Starting position: (${model.track.startingPosition.x}, ${model.trac
 
 // Find player with recording (for playback)
 const recordedPlayer = config.players.find(p => p.recording !== undefined);
-if (!recordedPlayer) {
-  console.error('No recorded player found in config!');
-  process.exit(1);
-}
-
 console.log(`Using recording from player: ${recordedPlayer.name}`);
 
 // Create car
@@ -53,36 +49,56 @@ const playbackController = createPlaybackController(recordedPlayer.recording, ca
 // Add car to physics engine
 physicsEngine.addCar(car);
 
-// Create minimal frame manager that just stores listeners
-const frameListeners = [];
-const fakeFrameManager = {
-  addFrameListener: (listener) => frameListeners.push(listener),
-  addSubFrameListener: () => {} // No longer needed - physics now updates carModel directly
+// Create frame manager with synchronous "animation frame" mocks
+let frameCallbacks = [];
+let nextFrameId = 1;
+
+const mockRequestAnimationFrame = (callback) => {
+  const id = nextFrameId++;
+  frameCallbacks.push({ id, callback });
+  return id;
 };
 
-// Register physics updates with fake frame manager
-physicsEngine.scheduleUpdates(fakeFrameManager);
+const mockCancelAnimationFrame = (id) => {
+  frameCallbacks = frameCallbacks.filter(fc => fc.id !== id);
+};
+
+const frameManager = createFrameManager(model, mockRequestAnimationFrame, mockCancelAnimationFrame);
+
+// Register physics and controller updates (same as browser)
+physicsEngine.scheduleUpdates(frameManager);
+frameManager.addFrameListener(carController.update);
+frameManager.addFrameListener(playbackController.update);
+
+// Start frame manager (schedules first frame)
+frameManager.start();
 
 // Run simulation
 const maxFrames = 500;
 console.log(`\nRunning simulation for ${maxFrames} frames...`);
 
+// Simulate timestamp progression
+let now = 0;
+const frameDuration = model.frameDuration; // 16.666... ms for 60 FPS
+
 for (let frame = 0; frame < maxFrames; frame++) {
-  // Update controllers
-  carController.update();
-  playbackController.update();
+  // Execute all pending frame callbacks (synchronously)
+  const callbacks = [...frameCallbacks];
+  frameCallbacks = [];
 
-  // Update physics by calling all registered frame listeners
-  frameListeners.forEach(listener => listener());
+  callbacks.forEach(fc => {
+    fc.callback(now);
+  });
 
-  // Increment frame counter
-  model.frameNumber++;
+  now += frameDuration;
 
   // Log progress every 100 frames
   if ((frame + 1) % 100 === 0) {
     console.log(`Frame ${frame + 1}/${maxFrames}: Position (${car.position.x.toFixed(2)}, ${car.position.y.toFixed(2)}), Speed: ${car.velocity.forward.toFixed(2)}, Gas: ${car.controls.gasPedal.toFixed(2)}, Steering: ${car.controls.steeringWheel.toFixed(2)}`);
   }
 }
+
+frameManager.stop();
 
 console.log('\nSimulation complete!');
 console.log('===================');

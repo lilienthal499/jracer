@@ -1,6 +1,6 @@
 import { model } from './model.js';
 
-function createFrameManager(modelInstance) {
+function createFrameManager(modelInstance, requestAnimFrame, cancelAnimFrame) {
   'use strict';
 
   let running = false;
@@ -12,8 +12,7 @@ function createFrameManager(modelInstance) {
 
   function cancelNextUpdate() {
     if (animationFrameId !== undefined) {
-      // BROWSER DEPENDENCY: window.cancelAnimationFrame
-      window.cancelAnimationFrame(animationFrameId);
+      cancelAnimFrame(animationFrameId);
       animationFrameId = undefined;
     }
   }
@@ -51,8 +50,7 @@ function createFrameManager(modelInstance) {
   }
 
   function scheduleNextUpdate() {
-    // BROWSER DEPENDENCY: window.requestAnimationFrame
-    animationFrameId = window.requestAnimationFrame(requestAnimationFrameCallback);
+    animationFrameId = requestAnimFrame(requestAnimationFrameCallback);
   }
 
   return {
@@ -82,4 +80,5 @@ function createFrameManager(modelInstance) {
   };
 }
 
-export const frameManager = createFrameManager(model);
+// Export factory function
+export { createFrameManager };

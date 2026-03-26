@@ -1,5 +1,5 @@
 import { createCarController, createKeyboardController, createPlaybackController, createRecordingDecorator } from './controller.js';
-import { frameManager } from './framemanager.js';
+import { createFrameManager } from './framemanager.js';
 import { model } from './model.js';
 import { createPhysicsEngine } from './physicsengine.js';
 import { createTrack } from './track.js';
@@ -8,6 +8,13 @@ import { HeadUpDisplay } from './view/headupdisplay.js';
 import { TireTracks } from './view/tiretracks.js';
 import { Drawer } from './view/track.js';
 import { MiniMap, MovingTrack, Screen, SplitScreen } from './view/view.js';
+
+// Create browser frame manager instance
+const frameManager = createFrameManager(
+  model,
+  window.requestAnimationFrame.bind(window),
+  window.cancelAnimationFrame.bind(window)
+);
 
 export function startup() {
   'use strict';
