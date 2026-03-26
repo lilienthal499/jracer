@@ -21,4 +21,14 @@ This file tracks potential features, improvements, and ideas for the JRacer proj
 
 ---
 
+## Done
+
+- [x] **Replay system** - Record and replay key strokes (2024-2025)
+  - Frame-based recording format
+  - Deterministic playback via input buffering
+  - Toggle-based compression (minimal storage)
+  - Automatic export on lap completion
+
+---
+
 **Note:** This backlog is for brainstorming and planning. Items can be added, removed, or reprioritized based on project goals.
