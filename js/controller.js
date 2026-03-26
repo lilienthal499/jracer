@@ -311,3 +311,46 @@ export function createKeyboardController(keyConfig, carController) {
 
   return { getKeyHandler: () => keyHandler };
 }
+
+/**
+ * Creates a playback controller that replays recorded inputs.
+ *
+ * Recording format (frame-based):
+ * {
+ *   "0": { "UP": true },           // Frame 0: press UP
+ *   "50": { "UP": false },          // Frame 50: release UP
+ *   "60": { "LEFT": true },         // Frame 60: press LEFT
+ *   "100": { "LEFT": false }        // Frame 100: release LEFT
+ * }
+ *
+ * @param {Object} recording - Frame number to key states mapping
+ * @param {Object} carController - Car controller with pressed/release methods
+ * @returns {{update: function}}
+ */
+export function createPlaybackController(recording, carController) {
+  const playbackStartFrame = model.frameNumber;
+
+  // Called every frame by frameManager
+  function update() {
+    const currentFrame = model.frameNumber - playbackStartFrame;
+    const frameKey = currentFrame.toString();
+
+    // Check if there are events for this frame
+    if (recording[frameKey] !== undefined) {
+      const events = recording[frameKey];
+
+      // Process each key in this frame's events
+      Object.keys(events).forEach(keyName => {
+        const isPressed = events[keyName];
+        if (isPressed) {
+          carController.pressed(keyName);
+        } else {
+          carController.release(keyName);
+        }
+      });
+    }
+  }
+
+  return { update };
+}
+

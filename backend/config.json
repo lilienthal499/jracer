@@ -1,7 +1,7 @@
 {
   "track": {
-    "number": 2,
-    "showGrid": true
+    "number": 4,
+    "showGrid": false
   },
   "players": [
     {
@@ -41,7 +41,8 @@
       "name": "Recorded",
       "recording": {
         "0": { "UP": true },
-        "200": { "UP": true }
+        "100": { "UP": false, "RIGHT": true },
+        "300": { "RIGHT": false }
       },
       "view": { "color": "DodgerBlue", "carType": "rally" },
       "maxSteeringAngle": 0.15

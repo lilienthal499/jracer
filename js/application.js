@@ -1,4 +1,4 @@
-import { createCarController, createKeyboardController } from './controller.js';
+import { createCarController, createKeyboardController, createPlaybackController } from './controller.js';
 import { frameManager } from './framemanager.js';
 import { model } from './model.js';
 import { createPhysicsEngine } from './physicsengine.js';
@@ -21,7 +21,7 @@ export function startup() {
           // console.log(`Loaded track: ${trackData.name} (${trackData.description})`);
 
           const carControllers = initializeGame(config, trackData);
-          attachKeyboardControls(carControllers, config);
+          attachInputSources(carControllers, config);
           startGameUI(config, trackData);
         });
     });
@@ -58,20 +58,24 @@ export function initializeGame(config, trackData) {
   return carControllers;
 }
 
-// Attach keyboard input to car controllers
-export function attachKeyboardControls(carControllers, config) {
-  config.players
-    .filter(player => player.controls !== undefined)
-    .map((player, index) => ({
-      player,
-      controller: createKeyboardController(player.controls, carControllers[index])
-    }))
-    .forEach(({ controller }) => {
-      document.addEventListener('keydown', controller.getKeyHandler());
-      document.addEventListener('keyup', controller.getKeyHandler());
-    });
+// Attach input sources to car controllers (keyboard, playback, AI, etc.)
+export function attachInputSources(carControllers, config) {
+  config.players.forEach((player, index) => {
+    const carController = carControllers[index];
 
-  //TODO Add support for recorded inputs
+    // Attach keyboard controller if controls defined
+    if (player.controls !== undefined) {
+      const keyboardController = createKeyboardController(player.controls, carController);
+      document.addEventListener('keydown', keyboardController.getKeyHandler());
+      document.addEventListener('keyup', keyboardController.getKeyHandler());
+    }
+
+    // Attach playback controller if recording defined
+    if (player.recording !== undefined) {
+      const playbackController = createPlaybackController(player.recording, carController);
+      frameManager.addFrameListener(playbackController.update);
+    }
+  });
 }
 
 // UI: Creates views and attaches to DOM
