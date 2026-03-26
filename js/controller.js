@@ -315,37 +315,45 @@ export function createKeyboardController(keyConfig, carController) {
 /**
  * Creates a playback controller that replays recorded inputs.
  *
- * Recording format (frame-based):
+ * Recording format (frame-based, toggle on repeat):
  * {
- *   "0": { "UP": true },           // Frame 0: press UP
- *   "50": { "UP": false },          // Frame 50: release UP
- *   "60": { "LEFT": true },         // Frame 60: press LEFT
- *   "100": { "LEFT": false }        // Frame 100: release LEFT
+ *   "0": ["UP"],              // Frame 0: press UP
+ *   "60": ["RIGHT"],          // Frame 60: press RIGHT (UP still held)
+ *   "120": ["RIGHT"],         // Frame 120: release RIGHT (toggle - same key again)
+ *   "660": ["UP", "DOWN", "LEFT"]  // Frame 660: release UP, press DOWN and LEFT
  * }
  *
- * @param {Object} recording - Frame number to key states mapping
+ * Listing a key toggles its state: press if released, release if pressed.
+ * Minimal format - no prefixes needed, only record actual input events.
+ *
+ * @param {Object} recording - Frame number to array of key toggles
  * @param {Object} carController - Car controller with pressed/release methods
  * @returns {{update: function}}
  */
 export function createPlaybackController(recording, carController) {
   const playbackStartFrame = model.frameNumber;
+  const keyStates = new Map(); // Track current state of each key
 
   // Called every frame by frameManager
   function update() {
     const currentFrame = model.frameNumber - playbackStartFrame;
     const frameKey = currentFrame.toString();
 
-    // Check if there are events for this frame
+    // Check if there are key events for this frame
     if (recording[frameKey] !== undefined) {
-      const events = recording[frameKey];
+      const keyToggles = recording[frameKey];
 
-      // Process each key in this frame's events
-      Object.keys(events).forEach(keyName => {
-        const isPressed = events[keyName];
-        if (isPressed) {
-          carController.pressed(keyName);
+      keyToggles.forEach(key => {
+        const isCurrentlyPressed = keyStates.get(key) || false;
+
+        if (isCurrentlyPressed) {
+          // Key is pressed, so release it
+          carController.release(key);
+          keyStates.set(key, false);
         } else {
-          carController.release(keyName);
+          // Key is released, so press it
+          carController.pressed(key);
+          keyStates.set(key, true);
         }
       });
     }

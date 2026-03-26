@@ -13,7 +13,8 @@
         { "key": "RIGHT", "code": "KeyD" }
       ],
       "view": { "color": "DarkSeaGreen", "rotateAndZoom": false, "carType": "sedan" },
-      "maxSteeringAngle": 0.2
+      "maxSteeringAngle": 0.2,
+      "record": true
     },
     {
       "name": "田南",
@@ -40,9 +41,25 @@
     {
       "name": "Recorded",
       "recording": {
-        "0": { "UP": true },
-        "100": { "UP": false, "RIGHT": true },
-        "300": { "RIGHT": false }
+        "0": ["UP"],
+        "60": ["RIGHT"],
+        "120": ["RIGHT"],
+        "180": ["LEFT"],
+        "240": ["LEFT"],
+        "300": ["RIGHT"],
+        "360": ["RIGHT"],
+        "420": ["LEFT"],
+        "480": ["LEFT"],
+        "540": ["RIGHT"],
+        "600": ["RIGHT"],
+        "660": ["UP", "DOWN", "LEFT"],
+        "720": ["DOWN", "LEFT"],
+        "780": ["UP"],
+        "840": ["LEFT"],
+        "900": ["LEFT"],
+        "960": ["RIGHT"],
+        "1020": ["RIGHT"],
+        "1080": ["UP"]
       },
       "view": { "color": "DodgerBlue", "carType": "rally" },
       "maxSteeringAngle": 0.15
