@@ -1,10 +1,7 @@
 import { model } from './model.js';
 import { Keys } from '../shared/keys.js';
 
-export { Keys };
-
 export function createDelayedController(delay, callback) {
-  'use strict';
   const numberOfSteps = Math.ceil(delay / model.frameDuration);
   const initialFrameNumber = model.frameNumber;
 
@@ -19,8 +16,6 @@ export function createDelayedController(delay, callback) {
 }
 
 export function createCarController(car) {
-  'use strict';
-
   const delayedControllers = {
     gasPedal: undefined,
     brake: undefined,
@@ -29,17 +24,43 @@ export function createCarController(car) {
   let leftIsPressed = false;
   let rightIsPressed = false;
 
-  function steeringWheelTurnedRight() {
-    delayedControllers.steeringWheel = createDelayedController(400, progress => {
+  // Gas pedal handlers
+  function onKeyUpPressed() {
+    delayedControllers.gasPedal = createDelayedController(400, progress => {
       // This could be non-linear
-      car.controls.steeringWheel = progress;
+      car.controls.gasPedal = progress;
     });
   }
 
+  function onKeyUpReleased() {
+    delayedControllers.gasPedal = undefined;
+    car.controls.gasPedal = 0;
+  }
+
+  // Brake handlers
+  function onKeyDownPressed() {
+    delayedControllers.brake = createDelayedController(200, progress => {
+      car.controls.brake = progress;
+    });
+  }
+
+  function onKeyDownReleased() {
+    delayedControllers.brake = undefined;
+    car.controls.brake = 0;
+  }
+
+  // Steering wheel state managers
   function steeringWheelTurnedLeft() {
     delayedControllers.steeringWheel = createDelayedController(400, progress => {
       // This could be non-linear
       car.controls.steeringWheel = -progress;
+    });
+  }
+
+  function steeringWheelTurnedRight() {
+    delayedControllers.steeringWheel = createDelayedController(400, progress => {
+      // This could be non-linear
+      car.controls.steeringWheel = progress;
     });
   }
 
@@ -57,6 +78,7 @@ export function createCarController(car) {
     car.controls.steeringWheel = 0;
   }
 
+  // Left steering handlers
   function onKeyLeftPressed() {
     leftIsPressed = true;
     if (rightIsPressed) {
@@ -75,6 +97,7 @@ export function createCarController(car) {
     }
   }
 
+  // Right steering handlers
   function onKeyRightPressed() {
     rightIsPressed = true;
     if (leftIsPressed) {
@@ -93,27 +116,22 @@ export function createCarController(car) {
     }
   }
 
-  function onKeyUpPressed() {
-    delayedControllers.gasPedal = createDelayedController(400, progress => {
-      // This could be non-linear
-      car.controls.gasPedal = progress;
-    });
-  }
-
-  function onKeyUpReleased() {
-    delayedControllers.gasPedal = undefined;
-    car.controls.gasPedal = 0;
-  }
-
-  function onKeyDownPressed() {
-    delayedControllers.brake = createDelayedController(200, progress => {
-      car.controls.brake = progress;
-    });
-  }
-
-  function onKeyDownReleased() {
-    delayedControllers.brake = undefined;
-    car.controls.brake = 0;
+  // Public API
+  function pressed(keyName) {
+    switch (keyName) {
+      case Keys.UP:
+        onKeyUpPressed();
+        break;
+      case Keys.DOWN:
+        onKeyDownPressed();
+        break;
+      case Keys.LEFT:
+        onKeyLeftPressed();
+        break;
+      case Keys.RIGHT:
+        onKeyRightPressed();
+        break;
+    }
   }
 
   function release(keyName) {
@@ -133,23 +151,6 @@ export function createCarController(car) {
     }
   }
 
-  function pressed(keyName) {
-    switch (keyName) {
-      case Keys.UP:
-        onKeyUpPressed();
-        break;
-      case Keys.DOWN:
-        onKeyDownPressed();
-        break;
-      case Keys.LEFT:
-        onKeyLeftPressed();
-        break;
-      case Keys.RIGHT:
-        onKeyRightPressed();
-        break;
-    }
-  }
-
   function update() {
     Object.keys(delayedControllers).forEach(propertyName => {
       if (delayedControllers[propertyName] !== undefined) {
@@ -158,12 +159,10 @@ export function createCarController(car) {
     });
   }
 
-  return { release, pressed, update };
+  return { pressed, release, update };
 }
 
 export function createKeyboardController(keyConfig, carController) {
-  'use strict';
-
   const keys = [];
 
   function setupKeys() {
@@ -198,11 +197,11 @@ export function createKeyboardController(keyConfig, carController) {
     if (Key === undefined) {
       return;
     }
-    if (event.type === 'keyup' && Key.isPressed === true) {
-      onKeyUp(Key);
-    }
     if (event.type === 'keydown' && Key.isPressed === false) {
       onKeyDown(Key);
+    }
+    if (event.type === 'keyup' && Key.isPressed === true) {
+      onKeyUp(Key);
     }
   }
 
