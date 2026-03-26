@@ -313,6 +313,59 @@ export function createKeyboardController(keyConfig, carController) {
 }
 
 /**
+ * Creates a recording decorator that wraps a car controller to capture inputs.
+ * Automatically exports recording to console after frame 2000.
+ *
+ * Decorator pattern: wraps carController.pressed() and carController.release()
+ * to record all input events while passing through to the wrapped controller.
+ *
+ * @param {Object} carController - Car controller to wrap
+ * @returns {{pressed: function, release: function, update: function}}
+ */
+export function createRecordingDecorator(carController) {
+  const recordingStartFrame = model.frameNumber;
+  const recording = {};
+  let hasExported = false;
+
+  function recordToggle(keyName) {
+    const currentFrame = model.frameNumber - recordingStartFrame;
+    const frameKey = currentFrame.toString();
+
+    if (recording[frameKey] === undefined) {
+      recording[frameKey] = [];
+    }
+    recording[frameKey].push(keyName);
+  }
+
+  function pressed(keyName) {
+    recordToggle(keyName);
+    carController.pressed(keyName);
+  }
+
+  function release(keyName) {
+    recordToggle(keyName);
+    carController.release(keyName);
+  }
+
+  function update() {
+    const currentFrame = model.frameNumber - recordingStartFrame;
+
+    // Auto-export at frame 500
+    if (currentFrame >= 500 && !hasExported) {
+      console.log('=== RECORDING EXPORT (Frame 500) ===');
+      console.log(JSON.stringify(recording, null, 2));
+      console.log('=== Total frames recorded:', Object.keys(recording).length);
+      hasExported = true;
+    }
+
+    // Call wrapped controller update
+    carController.update();
+  }
+
+  return { pressed, release, update };
+}
+
+/**
  * Creates a playback controller that replays recorded inputs.
  *
  * Recording format (frame-based, toggle on repeat):

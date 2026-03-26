@@ -231,8 +231,17 @@ export function createPhysicsEngine(modelInstance) {
       setCarModel(direction, displacement, directedVelocity);
 
       calculateTrackSegment();
+
+      // Copy next state to carModel immediately after physics calculation
+      // This allows backend simulation to work without sub-frame updates
+      // Browser rendering will still overwrite with interpolated values in sub-frame update
+      copyCarState(carModel, next);
     }
 
+    // Sub-frame interpolation for smooth rendering in browser
+    // With the fix above (copying next to carModel in calculateNewFrame),
+    // this is now only needed for smooth visual interpolation between frames.
+    // Backend simulation no longer requires this to be called.
     function calculateSubFrame(progress) {
       const current = carModel;
 

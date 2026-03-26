@@ -1,4 +1,4 @@
-import { createCarController, createKeyboardController, createPlaybackController } from './controller.js';
+import { createCarController, createKeyboardController, createPlaybackController, createRecordingDecorator } from './controller.js';
 import { frameManager } from './framemanager.js';
 import { model } from './model.js';
 import { createPhysicsEngine } from './physicsengine.js';
@@ -48,7 +48,13 @@ export function initializeGame(config, trackData) {
 
     model.cars.push(car);
 
-    const carController = createCarController(car);
+    let carController = createCarController(car);
+
+    // Wrap with recording decorator if player.record is true
+    if (player.record === true) {
+      carController = createRecordingDecorator(carController);
+    }
+
     frameManager.addFrameListener(carController.update);
     carControllers.push(carController);
 
