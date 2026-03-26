@@ -12,9 +12,11 @@ import { MiniMap, MovingTrack, Screen, SplitScreen } from './view/view.js';
 export function startup() {
   'use strict';
 
+  // BROWSER DEPENDENCY: fetch API
   fetch('backend/config.json')
     .then(response => response.json())
     .then(config => {
+      // BROWSER DEPENDENCY: fetch API
       fetch(`backend/tracks/${config.track.number}.json`)
         .then(response => response.json())
         .then(trackData => {
@@ -72,6 +74,7 @@ export function attachInputSources(carControllers, config, frameManager) {
     // Attach keyboard controller if controls defined
     if (player.controls !== undefined) {
       const keyboardController = createKeyboardController(player.controls, carController);
+      // BROWSER DEPENDENCY: document.addEventListener (DOM events)
       document.addEventListener('keydown', keyboardController.getKeyHandler());
       document.addEventListener('keyup', keyboardController.getKeyHandler());
       // Register keyboard update to apply buffered inputs at frame boundaries
@@ -136,10 +139,12 @@ function startGameUI(config, trackData) {
   const miniMap = MiniMap();
 
   const splitScreen = SplitScreen({}, screens, miniMap);
+  // BROWSER DEPENDENCY: window.document.body (DOM manipulation)
   window.document.body.appendChild(splitScreen.getDOMElement());
   frameManager.addSubFrameListener(splitScreen.update);
 
   function createAndFocusDummyInput() {
+    // BROWSER DEPENDENCY: window.document (DOM manipulation)
     const newDOMElement = window.document.createElement('input');
     newDOMElement.autofocus = true;
     newDOMElement.className = 'dummy';
@@ -147,6 +152,7 @@ function startGameUI(config, trackData) {
   }
   createAndFocusDummyInput();
 
+  // BROWSER DEPENDENCY: window.setTimeout
   window.setTimeout(frameManager.start, 1000);
 }
 

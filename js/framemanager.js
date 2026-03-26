@@ -12,6 +12,7 @@ function createFrameManager(modelInstance) {
 
   function cancelNextUpdate() {
     if (animationFrameId !== undefined) {
+      // BROWSER DEPENDENCY: window.cancelAnimationFrame
       window.cancelAnimationFrame(animationFrameId);
       animationFrameId = undefined;
     }
@@ -50,6 +51,7 @@ function createFrameManager(modelInstance) {
   }
 
   function scheduleNextUpdate() {
+    // BROWSER DEPENDENCY: window.requestAnimationFrame
     animationFrameId = window.requestAnimationFrame(requestAnimationFrameCallback);
   }
 
