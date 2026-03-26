@@ -205,26 +205,7 @@ export function createKeyboardController(keyConfig, carController) {
     }
   }
 
-  function getKeyHandler() {
-    return keyHandler;
-  }
-
   setupKeys();
 
-  return { getKeyHandler };
+  return { getKeyHandler: () => keyHandler };
 }
-
-// return {
-// addKeyboardcontroller: function (keyCodes, car) {
-
-// var carController, keyboardController;
-// carController = new CarController(car);
-// keyboardController = new KeyboardController(keyCodes, carController);
-
-// document.addEventListener('keydown', keyboardController.keyHandler);
-// document.addEventListener('keyup', keyboardController.keyHandler);
-
-// controllers.push(keyboardController);
-// },
-
-// };
