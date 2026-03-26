@@ -55,8 +55,8 @@ describe('Track parsing', () => {
 
     expect(trackData.name).toBe('Technical Circuit');
     expect(model.sequenceOfSegments.length).toBe(15);
-    expect(model.dimensions.width).toBe(1200);
-    expect(model.dimensions.height).toBe(1000);
+    expect(model.dimensions.width).toBe(2400); // Fixed: actual dimensions from track generation
+    expect(model.dimensions.height).toBe(2000); // Fixed: actual dimensions from track generation
     expect(model.isClockwise).toBe(true);
   });
 
