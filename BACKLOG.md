@@ -5,6 +5,7 @@ This file tracks potential features, improvements, and ideas for the JRacer proj
 ## Current Ideas
 
 - [ ] **Live timing: Determine faster driver with segment-by-segment time differences** (like skiing split times - show +0.5s or -0.3s per segment)
+- [ ] **Send fastest lap to backend/leaderboard** (POST recording + time to server for persistent leaderboard)
 - [ ] Complete the minimap implementation
 - [ ] On vs off track detection
 - [ ] Multiple car models
