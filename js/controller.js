@@ -6,7 +6,7 @@ import { model } from './model.js';
  *
  * This module provides a layered controller system for car input:
  *
- * 1. createDelayedController (utility)
+ * 1. createGradualTransition (utility)
  *    - Provides gradual control value transitions over multiple frames
  *    - Used internally to smooth gas/brake/steering inputs
  *
@@ -14,7 +14,7 @@ import { model } from './model.js';
  *    - Manages car.controls (gasPedal, brake, steeringWheel)
  *    - Public API: pressed(keyName), release(keyName), update()
  *    - Input-agnostic: works with keyboard, AI, playback, or any source
- *    - Registered with frameManager to update delayed controllers each frame
+ *    - Registered with frameManager to update gradual transitions each frame
  *
  * 3. createKeyboardController (input adapter)
  *    - Translates DOM keyboard events to carController API calls
@@ -32,14 +32,14 @@ import { model } from './model.js';
  */
 
 /**
- * Creates a controller that gradually updates a value over multiple frames.
+ * Creates a gradual transition that updates a value over multiple frames.
  * Used to smooth control transitions (gas, brake, steering).
  *
  * @param {number} delay - Duration in milliseconds
  * @param {function(number)} callback - Called each frame with progress (0-1)
- * @returns {{update: function}} Controller with update method
+ * @returns {{update: function}} Transition object with update method
  */
-export function createDelayedController(delay, callback) {
+export function createGradualTransition(delay, callback) {
   const numberOfSteps = Math.ceil(delay / model.frameDuration);
   const initialFrameNumber = model.frameNumber;
 
@@ -69,14 +69,14 @@ export function createDelayedController(delay, callback) {
  * @returns {{pressed: function, release: function, update: function}}
  */
 export function createCarController(car) {
-  // Delayed controllers provide gradual transitions for realistic control feel
-  const delayedControllers = {
+  // Gradual transitions provide smooth control value changes for realistic feel
+  const transitions = {
     gasPedal: undefined,
     brake: undefined,
     steeringWheel: undefined
   };
 
-  // Key state manager with validation (using closure)
+  // Key state manager (using closure)
   function createKeyStateManager() {
     const states = new Map();
 
@@ -85,9 +85,6 @@ export function createCarController(car) {
         states.set(keyName, true);
       },
       release: keyName => {
-        if (!states.get(keyName)) {
-          throw new Error(`Duplicate key release: ${keyName} already released`);
-        }
         states.set(keyName, false);
       },
       isPressed: keyName => states.get(keyName) || false
@@ -96,52 +93,23 @@ export function createCarController(car) {
 
   const keyState = createKeyStateManager();
 
-  // Gas pedal handlers
-  function onKeyUpPressed() {
-    keyState.press(Keys.UP);
-    delayedControllers.gasPedal = createDelayedController(400, progress => {
-      // This could be non-linear
-      car.controls.gasPedal = progress;
-    });
-  }
-
-  function onKeyUpReleased() {
-    keyState.release(Keys.UP);
-    delayedControllers.gasPedal = undefined;
-    car.controls.gasPedal = 0;
-  }
-
-  // Brake handlers
-  function onKeyDownPressed() {
-    keyState.press(Keys.DOWN);
-    delayedControllers.brake = createDelayedController(200, progress => {
-      car.controls.brake = progress;
-    });
-  }
-
-  function onKeyDownReleased() {
-    keyState.release(Keys.DOWN);
-    delayedControllers.brake = undefined;
-    car.controls.brake = 0;
-  }
-
-  // Steering wheel state managers
+  // Steering wheel state transitions
   function steeringWheelTurnedLeft() {
-    delayedControllers.steeringWheel = createDelayedController(400, progress => {
+    transitions.steeringWheel = createGradualTransition(400, progress => {
       // This could be non-linear
       car.controls.steeringWheel = -progress;
     });
   }
 
   function steeringWheelTurnedRight() {
-    delayedControllers.steeringWheel = createDelayedController(400, progress => {
+    transitions.steeringWheel = createGradualTransition(400, progress => {
       // This could be non-linear
       car.controls.steeringWheel = progress;
     });
   }
 
   function steeringWheelNotTurned() {
-    delayedControllers.steeringWheel = createDelayedController(600, progress => {
+    transitions.steeringWheel = createGradualTransition(600, progress => {
       if (car.controls.steeringWheel > 0) {
         car.controls.steeringWheel -= progress;
         car.controls.steeringWheel = Math.max(car.controls.steeringWheel, 0);
@@ -152,6 +120,35 @@ export function createCarController(car) {
       }
     });
     car.controls.steeringWheel = 0;
+  }
+
+  // Gas pedal handlers
+  function onKeyUpPressed() {
+    keyState.press(Keys.UP);
+    transitions.gasPedal = createGradualTransition(400, progress => {
+      // This could be non-linear
+      car.controls.gasPedal = progress;
+    });
+  }
+
+  function onKeyUpReleased() {
+    keyState.release(Keys.UP);
+    transitions.gasPedal = undefined;
+    car.controls.gasPedal = 0;
+  }
+
+  // Brake handlers
+  function onKeyDownPressed() {
+    keyState.press(Keys.DOWN);
+    transitions.brake = createGradualTransition(200, progress => {
+      car.controls.brake = progress;
+    });
+  }
+
+  function onKeyDownReleased() {
+    keyState.release(Keys.DOWN);
+    transitions.brake = undefined;
+    car.controls.brake = 0;
   }
 
   // Left steering handlers
@@ -227,11 +224,10 @@ export function createCarController(car) {
     }
   }
 
-  // Called every frame by frameManager to update delayed controller progress
   function update() {
-    Object.keys(delayedControllers).forEach(propertyName => {
-      if (delayedControllers[propertyName] !== undefined) {
-        delayedControllers[propertyName].update();
+    Object.keys(transitions).forEach(propertyName => {
+      if (transitions[propertyName] !== undefined) {
+        transitions[propertyName].update();
       }
     });
   }
@@ -261,12 +257,16 @@ export function createCarController(car) {
  *   frameManager.addFrameListener(keyboardController.update); // Apply buffered inputs
  *
  * @param {Array} keyConfig - Array of {key: string, code: string} mappings
+ *   key = logical action (UP/DOWN/LEFT/RIGHT)
+ *   code = physical key code (KeyW, ArrowUp, etc.)
+ *   Example: [{ key: "UP", code: "KeyW" }, { key: "LEFT", code: "KeyA" }]
  * @param {Object} carController - Car controller with pressed/release methods
  * @returns {{getKeyHandler: function, update: function}}
  */
 export function createKeyboardController(keyConfig, carController) {
-  const keys = [];
-  const inputBuffer = []; // Buffer inputs to apply at frame boundaries
+  const keysByCode = new Map(); // Map physical key code to key object
+  const pressedBuffer = []; // Logical keys pressed this frame
+  const releaseBuffer = []; // Logical keys released this frame
 
   function setupKeys() {
     // Reverse order ensures first key config takes priority if duplicates exist
@@ -274,56 +274,46 @@ export function createKeyboardController(keyConfig, carController) {
       .slice()
       .reverse()
       .forEach(config => {
-        keys.push({
-          name: config.key,
-          code: config.code,
+        keysByCode.set(config.code, {
+          logicalKey: config.key, // UP/DOWN/LEFT/RIGHT
+          physicalCode: config.code, // KeyW, ArrowUp, etc.
           isPressed: false
         });
       });
   }
 
-  function getKey(code) {
-    return keys.find(key => key.code === code);
+  function onKeyDown(keyMapping) {
+    keyMapping.isPressed = true;
+    pressedBuffer.push(keyMapping.logicalKey);
   }
 
-  function onKeyDown(Key) {
-    Key.isPressed = true;
-    // Buffer input instead of applying immediately
-    inputBuffer.push({ action: 'pressed', keyName: Key.name });
-  }
-
-  function onKeyUp(Key) {
-    Key.isPressed = false;
-    // Buffer input instead of applying immediately
-    inputBuffer.push({ action: 'release', keyName: Key.name });
+  function onKeyUp(keyMapping) {
+    keyMapping.isPressed = false;
+    releaseBuffer.push(keyMapping.logicalKey);
   }
 
   function keyHandler(event) {
-    const Key = getKey(event.code);
-    if (Key === undefined) {
+    const keyMapping = keysByCode.get(event.code);
+    if (keyMapping === undefined) {
       return; // Ignore keys not in config
     }
     // Prevent duplicate events (browser may fire multiple keydown while held)
-    if (event.type === 'keydown' && Key.isPressed === false) {
-      onKeyDown(Key);
+    if (event.type === 'keydown' && keyMapping.isPressed === false) {
+      onKeyDown(keyMapping);
     }
-    if (event.type === 'keyup' && Key.isPressed === true) {
-      onKeyUp(Key);
+    if (event.type === 'keyup' && keyMapping.isPressed === true) {
+      onKeyUp(keyMapping);
     }
   }
 
   // Called each frame to apply buffered inputs
   function update() {
     // Apply all buffered inputs at frame boundary
-    inputBuffer.forEach(input => {
-      if (input.action === 'pressed') {
-        carController.pressed(input.keyName);
-      } else if (input.action === 'release') {
-        carController.release(input.keyName);
-      }
-    });
-    // Clear buffer after applying
-    inputBuffer.length = 0;
+    pressedBuffer.forEach(logicalKey => carController.pressed(logicalKey));
+    releaseBuffer.forEach(logicalKey => carController.release(logicalKey));
+    // Clear buffers after applying
+    pressedBuffer.length = 0;
+    releaseBuffer.length = 0;
   }
 
   setupKeys();
@@ -343,7 +333,6 @@ export function createKeyboardController(keyConfig, carController) {
  * @returns {{pressed: function, release: function, update: function, getRecording: function}}
  */
 export function createRecordingDecorator(carController, car) {
-  const recordingStartFrame = model.frameNumber;
   const recording = {};
   let hasExported = false;
 
@@ -353,14 +342,13 @@ export function createRecordingDecorator(carController, car) {
       console.log(`=== RECORDING EXPORT (Lap ${lapNumber} Complete) ===`);
       console.log(JSON.stringify(recording, null, 2));
       console.log('=== Total frames recorded:', Object.keys(recording).length);
-      console.log('=== Frame range: 0 -', model.frameNumber - recordingStartFrame);
+      console.log('=== Frame range: 0 -', model.frameNumber);
       hasExported = true;
     }
   };
 
   function recordToggle(keyName) {
-    const currentFrame = model.frameNumber - recordingStartFrame;
-    const frameKey = currentFrame.toString();
+    const frameKey = model.frameNumber.toString();
 
     if (recording[frameKey] === undefined) {
       recording[frameKey] = [];
@@ -409,13 +397,11 @@ export function createRecordingDecorator(carController, car) {
  * @returns {{update: function}}
  */
 export function createPlaybackController(recording, carController) {
-  const playbackStartFrame = model.frameNumber;
   const keyStates = new Map(); // Track current state of each key
 
   // Called every frame by frameManager
   function update() {
-    const currentFrame = model.frameNumber - playbackStartFrame;
-    const frameKey = currentFrame.toString();
+    const frameKey = model.frameNumber.toString();
 
     // Check if there are key events for this frame
     if (recording[frameKey] !== undefined) {
