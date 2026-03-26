@@ -75,12 +75,30 @@ export function createCarController(car) {
     brake: undefined,
     steeringWheel: undefined
   };
-  // Track steering key states to handle simultaneous left+right presses
-  let leftIsPressed = false;
-  let rightIsPressed = false;
+
+  // Key state manager with validation (using closure)
+  function createKeyStateManager() {
+    const states = new Map();
+
+    return {
+      press: (keyName) => {
+        states.set(keyName, true);
+      },
+      release: (keyName) => {
+        if (!states.get(keyName)) {
+          throw new Error(`Duplicate key release: ${keyName} already released`);
+        }
+        states.set(keyName, false);
+      },
+      isPressed: (keyName) => states.get(keyName) || false
+    };
+  }
+
+  const keyState = createKeyStateManager();
 
   // Gas pedal handlers
   function onKeyUpPressed() {
+    keyState.press(Keys.UP);
     delayedControllers.gasPedal = createDelayedController(400, progress => {
       // This could be non-linear
       car.controls.gasPedal = progress;
@@ -88,18 +106,21 @@ export function createCarController(car) {
   }
 
   function onKeyUpReleased() {
+    keyState.release(Keys.UP);
     delayedControllers.gasPedal = undefined;
     car.controls.gasPedal = 0;
   }
 
   // Brake handlers
   function onKeyDownPressed() {
+    keyState.press(Keys.DOWN);
     delayedControllers.brake = createDelayedController(200, progress => {
       car.controls.brake = progress;
     });
   }
 
   function onKeyDownReleased() {
+    keyState.release(Keys.DOWN);
     delayedControllers.brake = undefined;
     car.controls.brake = 0;
   }
@@ -135,8 +156,8 @@ export function createCarController(car) {
 
   // Left steering handlers
   function onKeyLeftPressed() {
-    leftIsPressed = true;
-    if (rightIsPressed) {
+    keyState.press(Keys.LEFT);
+    if (keyState.isPressed(Keys.RIGHT)) {
       steeringWheelNotTurned();
     } else {
       steeringWheelTurnedLeft();
@@ -144,8 +165,8 @@ export function createCarController(car) {
   }
 
   function onKeyLeftReleased() {
-    leftIsPressed = false;
-    if (rightIsPressed) {
+    keyState.release(Keys.LEFT);
+    if (keyState.isPressed(Keys.RIGHT)) {
       steeringWheelTurnedRight();
     } else {
       steeringWheelNotTurned();
@@ -154,8 +175,8 @@ export function createCarController(car) {
 
   // Right steering handlers
   function onKeyRightPressed() {
-    rightIsPressed = true;
-    if (leftIsPressed) {
+    keyState.press(Keys.RIGHT);
+    if (keyState.isPressed(Keys.LEFT)) {
       steeringWheelNotTurned();
     } else {
       steeringWheelTurnedRight();
@@ -163,8 +184,8 @@ export function createCarController(car) {
   }
 
   function onKeyRightReleased() {
-    rightIsPressed = false;
-    if (leftIsPressed) {
+    keyState.release(Keys.RIGHT);
+    if (keyState.isPressed(Keys.LEFT)) {
       steeringWheelTurnedLeft();
     } else {
       steeringWheelNotTurned();
