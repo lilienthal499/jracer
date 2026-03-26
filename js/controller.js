@@ -1,6 +1,44 @@
 import { model } from './model.js';
 import { Keys } from '../shared/keys.js';
 
+/**
+ * Controller Architecture Overview:
+ *
+ * This module provides a layered controller system for car input:
+ *
+ * 1. createDelayedController (utility)
+ *    - Provides gradual control value transitions over multiple frames
+ *    - Used internally to smooth gas/brake/steering inputs
+ *
+ * 2. createCarController (core layer)
+ *    - Manages car.controls (gasPedal, brake, steeringWheel)
+ *    - Public API: pressed(keyName), release(keyName), update()
+ *    - Input-agnostic: works with keyboard, AI, playback, or any source
+ *    - Registered with frameManager to update delayed controllers each frame
+ *
+ * 3. createKeyboardController (input adapter)
+ *    - Translates DOM keyboard events to carController API calls
+ *    - Maps key codes to key names (UP/DOWN/LEFT/RIGHT)
+ *    - Prevents duplicate press/release events
+ *    - One of many possible input sources (AI, recording playback, etc.)
+ *
+ * Data Flow:
+ *   KeyboardEvent → KeyboardController → CarController → car.controls → PhysicsEngine
+ *
+ * Extension Points:
+ *   - New input sources call carController.pressed()/release() directly
+ *   - Example: createPlaybackController(recording, carController)
+ *   - Example: createAIController(trackData, carController)
+ */
+
+/**
+ * Creates a controller that gradually updates a value over multiple frames.
+ * Used to smooth control transitions (gas, brake, steering).
+ *
+ * @param {number} delay - Duration in milliseconds
+ * @param {function(number)} callback - Called each frame with progress (0-1)
+ * @returns {{update: function}} Controller with update method
+ */
 export function createDelayedController(delay, callback) {
   const numberOfSteps = Math.ceil(delay / model.frameDuration);
   const initialFrameNumber = model.frameNumber;
@@ -15,12 +53,29 @@ export function createDelayedController(delay, callback) {
   return { update };
 }
 
+/**
+ * Creates a car controller that manages car control inputs (gas, brake, steering).
+ *
+ * This is the core controller layer that:
+ * - Accepts input from any source via pressed()/release() API
+ * - Manages delayed/gradual control transitions
+ * - Directly manipulates car.controls object
+ * - Must be registered with frameManager.addFrameListener(controller.update)
+ *
+ * The controller is input-agnostic: keyboard, AI, playback, or any other
+ * input source can call pressed()/release() with key names.
+ *
+ * @param {Object} car - Car model with controls object
+ * @returns {{pressed: function, release: function, update: function}}
+ */
 export function createCarController(car) {
+  // Delayed controllers provide gradual transitions for realistic control feel
   const delayedControllers = {
     gasPedal: undefined,
     brake: undefined,
     steeringWheel: undefined
   };
+  // Track steering key states to handle simultaneous left+right presses
   let leftIsPressed = false;
   let rightIsPressed = false;
 
@@ -116,7 +171,7 @@ export function createCarController(car) {
     }
   }
 
-  // Public API
+  // Public API - called by input sources (keyboard, AI, playback, etc.)
   function pressed(keyName) {
     switch (keyName) {
       case Keys.UP:
@@ -151,6 +206,7 @@ export function createCarController(car) {
     }
   }
 
+  // Called every frame by frameManager to update delayed controller progress
   function update() {
     Object.keys(delayedControllers).forEach(propertyName => {
       if (delayedControllers[propertyName] !== undefined) {
@@ -162,10 +218,34 @@ export function createCarController(car) {
   return { pressed, release, update };
 }
 
+/**
+ * Creates a keyboard input adapter that translates DOM events to car controller calls.
+ *
+ * This is ONE possible input source for carController. Others could include:
+ * - AI controller (reads track state, calls pressed/release)
+ * - Playback controller (replays recorded inputs)
+ * - Network controller (remote player inputs)
+ * - Gamepad controller (joystick/button events)
+ *
+ * The keyboard controller:
+ * - Maps physical key codes to logical key names (UP/DOWN/LEFT/RIGHT)
+ * - Prevents duplicate events (tracks isPressed state per key)
+ * - Delegates to carController.pressed()/release()
+ *
+ * Usage:
+ *   const keyboardController = createKeyboardController(keyConfig, carController);
+ *   document.addEventListener('keydown', keyboardController.getKeyHandler());
+ *   document.addEventListener('keyup', keyboardController.getKeyHandler());
+ *
+ * @param {Array} keyConfig - Array of {key: string, code: string} mappings
+ * @param {Object} carController - Car controller with pressed/release methods
+ * @returns {{getKeyHandler: function}}
+ */
 export function createKeyboardController(keyConfig, carController) {
   const keys = [];
 
   function setupKeys() {
+    // Reverse order ensures first key config takes priority if duplicates exist
     keyConfig
       .slice()
       .reverse()
@@ -184,19 +264,20 @@ export function createKeyboardController(keyConfig, carController) {
 
   function onKeyDown(Key) {
     Key.isPressed = true;
-    carController.pressed(Key.name);
+    carController.pressed(Key.name); // Delegates to carController
   }
 
   function onKeyUp(Key) {
     Key.isPressed = false;
-    carController.release(Key.name);
+    carController.release(Key.name); // Delegates to carController
   }
 
   function keyHandler(event) {
     const Key = getKey(event.code);
     if (Key === undefined) {
-      return;
+      return; // Ignore keys not in config
     }
+    // Prevent duplicate events (browser may fire multiple keydown while held)
     if (event.type === 'keydown' && Key.isPressed === false) {
       onKeyDown(Key);
     }

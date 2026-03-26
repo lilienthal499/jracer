@@ -1,13 +1,13 @@
-import { model } from './model.js';
-import { frameManager } from './framemanager.js';
 import { createCarController, createKeyboardController } from './controller.js';
+import { frameManager } from './framemanager.js';
+import { model } from './model.js';
 import { createPhysicsEngine } from './physicsengine.js';
 import { createTrack } from './track.js';
-import { Drawer } from './view/track.js';
 import { MovingCar, StaticCar } from './view/car.js';
-import { TireTracks } from './view/tiretracks.js';
 import { HeadUpDisplay } from './view/headupdisplay.js';
-import { MovingTrack, Screen, SplitScreen, MiniMap } from './view/view.js';
+import { TireTracks } from './view/tiretracks.js';
+import { Drawer } from './view/track.js';
+import { MiniMap, MovingTrack, Screen, SplitScreen } from './view/view.js';
 
 export function startup() {
   'use strict';
@@ -60,12 +60,18 @@ export function initializeGame(config, trackData) {
 
 // Attach keyboard input to car controllers
 export function attachKeyboardControls(carControllers, config) {
-  config.players.forEach((player, index) => {
-    const keyboardController = createKeyboardController(player.controls, carControllers[index]);
+  config.players
+    .filter(player => player.controls !== undefined)
+    .map((player, index) => ({
+      player,
+      controller: createKeyboardController(player.controls, carControllers[index])
+    }))
+    .forEach(({ controller }) => {
+      document.addEventListener('keydown', controller.getKeyHandler());
+      document.addEventListener('keyup', controller.getKeyHandler());
+    });
 
-    document.addEventListener('keydown', keyboardController.getKeyHandler());
-    document.addEventListener('keyup', keyboardController.getKeyHandler());
-  });
+  //TODO Add support for recorded inputs
 }
 
 // UI: Creates views and attaches to DOM

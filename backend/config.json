@@ -36,6 +36,15 @@
       ],
       "view": { "color": "Olive", "carType": "rally" },
       "maxSteeringAngle": 0.15
+    },
+    {
+      "name": "Recorded",
+      "recording": {
+        "0": { "UP": true },
+        "200": { "UP": true }
+      },
+      "view": { "color": "DodgerBlue", "carType": "rally" },
+      "maxSteeringAngle": 0.15
     }
   ]
 }
