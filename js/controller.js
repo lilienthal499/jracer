@@ -26,7 +26,7 @@ import { model } from './model.js';
  *   KeyboardEvent → KeyboardController → CarController → car.controls → PhysicsEngine
  *
  * Extension Points:
- *   - New input sources call carController.pressed()/release() directly
+ *   - New input sources call carController.press()/release() directly
  *   - Example: createPlaybackController(recording, carController)
  *   - Example: createAIController(trackData, carController)
  */
@@ -57,16 +57,16 @@ export function createGradualTransition(delay, callback) {
  * Creates a car controller that manages car control inputs (gas, brake, steering).
  *
  * This is the core controller layer that:
- * - Accepts input from any source via pressed()/release() API
+ * - Accepts input from any source via press()/release() API
  * - Manages delayed/gradual control transitions
  * - Directly manipulates car.controls object
  * - Must be registered with frameManager.addFrameListener(controller.update)
  *
  * The controller is input-agnostic: keyboard, AI, playback, or any other
- * input source can call pressed()/release() with key names.
+ * input source can call press()/release() with key names.
  *
  * @param {Object} car - Car model with controls object
- * @returns {{pressed: function, release: function, update: function}}
+ * @returns {{press: function, release: function, update: function}}
  */
 export function createCarController(car) {
   // Gradual transitions provide smooth control value changes for realistic feel
@@ -190,7 +190,7 @@ export function createCarController(car) {
   }
 
   // Public API - called by input sources (keyboard, AI, playback, etc.)
-  function pressed(keyName) {
+  function press(keyName) {
     switch (keyName) {
       case Keys.UP:
         onKeyUpPressed();
@@ -232,7 +232,7 @@ export function createCarController(car) {
     });
   }
 
-  return { pressed, release, update };
+  return { press, release, update };
 }
 
 /**
@@ -248,7 +248,7 @@ export function createCarController(car) {
  * - Maps physical key codes to logical key names (UP/DOWN/LEFT/RIGHT)
  * - Prevents duplicate events (tracks isPressed state per key)
  * - Buffers inputs to apply at frame boundaries for deterministic recording/playback
- * - Delegates to carController.pressed()/release()
+ * - Delegates to carController.press()/release()
  *
  * Usage:
  *   const keyboardController = createKeyboardController(keyConfig, carController);
@@ -309,7 +309,7 @@ export function createKeyboardController(keyConfig, carController) {
   // Called each frame to apply buffered inputs
   function update() {
     // Apply all buffered inputs at frame boundary
-    pressedBuffer.forEach(logicalKey => carController.pressed(logicalKey));
+    pressedBuffer.forEach(logicalKey => carController.press(logicalKey));
     releaseBuffer.forEach(logicalKey => carController.release(logicalKey));
     // Clear buffers after applying
     pressedBuffer.length = 0;
@@ -324,14 +324,14 @@ export function createKeyboardController(keyConfig, carController) {
 /**
  * Creates a recording decorator that wraps a car controller to capture inputs.
  *
- * Decorator pattern: wraps carController.pressed() and carController.release()
+ * Decorator pattern: wraps carController.press() and carController.release()
  * to record all input events while passing through to the wrapped controller.
  *
  * Recording export should be handled by the application layer (e.g., application.js)
  * by registering a callback on car.onLapComplete and calling getRecording().
  *
  * @param {Object} carController - Car controller to wrap
- * @returns {{pressed: function, release: function, update: function, getRecording: function}}
+ * @returns {{press: function, release: function, update: function, getRecording: function}}
  */
 export function createRecordingDecorator(carController) {
   const recording = {};
@@ -345,9 +345,9 @@ export function createRecordingDecorator(carController) {
     recording[frameKey].push(keyName);
   }
 
-  function pressed(keyName) {
+  function press(keyName) {
     recordToggle(keyName);
-    carController.pressed(keyName);
+    carController.press(keyName);
   }
 
   function release(keyName) {
@@ -364,7 +364,7 @@ export function createRecordingDecorator(carController) {
     return recording;
   }
 
-  return { pressed, release, update, getRecording };
+  return { press, release, update, getRecording };
 }
 
 /**
@@ -382,7 +382,7 @@ export function createRecordingDecorator(carController) {
  * Minimal format - no prefixes needed, only record actual input events.
  *
  * @param {Object} recording - Frame number to array of key toggles
- * @param {Object} carController - Car controller with pressed/release methods
+ * @param {Object} carController - Car controller with press/release methods
  * @returns {{update: function}}
  */
 export function createPlaybackController(recording, carController) {
@@ -405,7 +405,7 @@ export function createPlaybackController(recording, carController) {
           keyStates.set(key, false);
         } else {
           // Key is released, so press it
-          carController.pressed(key);
+          carController.press(key);
           keyStates.set(key, true);
         }
       });
