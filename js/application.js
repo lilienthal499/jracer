@@ -21,7 +21,7 @@ export function startup() {
           // console.log(`Loaded track: ${trackData.name} (${trackData.description})`);
 
           const carControllers = initializeGame(config, trackData);
-          attachInputSources(carControllers, config);
+          attachInputSources(carControllers, config, frameManager);
           startGameUI(config, trackData);
         });
     });
@@ -52,10 +52,10 @@ export function initializeGame(config, trackData) {
 
     // Wrap with recording decorator if player.record is true
     if (player.record === true) {
-      carController = createRecordingDecorator(carController);
+      carController = createRecordingDecorator(carController, car);
     }
 
-    frameManager.addFrameListener(carController.update);
+    // NOTE: Don't register carController.update here yet - playback needs to run first
     carControllers.push(carController);
 
     physicsEngine.addCar(car);
@@ -65,7 +65,7 @@ export function initializeGame(config, trackData) {
 }
 
 // Attach input sources to car controllers (keyboard, playback, AI, etc.)
-export function attachInputSources(carControllers, config) {
+export function attachInputSources(carControllers, config, frameManager) {
   config.players.forEach((player, index) => {
     const carController = carControllers[index];
 
@@ -74,6 +74,8 @@ export function attachInputSources(carControllers, config) {
       const keyboardController = createKeyboardController(player.controls, carController);
       document.addEventListener('keydown', keyboardController.getKeyHandler());
       document.addEventListener('keyup', keyboardController.getKeyHandler());
+      // Register keyboard update to apply buffered inputs at frame boundaries
+      frameManager.addFrameListener(keyboardController.update);
     }
 
     // Attach playback controller if recording defined
@@ -81,6 +83,15 @@ export function attachInputSources(carControllers, config) {
       const playbackController = createPlaybackController(player.recording, carController);
       frameManager.addFrameListener(playbackController.update);
     }
+
+    // Register carController update (processes delayed controllers)
+    // Note: The order of registration doesn't affect the result because:
+    // - Keyboard inputs are buffered until keyboardController.update() applies them
+    // - Playback inputs are applied when playbackController.update() runs
+    // - Both set the control state which carController.update() then processes
+    // - The delayed controllers only START progressing after inputs are set,
+    //   so they won't make progress until the NEXT frame regardless of order
+    frameManager.addFrameListener(carController.update);
   });
 }
 

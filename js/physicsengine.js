@@ -197,7 +197,10 @@ export function createPhysicsEngine(modelInstance) {
       if (carModel.trackSequence === model.track.sequenceOfSegments.length - 1 && segment.getSequenceNumber() === 1) {
         carModel.round += 1;
         carModel.trackSequence = 1;
-        // console.log(carModel.trackSequence);
+        // Trigger lap completion callback if registered
+        if (carModel.onLapComplete) {
+          carModel.onLapComplete(carModel.round);
+        }
       }
 
       // Checkpoint progression

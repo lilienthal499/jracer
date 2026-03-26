@@ -1,5 +1,5 @@
-import { model } from './model.js';
 import { Keys } from '../shared/keys.js';
+import { model } from './model.js';
 
 /**
  * Controller Architecture Overview:
@@ -81,16 +81,16 @@ export function createCarController(car) {
     const states = new Map();
 
     return {
-      press: (keyName) => {
+      press: keyName => {
         states.set(keyName, true);
       },
-      release: (keyName) => {
+      release: keyName => {
         if (!states.get(keyName)) {
           throw new Error(`Duplicate key release: ${keyName} already released`);
         }
         states.set(keyName, false);
       },
-      isPressed: (keyName) => states.get(keyName) || false
+      isPressed: keyName => states.get(keyName) || false
     };
   }
 
@@ -251,19 +251,22 @@ export function createCarController(car) {
  * The keyboard controller:
  * - Maps physical key codes to logical key names (UP/DOWN/LEFT/RIGHT)
  * - Prevents duplicate events (tracks isPressed state per key)
+ * - Buffers inputs to apply at frame boundaries for deterministic recording/playback
  * - Delegates to carController.pressed()/release()
  *
  * Usage:
  *   const keyboardController = createKeyboardController(keyConfig, carController);
  *   document.addEventListener('keydown', keyboardController.getKeyHandler());
  *   document.addEventListener('keyup', keyboardController.getKeyHandler());
+ *   frameManager.addFrameListener(keyboardController.update); // Apply buffered inputs
  *
  * @param {Array} keyConfig - Array of {key: string, code: string} mappings
  * @param {Object} carController - Car controller with pressed/release methods
- * @returns {{getKeyHandler: function}}
+ * @returns {{getKeyHandler: function, update: function}}
  */
 export function createKeyboardController(keyConfig, carController) {
   const keys = [];
+  const inputBuffer = []; // Buffer inputs to apply at frame boundaries
 
   function setupKeys() {
     // Reverse order ensures first key config takes priority if duplicates exist
@@ -285,12 +288,14 @@ export function createKeyboardController(keyConfig, carController) {
 
   function onKeyDown(Key) {
     Key.isPressed = true;
-    carController.pressed(Key.name); // Delegates to carController
+    // Buffer input instead of applying immediately
+    inputBuffer.push({ action: 'pressed', keyName: Key.name });
   }
 
   function onKeyUp(Key) {
     Key.isPressed = false;
-    carController.release(Key.name); // Delegates to carController
+    // Buffer input instead of applying immediately
+    inputBuffer.push({ action: 'release', keyName: Key.name });
   }
 
   function keyHandler(event) {
@@ -307,25 +312,51 @@ export function createKeyboardController(keyConfig, carController) {
     }
   }
 
+  // Called each frame to apply buffered inputs
+  function update() {
+    // Apply all buffered inputs at frame boundary
+    inputBuffer.forEach(input => {
+      if (input.action === 'pressed') {
+        carController.pressed(input.keyName);
+      } else if (input.action === 'release') {
+        carController.release(input.keyName);
+      }
+    });
+    // Clear buffer after applying
+    inputBuffer.length = 0;
+  }
+
   setupKeys();
 
-  return { getKeyHandler: () => keyHandler };
+  return { getKeyHandler: () => keyHandler, update };
 }
 
 /**
  * Creates a recording decorator that wraps a car controller to capture inputs.
- * Automatically exports recording to console after frame 2000.
+ * Automatically exports recording to console when the player completes a lap.
  *
  * Decorator pattern: wraps carController.pressed() and carController.release()
  * to record all input events while passing through to the wrapped controller.
  *
  * @param {Object} carController - Car controller to wrap
- * @returns {{pressed: function, release: function, update: function}}
+ * @param {Object} car - Car model to listen for lap completion
+ * @returns {{pressed: function, release: function, update: function, getRecording: function}}
  */
-export function createRecordingDecorator(carController) {
+export function createRecordingDecorator(carController, car) {
   const recordingStartFrame = model.frameNumber;
   const recording = {};
   let hasExported = false;
+
+  // Register lap completion callback
+  car.onLapComplete = (lapNumber) => {
+    if (!hasExported) {
+      console.log(`=== RECORDING EXPORT (Lap ${lapNumber} Complete) ===`);
+      console.log(JSON.stringify(recording, null, 2));
+      console.log('=== Total frames recorded:', Object.keys(recording).length);
+      console.log('=== Frame range: 0 -', model.frameNumber - recordingStartFrame);
+      hasExported = true;
+    }
+  };
 
   function recordToggle(keyName) {
     const currentFrame = model.frameNumber - recordingStartFrame;
@@ -348,21 +379,15 @@ export function createRecordingDecorator(carController) {
   }
 
   function update() {
-    const currentFrame = model.frameNumber - recordingStartFrame;
-
-    // Auto-export at frame 500
-    if (currentFrame >= 500 && !hasExported) {
-      console.log('=== RECORDING EXPORT (Frame 500) ===');
-      console.log(JSON.stringify(recording, null, 2));
-      console.log('=== Total frames recorded:', Object.keys(recording).length);
-      hasExported = true;
-    }
-
     // Call wrapped controller update
     carController.update();
   }
 
-  return { pressed, release, update };
+  function getRecording() {
+    return recording;
+  }
+
+  return { pressed, release, update, getRecording };
 }
 
 /**
@@ -414,4 +439,3 @@ export function createPlaybackController(recording, carController) {
 
   return { update };
 }
-
