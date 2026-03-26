@@ -40,7 +40,7 @@ car1.segment = model.track.getSegmentAtPosition(car1.position.x, car1.position.y
 model.cars.push(car1);
 
 let carController1 = createCarController(car1);
-const recordingDecorator = createRecordingDecorator(carController1, car1);
+const recordingDecorator = createRecordingDecorator(carController1);
 
 physicsEngine1.addCar(car1);
 const frameListeners1 = [];

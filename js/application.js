@@ -61,7 +61,20 @@ export function initializeGame(config, trackData) {
 
     // Wrap with recording decorator if player.record is true
     if (player.record === true) {
-      carController = createRecordingDecorator(carController, car);
+      carController = createRecordingDecorator(carController);
+
+      // Register lap completion callback to export recording
+      let hasExported = false;
+      car.onLapComplete = (lapNumber) => {
+        if (!hasExported) {
+          const recording = carController.getRecording();
+          console.log(`=== RECORDING EXPORT (Lap ${lapNumber} Complete) ===`);
+          console.log(JSON.stringify(recording, null, 2));
+          console.log('=== Total frames recorded:', Object.keys(recording).length);
+          console.log('=== Frame range: 0 -', model.frameNumber);
+          hasExported = true;
+        }
+      };
     }
 
     // NOTE: Don't register carController.update here yet - playback needs to run first

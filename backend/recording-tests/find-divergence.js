@@ -41,7 +41,7 @@ function runWithLogging(label, useRecording, recording) {
     playbackController = createPlaybackController(recording, carController);
   } else {
     // Recording mode
-    recordingDecorator = createRecordingDecorator(carController, car);
+    recordingDecorator = createRecordingDecorator(carController);
     const player1Config = config.players.find(p => p.record === true);
     keyboardController = createKeyboardController(player1Config.controls, recordingDecorator);
   }

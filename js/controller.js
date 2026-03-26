@@ -323,29 +323,18 @@ export function createKeyboardController(keyConfig, carController) {
 
 /**
  * Creates a recording decorator that wraps a car controller to capture inputs.
- * Automatically exports recording to console when the player completes a lap.
  *
  * Decorator pattern: wraps carController.pressed() and carController.release()
  * to record all input events while passing through to the wrapped controller.
  *
+ * Recording export should be handled by the application layer (e.g., application.js)
+ * by registering a callback on car.onLapComplete and calling getRecording().
+ *
  * @param {Object} carController - Car controller to wrap
- * @param {Object} car - Car model to listen for lap completion
  * @returns {{pressed: function, release: function, update: function, getRecording: function}}
  */
-export function createRecordingDecorator(carController, car) {
+export function createRecordingDecorator(carController) {
   const recording = {};
-  let hasExported = false;
-
-  // Register lap completion callback
-  car.onLapComplete = (lapNumber) => {
-    if (!hasExported) {
-      console.log(`=== RECORDING EXPORT (Lap ${lapNumber} Complete) ===`);
-      console.log(JSON.stringify(recording, null, 2));
-      console.log('=== Total frames recorded:', Object.keys(recording).length);
-      console.log('=== Frame range: 0 -', model.frameNumber);
-      hasExported = true;
-    }
-  };
 
   function recordToggle(keyName) {
     const frameKey = model.frameNumber.toString();
