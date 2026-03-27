@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach } from 'vitest';
-import { createTrack, Track } from '../js/track.js';
+import { createTrack, Track } from '../public/js/track.js';
 
 // =============================================================================
 // Test Helpers

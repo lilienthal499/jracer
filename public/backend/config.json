@@ -40,13 +40,13 @@
     },
     {
       "name": "Recorded",
-      "recordingFile": "recordings/track-2/recorded-1.json",
+      "recording": 1,
       "view": { "color": "DodgerBlue", "carType": "rally" },
       "maxSteeringAngle": 0.2
     },
     {
       "name": "Recorded2",
-      "recordingFile": "recordings/track-2/recorded-2.json",
+      "recording": 2,
       "view": { "color": "Red", "carType": "rally" },
       "maxSteeringAngle": 0.2
     }

@@ -1,10 +1,10 @@
 import { describe, test, expect } from 'vitest';
 import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
-import { createTrack } from '../js/track.js';
+import { createTrack } from '../public/js/track.js';
 
 describe('Track parsing', () => {
-  const tracksDir = 'backend/tracks';
+  const tracksDir = 'public/backend/tracks';
   const trackFiles = readdirSync(tracksDir).filter(f => f.endsWith('.json'));
 
   test('should find track files', () => {
@@ -37,7 +37,7 @@ describe('Track parsing', () => {
   });
 
   test('Track 1 (Beginner Oval) structure', () => {
-    const trackData = JSON.parse(readFileSync('backend/tracks/1.json', 'utf-8'));
+    const trackData = JSON.parse(readFileSync('public/backend/tracks/1.json', 'utf-8'));
     const track = createTrack(trackData.sections, trackData.gridSize, trackData.trackWidth);
     const model = track.getModel();
 
@@ -49,7 +49,7 @@ describe('Track parsing', () => {
   });
 
   test('Track 2 (Technical Circuit) structure', () => {
-    const trackData = JSON.parse(readFileSync('backend/tracks/2.json', 'utf-8'));
+    const trackData = JSON.parse(readFileSync('public/backend/tracks/2.json', 'utf-8'));
     const track = createTrack(trackData.sections, trackData.gridSize, trackData.trackWidth);
     const model = track.getModel();
 
@@ -61,7 +61,7 @@ describe('Track parsing', () => {
   });
 
   test('Track 3 (Left Turn Oval) structure', () => {
-    const trackData = JSON.parse(readFileSync('backend/tracks/3.json', 'utf-8'));
+    const trackData = JSON.parse(readFileSync('public/backend/tracks/3.json', 'utf-8'));
     const track = createTrack(trackData.sections, trackData.gridSize, trackData.trackWidth);
     const model = track.getModel();
 
