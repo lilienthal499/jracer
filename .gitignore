@@ -13,6 +13,9 @@ yarn.lock
 archive/
 docs/
 
+# PartyKit
+.partykit/
+
 # IDE settings
 .idea/
 *.swp

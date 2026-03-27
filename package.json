@@ -1,37 +1,14 @@
 {
   "name": "jracer",
   "version": "4.0.0",
-  "type": "module",
-  "description": "JavaScript Racing Game - A browser-based racing game with realistic physics simulation",
-  "main": "js/application.js",
+  "private": true,
+  "license": "UNLICENSED",
   "scripts": {
-    "start": "npx http-server -p 5500 -o -c-1",
-    "dev": "npx http-server -p 5500 -c-1",
-    "lint": "eslint js/**/*.js",
-    "lint:fix": "eslint js/**/*.js --fix",
-    "format": "prettier --write \"**/*.{js,html,css,json,md}\"",
-    "format:check": "prettier --check \"**/*.{js,html,css,json,md}\"",
-    "serve": "npx live-server --port=5500 --open=index.html",
-    "validate": "npm run lint && npm run format:check",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage",
-    "ci": "npm run lint && npm test"
+    "dev": "npx partykit dev",
+    "deploy": "npx partykit deploy"
   },
-  "keywords": [
-    "game",
-    "racing",
-    "javascript",
-    "canvas",
-    "physics",
-    "browser-game"
-  ],
-  "author": "Jan Schulte-Rebbelmund",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/yourusername/jracer.git"
+  "dependencies": {
+    "partykit": "^0.0.115"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.0",
@@ -43,14 +20,5 @@
     "live-server": "^1.2.0",
     "prettier": "^3.2.5",
     "vitest": "^4.1.0"
-  },
-  "engines": {
-    "node": ">=14.0.0",
-    "npm": ">=6.0.0"
-  },
-  "browserslist": [
-    "last 2 versions",
-    "> 1%",
-    "not dead"
-  ]
+  }
 }

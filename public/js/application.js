@@ -19,21 +19,36 @@ const frameManager = createFrameManager(
 export function startup() {
   'use strict';
 
-  // BROWSER DEPENDENCY: fetch API
-  fetch('backend/config.json')
-    .then(response => response.json())
-    .then(config => {
-      // BROWSER DEPENDENCY: fetch API
-      fetch(`backend/tracks/${config.track.number}.json`)
-        .then(response => response.json())
-        .then(trackData => {
-          // console.log(`Loaded track: ${trackData.name} (${trackData.description})`);
+  // Connect to PartyKit server
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const host = window.location.host;
+  const ws = new WebSocket(`${protocol}//${host}/party/main`);
 
-          const carControllers = initializeGame(config, trackData);
-          attachInputSources(carControllers, config, frameManager);
-          startGameUI(config, trackData);
-        });
-    });
+  ws.onopen = () => {
+    console.log('[JRacer] Connected to server');
+  };
+
+  ws.onmessage = (event) => {
+    const message = JSON.parse(event.data);
+
+    if (message.type === 'init') {
+      // Server sent config and track data
+      const { config, trackData } = message;
+      console.log(`[JRacer] Received config from server: track ${config.track.number}`);
+
+      const carControllers = initializeGame(config, trackData);
+      attachInputSources(carControllers, config, frameManager);
+      startGameUI(config, trackData);
+    }
+  };
+
+  ws.onerror = (error) => {
+    console.error('[JRacer] WebSocket error:', error);
+  };
+
+  ws.onclose = () => {
+    console.log('[JRacer] Disconnected from server');
+  };
 }
 
 // Testable: Initialize game logic without UI
