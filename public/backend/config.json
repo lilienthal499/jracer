@@ -1,7 +1,7 @@
 {
   "track": {
     "number": 2,
-    "showGrid": true
+    "showGrid": false
   },
   "players": [
     {
