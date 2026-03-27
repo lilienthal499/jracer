@@ -15,6 +15,7 @@ docs/
 
 # PartyKit
 .partykit/
+public/backend/config-with-recordings.json
 
 # IDE settings
 .idea/

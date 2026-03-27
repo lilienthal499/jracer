@@ -4,8 +4,9 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "dev": "npx partykit dev",
-    "deploy": "npx partykit deploy"
+    "prebuild": "node -e \"const fs=require('fs');const c=JSON.parse(fs.readFileSync('public/backend/config.json'));c.players=c.players.map(p=>{if(p.recordingFile){const r=JSON.parse(fs.readFileSync('public/backend/'+p.recordingFile));return{...p,recording:r,recordingFile:undefined}}return p});fs.writeFileSync('public/backend/config-with-recordings.json',JSON.stringify(c))\"",
+    "dev": "npm run prebuild && npx partykit dev",
+    "deploy": "npm run prebuild && npx partykit deploy"
   },
   "dependencies": {
     "partykit": "^0.0.115"

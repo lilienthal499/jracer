@@ -1,6 +1,6 @@
 import type * as Party from 'partykit/server';
 // @ts-ignore
-import config from '../public/backend/config.json';
+import config from '../public/backend/config-with-recordings.json';
 
 export default class JRacerServer implements Party.Server {
   constructor(readonly room: Party.Room) {}
