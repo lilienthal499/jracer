@@ -1,5 +1,6 @@
 import { createCarController, createKeyboardController, createPlaybackController, createRecordingDecorator } from './controller.js';
 import { createFrameManager } from './framemanager.js';
+import { createLapTracker } from './laptracker.js';
 import { model } from './model.js';
 import { createPhysicsEngine } from './physicsengine.js';
 import { createTrack } from './track.js';
@@ -58,6 +59,9 @@ export function initializeGame(config, trackData) {
   const physicsEngine = createPhysicsEngine(model);
   physicsEngine.scheduleUpdates(frameManager);
 
+  const lapTracker = createLapTracker();
+  lapTracker.scheduleUpdates(frameManager);
+
   const track = createTrack(trackData.sections, trackData.gridSize, trackData.trackWidth);
   model.track = track.getModel();
 
@@ -96,6 +100,7 @@ export function initializeGame(config, trackData) {
     carControllers.push(carController);
 
     physicsEngine.addCar(car);
+    lapTracker.addCar(car);
   });
 
   return carControllers;
