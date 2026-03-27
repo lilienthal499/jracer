@@ -88,21 +88,38 @@ export function HeadUpDisplay(viewConfig, carModel, playerId, trackModel) {
   const trackLength = trackModel.sequenceOfSegments.length;
 
   const speed = createMeterField('speed', '像素/秒', 0, 400);
+  const rank = createOutputField('rank', 'Rank');
   const round = createOutputField('round', '轮');
   const lastTime = createTimeField('lasttime', 'Zeit');
   const currentSegment = createProgressField('currentsegment', 'Current Segment', trackLength);
   const onTrack = createOutputField('ontrack', 'On Track');
+  const delta = createOutputField('delta', 'Delta');
 
   function getDOMElement() {
     return DOMElement;
   }
 
+  function formatDelta(deltaFrames) {
+    if (deltaFrames === undefined) {
+      return '—';
+    }
+    if (deltaFrames === 0) {
+      return '—';
+    }
+    // Convert frames to seconds (60 FPS)
+    const deltaSeconds = deltaFrames / 60;
+    const sign = deltaSeconds > 0 ? '+' : '';
+    return sign + deltaSeconds.toFixed(2) + 's';
+  }
+
   function update() {
     speed.set(Math.round(carModel.velocity.forward));
+    rank.set(carModel.rank || '—');
     round.set(carModel.round);
     lastTime.set(carModel.roundTimes[carModel.roundTimes.length - 1]);
     currentSegment.set(carModel.segment.getSequenceNumber());
     onTrack.set(carModel.isOnTrack() ? 'Yes' : 'No');
+    delta.set(formatDelta(carModel.deltaFrames));
   }
 
   update();
