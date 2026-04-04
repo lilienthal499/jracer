@@ -17,39 +17,25 @@ const frameManager = createFrameManager(
   window.cancelAnimationFrame.bind(window)
 );
 
-export function startup() {
+export async function startup() {
   'use strict';
 
-  // Connect to PartyKit server
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const host = window.location.host;
-  const ws = new WebSocket(`${protocol}//${host}/party/main`);
-
-  ws.onopen = () => {
-    console.log('[JRacer] Connected to server');
-  };
-
-  ws.onmessage = (event) => {
-    const message = JSON.parse(event.data);
-
-    if (message.type === 'init') {
-      // Server sent config and track data
-      const { config, trackData } = message;
-      console.log(`[JRacer] Received config from server: track ${config.track.number}`);
-
-      const carControllers = initializeGame(config, trackData);
-      attachInputSources(carControllers, config, frameManager);
-      startGameUI(config, trackData);
+  try {
+    // Fetch dynamically assembled config from server via HTTP
+    const response = await fetch('/party/main/config');
+    if (!response.ok) {
+      throw new Error(`Failed to load config: ${response.status}`);
     }
-  };
 
-  ws.onerror = (error) => {
-    console.error('[JRacer] WebSocket error:', error);
-  };
+    const { config, trackData } = await response.json();
+    console.log(`[JRacer] Loaded config from server: track ${config.track.number}`);
 
-  ws.onclose = () => {
-    console.log('[JRacer] Disconnected from server');
-  };
+    const carControllers = initializeGame(config, trackData);
+    attachInputSources(carControllers, config, frameManager);
+    startGameUI(config, trackData);
+  } catch (error) {
+    console.error('[JRacer] Failed to initialize game:', error);
+  }
 }
 
 // Testable: Initialize game logic without UI

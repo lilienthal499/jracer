@@ -1,6 +1,5 @@
 import { test, expect, beforeAll, afterAll } from 'vitest';
 import { spawn } from 'child_process';
-import WebSocket from 'ws';
 
 let serverProcess;
 let serverReady = false;
@@ -36,61 +35,43 @@ test('server starts and is reachable', () => {
   expect(serverReady).toBe(true);
 });
 
-test('WebSocket connection works', async () => {
-  const ws = new WebSocket('ws://localhost:1999/party/main');
+test('HTTP config endpoint returns assembled config', async () => {
+  const response = await fetch('http://localhost:1999/party/main/config');
 
-  await new Promise((resolve, reject) => {
-    ws.on('open', () => {
-      expect(true).toBe(true); // Connection successful
-      ws.close();
-      resolve();
-    });
+  expect(response.ok).toBe(true);
+  expect(response.headers.get('content-type')).toContain('application/json');
 
-    ws.on('error', reject);
+  const data = await response.json();
 
-    setTimeout(() => reject(new Error('Connection timeout')), 5000);
-  });
-});
-
-test('server sends config and track data', async () => {
-  const ws = new WebSocket('ws://localhost:1999/party/main');
-
-  const message = await new Promise((resolve, reject) => {
-    ws.on('message', (data) => {
-      const msg = JSON.parse(data.toString());
-      ws.close();
-      resolve(msg);
-    });
-
-    ws.on('error', reject);
-
-    setTimeout(() => reject(new Error('Message timeout')), 5000);
-  });
-
-  expect(message.type).toBe('init');
-  expect(message.config).toBeDefined();
-  expect(message.config.track).toBeDefined();
-  expect(message.config.track.number).toBe(2);
-  expect(message.trackData).toBeDefined();
-  expect(message.trackData.name).toBe('Technical Circuit');
+  expect(data.config).toBeDefined();
+  expect(data.config.track).toBeDefined();
+  expect(data.config.track.number).toBe(2);
+  expect(data.trackData).toBeDefined();
+  expect(data.trackData.name).toBe('Technical Circuit');
 });
 
 test('server loads recordings for players', async () => {
-  const ws = new WebSocket('ws://localhost:1999/party/main');
+  const response = await fetch('http://localhost:1999/party/main/config');
+  const data = await response.json();
 
-  const message = await new Promise((resolve, reject) => {
-    ws.on('message', (data) => {
-      ws.close();
-      resolve(JSON.parse(data.toString()));
-    });
-
-    ws.on('error', reject);
-    setTimeout(() => reject(new Error('Timeout')), 5000);
-  });
-
-  const recordedPlayer = message.config.players.find(p => p.name === 'Recorded');
+  const recordedPlayer = data.config.players.find((p) => p.name === 'Recorded');
   expect(recordedPlayer).toBeDefined();
   expect(recordedPlayer.recording).toBeDefined();
   expect(typeof recordedPlayer.recording).toBe('object');
   expect(Object.keys(recordedPlayer.recording).length).toBeGreaterThan(0);
+});
+
+test('server dynamically assembles config from multiple sources', async () => {
+  const response = await fetch('http://localhost:1999/party/main/config');
+  const data = await response.json();
+
+  // Verify all recordings are loaded
+  const recordedPlayers = data.config.players.filter((p) => p.recording !== undefined);
+  expect(recordedPlayers.length).toBeGreaterThan(0);
+
+  // Each recorded player should have recording data (not just a number)
+  recordedPlayers.forEach((player) => {
+    expect(typeof player.recording).toBe('object');
+    expect(player.recording).not.toBe(null);
+  });
 });
